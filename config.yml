@@ -1,0 +1,176 @@
+baseURL: "https://bedirt.github.io"
+title: BedirTapkan
+paginate: 5
+theme: PaperModX
+
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+
+googleAnalytics: G-38BJX36F3L
+
+minify:
+  disableXML: true
+  minifyOutput: true
+
+languages:
+  en:
+    languageName: "English"
+    weight: 1
+    taxonomies:
+      category: categories
+      tag: tags
+      series: series
+    menu:
+      main:
+        - identifier: About
+          name: About
+          url: about/
+          weight: 1
+        - identifier: Projects
+          name: Projects
+          url: projects/
+          weight: 5
+        - name: Archives
+          url: archives/
+          weight: 20
+        - name: Search
+          url: search/
+          weight: 25
+        - identifier: 3D Projects
+          name: 3D Projects
+          url: design/
+          weight: 30
+
+outputs:
+  home:
+      - HTML
+      - RSS
+      - JSON # is necessary
+
+params:
+  env: production # to enable google analytics, opengraph, twitter-cards and schema.
+  title: Bedir Tapkan
+  description: "Everything about Me & Myself & BT"
+  keywords: [Blog, Portfolio, Personal Website, RL, Game Theory]
+  author: Bedir Tapkan
+  # author: ["Me", "You"] # multiple authors
+  # images: ["/content/images/"]
+  defaultTheme: auto # dark, light
+  disableThemeToggle: false
+
+  ShowReadingTime: true
+  ShowShareButtons: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: true
+  ShowRssButtonInSectionTermList: true
+  UseHugoToc: true
+  disableSpecial1stPost: false
+  disableScrollToTop: false
+  comments: true
+  hidemeta: false
+  hideSummary: false
+  showtoc: false
+  tocopen: false
+  math: true
+
+  assets:
+    disableHLJS: true # to disable highlight.js
+    # disableFingerprinting: true
+    favicon: "images/favicons/favicon-196x196.png"
+    favicon16x16: "images/favicons/favicon-16x16.png"
+    favicon32x32: "images/favicons/favicon-32x32.png"
+    apple_touch_icon: "images/favicons/apple-touch-icon-144x144.png"
+    safari_pinned_tab: "images/favicons/apple-touch-icon-114x114.png"
+
+  label:
+    text: "BedirTapkan"
+    icon: "images/fav.ico"
+    iconHeight: 45
+
+  # profile-mode
+  profileMode:
+    enabled: true # needs to be explicitly set
+    title: Hello, I'm Bedir Tapkan
+    subtitle: > 
+            Welcome to my website! I am a passionate Machine Learning Engineer
+            and Researcher. I am currently working on **Game Theory** and **Reinforcement Learning**. 
+            I do share my experience and thoughts on problems and their solutions
+            I have recently encountered, on my blog and youtube channel. I also 
+            love spending time on 3D sculpting and thinkering about the world around me.
+            [Read more](about)
+            
+            > _Feel free to wander around, and don't hesitate to reach out!_
+    # imageUrl: "<img location>"
+    # imageWidth: 120
+    # imageHeight: 120
+    # imageTitle: my image
+    buttons:
+      - name: Posts
+        url: archives
+      - name: Projects
+        url: projects
+      - name: Fun Stuff
+        url: design
+
+  # home-info mode
+  homeInfoParams:
+    Title: "Hi there, I'm Bedir Tapkan"
+    Content: >
+            - Welcome to my website! I am a passionate Machine Learning Engineer
+            and Researcher. I am currently working on **Game Theory** and **Reinforcement Learning**. 
+            I do share my experience and thoughts on problems and their solutions
+            I have recently encountered, on my blog and youtube channel. I also 
+            love spending time on 3D sculpting and thinkering about the world around me.
+            [Read more](about)
+            
+            -
+            
+            _Feel free to wander around, and don't hesitate to reach out!_
+
+  socialIcons:
+    - name: linkedin
+      url: "https://www.linkedin.com/in/bedirtapkan/"
+    - name: github
+      url: "https://github.com/BedirT"
+    - name: youtube
+      url: "https://www.youtube.com/channel/UCAExPNjoRE0aLfc96Eo0ZRQ"
+
+  analytics:
+    google:
+      SiteVerificationTag: "XYZabc"
+
+  cover:
+    hidden: true # hide everywhere but not in structured data
+    hiddenInList: true # hide on list pages and home
+    hiddenInSingle: true # hide on single page
+
+  editPost:
+    URL: "https://github.com/bedirt.github.io/content"
+    Text: "Suggest Changes" # edit text
+    appendFilePath: true # to append file path to Edit link
+
+  # for search
+  # https://fusejs.io/api/options.html
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
+
+# Read: https://github.com/adityatelange/hugo-PaperMod/wiki/FAQs#using-hugos-syntax-highlighter-chroma
+pygmentsUseClasses: true
+markup:
+  highlight:
+    noClasses: false
+    anchorLineNos: true
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
