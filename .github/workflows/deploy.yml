@@ -3,8 +3,7 @@ name: Setup Hugo & GitHub Pages
 on:
   push:
     branches:
-      - gh-pages
-  workflow_dispatch:
+      - main
 
 jobs:
   deploy:
