@@ -2,6 +2,7 @@ baseURL: "https://bedirt.github.io"
 title: BedirTapkan
 paginate: 5
 theme: PaperModX
+themesdir: ../..
 
 enableRobotsTXT: true
 buildDrafts: false
@@ -9,7 +10,7 @@ buildFuture: false
 buildExpired: false
 enableEmoji: true
 
-googleAnalytics: G-38BJX36F3L
+# googleAnalytics: G-38BJX36F3L
 
 minify:
   disableXML: true
