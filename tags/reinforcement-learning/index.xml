@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Reinforcement Learning on BedirTapkan</title>
+    <link>https://bedirt.github.io/tags/reinforcement-learning/</link>
+    <description>Recent content in Reinforcement Learning on BedirTapkan</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Wed, 11 Mar 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirt.github.io/tags/reinforcement-learning/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Average Reward, Continuing Tasks and Discounting</title>
+      <link>https://bedirt.github.io/posts/blog_posts/average_reward/</link>
+      <pubDate>Wed, 11 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirt.github.io/posts/blog_posts/average_reward/</guid>
+      <description>Prime numbers are really important, how do we find them though?</description>
+      <content:encoded><![CDATA[<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Intro to Linear Methods</li>
+<li>Semi-Gradient Prediction</li>
+<li><a href="https://bedirt.github.io/reinforcement%20learning/control%20methods/2020/03/10/Semi-Gradient-Control.html">Semi-Gradient SARSA</a></li>
+</ul>
+<h2 id="what-is-continuous">What is continuous?</h2>
+<p>Let&rsquo;s first describe the main task we will be handling; continuity. Continuous problems are tasks that has no specific terminal state, therefor will go on forever. As simple as it sounds, it is not a piece of cake to tackle the issues it brings with itself. Some examples could be the stock-market, where there is no end and you keep getting data. Or as book suggests access-control queuing task (Example 10.2).</p>
+<p>I will follow a simple format so that we all can stay on the same page and everything is clear cut:</p>
+<ul>
+<li>Why is discounting not applicable for continuing tasks?</li>
+<li>The Remedy: Average Reward
+<ul>
+<li>Logic behind it</li>
+<li>Why is it true: Math</li>
+</ul>
+</li>
+<li>Differential Semi-Gradient SARSA</li>
+</ul>
+<p>So let&rsquo;s start.</p>
+<h2 id="why-is-discounting-not-applicable-for-continuing-tasks">Why is discounting not applicable for continuing tasks?</h2>
+<p>First of all, we should know that discounting works well for tabular cases. The issue we will be talking about rises when we start to use approximations.</p>
+<p>We have a sequence of episodes that has no beginning or end, and no way to clearly distinguish them. As the book suggests, we have the feature vectors to maybe have a use of, but then the issue of <strong>clearly seperable</strong> arises. We might have two feature vectors that has no to little difference between them, which won&rsquo;t be possible to be able to distinguish.</p>
+<p>Since we have no start point or end point, and since there is no clear line in between episodes, using discounting is not possible. Well it actually is possible. But it is not needed. Actually using $\gamma = 0$ will give the same results as any other one. That&rsquo;s because the discounted rewards are proportional to average reward. That&rsquo;s why instead we will only use average reward. Here I will put the proof that both will results in the same order (discounted and without discounting):</p>
+<p><img loading="lazy" src="/posts/blog_posts/average_reward/images/discounting_proof.png" type="" alt=""  /></p>
+<p>The main issue with discounting in the approximation cases is that, since we have states depending on the same features, we do not have the <strong>policy improvement theorem</strong> anymore. Which was stating that we can get the optimal policy, just by changing all the action selections to the optimal ones for each state. Since we could choose the probabilities for one state without effecting the others it was pretty easy to handle. Now that we lost that property there is no guaranteed improvement over policy.</p>
+<p>As Rich puts it <em>&ldquo;This is an area with multiple open theoretical questions&rdquo;</em>. If you are interested.</p>
+<h2 id="the-remedy-average-reward">The Remedy: Average Reward</h2>
+<p>Average reward is a pretty popular technique used in dynamic programming. Later on included into the Reinforcement Learning setting. We use average reward for approximated continual setting as we discussed above. Without discounting means that we care about each reward equally without thinking of if it occurs in far future etc.</p>
+<p>We denote it as $r(\pi)$. Not much detail but for the intuition part I will give the main definition for it:
+$$
+r(\pi) \doteq \sum_{s}\mu_\pi\sum_{a}\pi(a|s)\sum_{r, s&rsquo;}p(r, s&rsquo;|s, a) r
+$$
+Basically we consider the best policy as the policy which has the most $r(\pi)$. For average reward we define returns as the difference between the $r(\pi)$ and the reward received at that point, this is called the differential return:
+$$
+G_t = R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + \ldots
+$$
+I believe differential return holds almost all the properties normal returns had. Only change we will do is to replace the reward with the difference i.e. $R_{t+1} - r(\pi)$. This goes for TD errors, bellman equations etc.</p>
+<h3 id="quick-math">Quick Math</h3>
+<p>So we already saw the formula for $r(\pi)$ but we didn&rsquo;t actually see how it came to existence or what all those things mean.
+$$
+r(\pi) \doteq \lim_{h\rightarrow\infty} \frac{1}{h} \sum_{t=1}^{h}\mathbb{E}[R_t|S_0, A_{0:t-1} \sim \pi]
+$$
+Let&rsquo;s explain what&rsquo;s happening here. We are assuming we have $h$ number of rewards, we are summing expected value of all the rewards given the first state and the action trajectory following the policy $\pi$, and we are dividing it to $h$ to get to the average of these rewards. So we simply had $h$ many rewards and we got the average. Then;
+$$
+= \lim_{t\rightarrow\infty} \mathbb{E}[R_t|S_0, A_{0:t-1} \sim \pi]
+$$
+Since I have the expectation inside the summation, we can actually simplify the summation with the division. We do have to put $t\rightarrow\infty$ to ccorrect the formula, as we will have number of samples approaching infinity. Next jump on the book seems fuzzy, but when you open it up it is extremely easy to see how it happens.</p>
+<p>So if we have a randomness over something, what we want to do is to get the expectation of it. If we get the expectation that means we can formulate it, therefor no more randomness. In an MDP we have three kind of randomness possibly can happen.</p>
+<ul>
+<li>States are random</li>
+<li>Actions are random</li>
+<li>Dynamics are random</li>
+</ul>
+<p>What does this mean? It means we can be in a state, and we don&rsquo;t know what state that might be, and from there we will take an action, but we don&rsquo;t know for sure which action will that be. And the last one is that we take that action but since we don&rsquo;t know the dynamics of the environment (if stochastic even if we do know) we don&rsquo;t know which state we will end up in. So actually this formula goes like;
+$$
+\mathbb{E}[\mathbb{E} [ \mathbb{E}[R_t|S_t, A_t]]]
+$$
+Where the inner most is for the states and in the middle its the actions, the last one is the dynamics. So we know from bellman equations how to write this down;
+$$
+\mathbb{E}[R_t] = \sum_{s&rsquo;,r}p(s&rsquo;,r|s, a) r
+$$
+This is the expected reward is it not ? Now lets add the action selection on top:
+$$
+\mathbb{E}[R_t|A_t] = \sum_{a}\pi(a|s)\sum_{s&rsquo;,r}p(s&rsquo;,r|s, a) r
+$$
+One last thing left is the state selection. We are using $\mu_\pi(s)$ to specify state distribution given the state (which the book covered earlier - Chapter 9). So the last piece of the puzzle;
+$$
+\mathbb{E}[R_t|A_t, S_t] = \sum_{s}\mu_\pi(s)\sum_{a}\pi(a|s)\sum_{s&rsquo;,r}p(s&rsquo;,r|s, a) r
+$$
+That&rsquo;s all, we therefor have the average reward formula covered.</p>
+<p>In practice we will be using moving mean to calculate average reward.</p>
+<h2 id="differential-semi-gradient-sarsa">Differential Semi-Gradient SARSA</h2>
+<p>Well, I don&rsquo;t really have much to add. If you read the <a href="https://bedirt.github.io/reinforcement%20learning/control%20methods/2020/03/10/Semi-Gradient-Control.html">Semi-Gradient SARSA</a> post, this is mostly just changing the update rule for the continuous setting. That will be the change for $G_{t:t+n}$.</p>
+<p>$$G_{t:t+n}=R_{t+1}-\bar{R}_{t+1}$$</p>
+<p>$$+R_{t+2}-\bar{R}_{t+2}$$</p>
+<p>$$+\ldots+ R_{t+n}-\bar{R}_{t+n}$$</p>
+<p>$$+\hat{q}(S_{t+n},A_{t+n},w_{t+n-1})$$</p>
+<p>The TD error then will be like:</p>
+<p>$$
+\delta_t = G_{t:t+n} - \hat{q}(S_t, A_t, w)
+$$</p>
+<p>and we will use another step size parameter $\beta$ to update the average reward value. Here is the pseudocode:</p>
+<p><img loading="lazy" src="/posts/blog_posts/average_reward/images/sarsa_differential_pseudo.png" type="" alt=""  /></p>
+<p>And here is my implementation of it, which does not require much explanation I assume:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1"> 1</a>
+</span><span class="lnt" id="hl-0-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-2"> 2</a>
+</span><span class="lnt" id="hl-0-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-3"> 3</a>
+</span><span class="lnt" id="hl-0-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-4"> 4</a>
+</span><span class="lnt" id="hl-0-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-5"> 5</a>
+</span><span class="lnt" id="hl-0-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-6"> 6</a>
+</span><span class="lnt" id="hl-0-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-7"> 7</a>
+</span><span class="lnt" id="hl-0-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-8"> 8</a>
+</span><span class="lnt" id="hl-0-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-9"> 9</a>
+</span><span class="lnt" id="hl-0-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-10">10</a>
+</span><span class="lnt" id="hl-0-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-11">11</a>
+</span><span class="lnt" id="hl-0-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-12">12</a>
+</span><span class="lnt" id="hl-0-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-13">13</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">observations</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">rewards</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">actions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">G</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="n">r</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_rew</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rewards</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl">        <span class="n">G</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">        <span class="n">delta</span> <span class="o">=</span> <span class="n">G</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">avg_rew</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">*</span> <span class="n">delta</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">*</span> 
+</span></span><span class="line"><span class="cl">          <span class="bp">self</span><span class="o">.</span><span class="n">_grad_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>It is basically almost the same with the previous version. We are first checking if we have more elements than $n$ which means we need to remove the first elements from the storage. Then we have a check which sees if we have enough elements, because we won&rsquo;t be making any updates if there is not at least $n$ elements in the trajectory. The rest is the same update as in the pseudocode.</p>
+<p>Again we run an experiment using the same settings as before which results in a high varience learning, thought it does learn which is the point here right now 😄.</p>
+<p><img loading="lazy" src="/posts/blog_posts/average_reward/images/sarsa_differential_figure.jpg" type="" alt=""  /></p>
+<p>I have a blog series on RL algorithms that you can <a href="https://bedirt.github.io/tags/#betterrl-series">check out</a>. Also you can check <a href="https://github.com/BedirT/BetterRL">BetterRL</a> where I share raw python RL code for both environments and algorithms. Any comments are appreciated!</p>
+<p><a href="https://github.com/BedirT/BetterRL/blob/master/value_based/Semi_Gradient_differential_SARSA.py">For full code</a></p>
+]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>Semi-Gradient Control Methods</title>
+      <link>https://bedirt.github.io/posts/blog_posts/semi_gradient_control/</link>
+      <pubDate>Tue, 10 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirt.github.io/posts/blog_posts/semi_gradient_control/</guid>
+      <description>Prime numbers are really important, how do we find them though?</description>
+      <content:encoded><![CDATA[<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Semi-Gradient Prediction</li>
+<li>Intro to Linear Methods</li>
+</ul>
+<p>If you read the prediction part for the semi gradient methods, it is pretty easy to extend what we know to the control case. We know that control is almost all the time just adding policy improvement over the prediction case. That&rsquo;s exactly the case for us here for semi-gradient control methods as well.</p>
+<p>We already have describe and understood a formula back in prediction part (if you read it somewhere else that&rsquo;s also fine), and now we want to extend our window a little.</p>
+<p>For prediction we were using $S_t \mapsto U_t$ examples, now since we have action-values instead of state-values (because we will pick the best action possible), we will use examples of form $S_t, A_t \mapsto U_t$ meaning that instead of $v_\pi(S_t)$ we will be using estimations for $q_\pi(S_t, A_t)$.</p>
+<p>So our general update rule would be (following from the formula for prediction);</p>
+<p>$$
+w_{t+1} = w_t + \alpha [U_t - \hat{q}(S_t, A_t, w_t)] \nabla\hat{q}(S_t, A_t, w_t)
+$$</p>
+<p>As we always do, you can replace $U_t$ with any approximation method you want, so it could have been a Monte Carlo method (Though I believe this does not count as semi-gradient, because it will be a direct stochastic gradient since it does not use any bootstrapping, but the book says otherwise so I am just passing the information 😄). Therefor we can implement an $n$-step episodic SARSA with an infinite option, which will correspond to Monte-Carlo (We will learn a better method to do this in future posts).</p>
+<p>The last piece of information to add is the policy improvement part, since we are doing control, we need to update our policy and make it better as we go of course. Which won&rsquo;t be hard cause we will just be using a soft approximation method, I will use the classic $\epsilon$-greedy policy.</p>
+<p>One more thing to note, which I think is pretty important, for continuous action spaces, or large discrete action spaces methods for the control part is still not clear. Meaning we don&rsquo;t know what is the best way to approach yet. That is if you think of a large choices of actions, there is no good way to apply a soft approximation technique for the action selection as you can imagine.</p>
+<p>For the implementation, as usual we will just go linear, as it is the best way to grasp every piece of information. But first I will as usual give the pseudo-code given in the book.</p>
+<p><img loading="lazy" src="/posts/blog_posts/semi_gradient_control/images/sg_sarsa.png" type="" alt=""  /></p>
+<p>I only took the pseudocode from chapter 10.2 because we don&rsquo;t really the one before, as it is only the one step version. We are interested in the general version therefor n-step.</p>
+<h3 id="implementation">Implementation</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1"> 1</a>
+</span><span class="lnt" id="hl-0-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-2"> 2</a>
+</span><span class="lnt" id="hl-0-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-3"> 3</a>
+</span><span class="lnt" id="hl-0-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-4"> 4</a>
+</span><span class="lnt" id="hl-0-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-5"> 5</a>
+</span><span class="lnt" id="hl-0-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-6"> 6</a>
+</span><span class="lnt" id="hl-0-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-7"> 7</a>
+</span><span class="lnt" id="hl-0-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-8"> 8</a>
+</span><span class="lnt" id="hl-0-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-9"> 9</a>
+</span><span class="lnt" id="hl-0-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-10">10</a>
+</span><span class="lnt" id="hl-0-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-11">11</a>
+</span><span class="lnt" id="hl-0-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-12">12</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_space</span><span class="p">,</span> <span class="n">action_space</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span> <span class="n">eps</span> <span class="o">=</span> <span class="mf">.1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">feature_space</span> <span class="o">=</span> <span class="n">feature_space</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">action_space</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">reset_weights</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">reset_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_space</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>        
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Initialize</strong> We start by initializing the necessary things; we need step size $\alpha$ also $\gamma$ and $\epsilon$. Other then these we need to initialize our weight vector. We will have a weight vector that is for each action concatenated after one another. So if we assume that we have 4 observations lets say [1 0 1 0], meaning weights 0 and 2 are active, and if want to update the weights for action 0, we will have [<strong>1 0 1 0</strong> 0 0 0 0 0 0 0 0] if we had 3 possible actions in total. After when we are using $\epsilon$-greedy this will make more sense.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-1">1</a>
+</span><span class="lnt" id="hl-1-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-2">2</a>
+</span><span class="lnt" id="hl-1-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-3">3</a>
+</span><span class="lnt" id="hl-1-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-4">4</a>
+</span><span class="lnt" id="hl-1-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-5">5</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_act</span><span class="p">(</span><span class="n">obs</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Let&rsquo;s move</strong> next thing is to take a step, meaning we will pick the action according to our action-values at hand. We take the observations as input, this will come from the environment, and assuming we get an array of the probabilities for each action given the observations from <code> _act(obs)</code>. Then all we have to do is to roll the die and decide if we will choose a random action or we will choose the action that has the most value for the current time, and thats exactly what we do here ($\epsilon$-greedy action selection).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-2-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-1">1</a>
+</span><span class="lnt" id="hl-2-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-2">2</a>
+</span><span class="lnt" id="hl-2-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-3">3</a>
+</span><span class="lnt" id="hl-2-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-4">4</a>
+</span><span class="lnt" id="hl-2-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-5">5</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">_act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">q_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">q_vals</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_hat</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">q_vals</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Best $\hat{q}$-value</strong> now we need to fill the function <code>_act(obs)</code>. Which basically will call $\hat{q}(s, a, w)$ for each action and store them in an array and return it.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-3-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-1">1</a>
+</span><span class="lnt" id="hl-3-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">q_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Continuing from there we have the $\hat{q}(s,a,w)$ to implement. Which is just writing down the linear formula since we are implementing it linearly. Therefor $\hat{q}(s,a,w) = w^Tx(s, a)$ where $x(s,a)$ is the state action representation. In our case as I already mention this will just be the one hot vector, all the observations are added after one another for each action.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-4-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-1">1</a>
+</span><span class="lnt" id="hl-4-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-2">2</a>
+</span><span class="lnt" id="hl-4-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-3">3</a>
+</span><span class="lnt" id="hl-4-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-4">4</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">one_hot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">one_hot</span><span class="p">[</span><span class="n">action</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_space</span><span class="p">:(</span><span class="n">action</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_space</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">one_hot</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Finally</strong> $x(s, a)$ - as I already mentioned twice 😄 we create the $x$ in a vector that everything 0 other than the active action.</p>
+<p>That was the last thing for us to be able to choose the action for a given state. So let&rsquo;s have a broader respective and assume that we are using the <code>step(obs)</code> here is how it would be like:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-5-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-1">1</a>
+</span><span class="lnt" id="hl-5-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now we see what is left ? Update&hellip; 🤦‍♂️ Yeah without update there is no change basically. Which will also be the one differs for the $n$. Let&rsquo;s remember the formula;</p>
+<p>$$
+w_{t+1} = w_t + \alpha[R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^n\hat{q}(S_{t+n},A_{t+n},w_{t}) - \hat{q}(S_{t},A_{t},w_{t})] \nabla\hat{q}(S_t, A_t, w_t)
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1"> 1</a>
+</span><span class="lnt" id="hl-6-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-2"> 2</a>
+</span><span class="lnt" id="hl-6-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-3"> 3</a>
+</span><span class="lnt" id="hl-6-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-4"> 4</a>
+</span><span class="lnt" id="hl-6-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-5"> 5</a>
+</span><span class="lnt" id="hl-6-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-6"> 6</a>
+</span><span class="lnt" id="hl-6-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-7"> 7</a>
+</span><span class="lnt" id="hl-6-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-8"> 8</a>
+</span><span class="lnt" id="hl-6-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-9"> 9</a>
+</span><span class="lnt" id="hl-6-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-10">10</a>
+</span><span class="lnt" id="hl-6-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-11">11</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">observations</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rewards</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">actions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">G</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">**</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rewards</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])])</span>
+</span></span><span class="line"><span class="cl">            <span class="n">G</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">G</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">*</span> \
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">_grad_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>There is a bit of a change here, from the pseudocode I provided. Since we want a full seperation between the agent-environment-experiment we need a class system for the algorithms therefor we won&rsquo;t be following what is on the pseudocode.</p>
+<p><strong>Update</strong> what happens here is actually not that different, since we only need $n+1$ elements to make the update happen we won&rsquo;t keep the rest of the trajectory. Whenever we use n numbered trajectory the first element becomes useless for the next update. Therefor we remove the first element from the trajectory and use the rest to make our update.</p>
+<p><strong>Terminal</strong> we also have a terminal state, and as can be seen in the pseudocode there are some differences that should be changed for the updates when we reach the terminal state. Logical enough, we do not have n+1 element left to complete the calculation we were doing therefor we will just use the rewards rather than $\hat{q}(s,a,w)$ . Therefor we need another function to handle this, which we call <code>end()</code> in our structure;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-7-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-1">1</a>
+</span><span class="lnt" id="hl-7-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-2">2</a>
+</span><span class="lnt" id="hl-7-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-3">3</a>
+</span><span class="lnt" id="hl-7-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-4">4</a>
+</span><span class="lnt" id="hl-7-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-5">5</a>
+</span><span class="lnt" id="hl-7-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-6">6</a>
+</span><span class="lnt" id="hl-7-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-7">7</a>
+</span><span class="lnt" id="hl-7-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-8">8</a>
+</span><span class="lnt" id="hl-7-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-9">9</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">observations</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">rewards</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">actions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">G</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">**</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rewards</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">G</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">*</span> \
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">_grad_q_hat</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here as we can see we are not doing something too different. It is just that we are using the last elements we have left and we will remove all the elements from the trajectory while making the last updates to our weights.</p>
+<p>Yeah and we are almost done, exept that I didn&rsquo;t show the <code>grad_q_hat()</code> yet, which basically gives the $\nabla\hat{q}(s,a,w)$.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-8-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-1">1</a>
+</span><span class="lnt" id="hl-8-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">grad_q_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Surprise.. Yeah since we are using linear functions, $\nabla w^Tx(s, a) = x(s,a)$. That&rsquo;s all.</p>
+<p>Let&rsquo;s see how would be the experiment part and run the code to get some results then.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-9-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-1"> 1</a>
+</span><span class="lnt" id="hl-9-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-2"> 2</a>
+</span><span class="lnt" id="hl-9-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-3"> 3</a>
+</span><span class="lnt" id="hl-9-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-4"> 4</a>
+</span><span class="lnt" id="hl-9-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-5"> 5</a>
+</span><span class="lnt" id="hl-9-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-6"> 6</a>
+</span><span class="lnt" id="hl-9-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-7"> 7</a>
+</span><span class="lnt" id="hl-9-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-8"> 8</a>
+</span><span class="lnt" id="hl-9-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-9"> 9</a>
+</span><span class="lnt" id="hl-9-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-10">10</a>
+</span><span class="lnt" id="hl-9-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-11">11</a>
+</span><span class="lnt" id="hl-9-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-12">12</a>
+</span><span class="lnt" id="hl-9-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-13">13</a>
+</span><span class="lnt" id="hl-9-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-14">14</a>
+</span><span class="lnt" id="hl-9-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-15">15</a>
+</span><span class="lnt" id="hl-9-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-16">16</a>
+</span><span class="lnt" id="hl-9-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-17">17</a>
+</span><span class="lnt" id="hl-9-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-18">18</a>
+</span><span class="lnt" id="hl-9-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-19">19</a>
+</span><span class="lnt" id="hl-9-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-20">20</a>
+</span><span class="lnt" id="hl-9-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-21">21</a>
+</span><span class="lnt" id="hl-9-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-22">22</a>
+</span><span class="lnt" id="hl-9-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-23">23</a>
+</span><span class="lnt" id="hl-9-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-24">24</a>
+</span><span class="lnt" id="hl-9-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-25">25</a>
+</span><span class="lnt" id="hl-9-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-26">26</a>
+</span><span class="lnt" id="hl-9-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-27">27</a>
+</span><span class="lnt" id="hl-9-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-28">28</a>
+</span><span class="lnt" id="hl-9-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-29">29</a>
+</span><span class="lnt" id="hl-9-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-30">30</a>
+</span><span class="lnt" id="hl-9-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-31">31</a>
+</span><span class="lnt" id="hl-9-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-32">32</a>
+</span><span class="lnt" id="hl-9-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-33">33</a>
+</span><span class="lnt" id="hl-9-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-34">34</a>
+</span><span class="lnt" id="hl-9-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-35">35</a>
+</span><span class="lnt" id="hl-9-36"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-36">36</a>
+</span><span class="lnt" id="hl-9-37"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-37">37</a>
+</span><span class="lnt" id="hl-9-38"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-38">38</a>
+</span><span class="lnt" id="hl-9-39"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-39">39</a>
+</span><span class="lnt" id="hl-9-40"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-40">40</a>
+</span><span class="lnt" id="hl-9-41"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-41">41</a>
+</span><span class="lnt" id="hl-9-42"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-42">42</a>
+</span><span class="lnt" id="hl-9-43"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-43">43</a>
+</span><span class="lnt" id="hl-9-44"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-44">44</a>
+</span><span class="lnt" id="hl-9-45"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-45">45</a>
+</span><span class="lnt" id="hl-9-46"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-46">46</a>
+</span><span class="lnt" id="hl-9-47"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-47">47</a>
+</span><span class="lnt" id="hl-9-48"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-48">48</a>
+</span><span class="lnt" id="hl-9-49"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-49">49</a>
+</span><span class="lnt" id="hl-9-50"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-50">50</a>
+</span><span class="lnt" id="hl-9-51"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-51">51</a>
+</span><span class="lnt" id="hl-9-52"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-52">52</a>
+</span><span class="lnt" id="hl-9-53"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-53">53</a>
+</span><span class="lnt" id="hl-9-54"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-54">54</a>
+</span><span class="lnt" id="hl-9-55"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-55">55</a>
+</span><span class="lnt" id="hl-9-56"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-56">56</a>
+</span><span class="lnt" id="hl-9-57"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-57">57</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;num_of_episodes&#39;</span> <span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;max_steps&#39;</span> <span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;alpha&#39;</span> <span class="p">:</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">14</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;gamma&#39;</span> <span class="p">:</span> <span class="mf">0.98</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Creating the tilings</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;grid_size&#39;</span> <span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;tile_size&#39;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;num_of_tiles&#39;</span> <span class="p">:</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># environment</span>
+</span></span><span class="line"><span class="cl"><span class="n">env</span> <span class="o">=</span> <span class="n">grid_world</span><span class="p">(</span><span class="n">portal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">action_space</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># tile coding</span>
+</span></span><span class="line"><span class="cl"><span class="n">tilings</span> <span class="o">=</span> <span class="n">tile_coding</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">grid_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_of_tiles&#39;</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;tile_size&#39;</span><span class="p">],</span> <span class="n">action_space</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">state_space</span> <span class="o">=</span> <span class="n">tilings</span><span class="o">.</span><span class="n">num_of_tilings</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Keep stats for final print and data</span>
+</span></span><span class="line"><span class="cl"><span class="n">episode_rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_of_episodes&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Agent created</span>
+</span></span><span class="line"><span class="cl"><span class="n">n</span> <span class="o">=</span> <span class="mi">8</span>
+</span></span><span class="line"><span class="cl"><span class="n">agent</span> <span class="o">=</span> <span class="n">SG_SARSA</span><span class="p">(</span><span class="n">state_space</span><span class="p">,</span> <span class="n">action_space</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">ep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_of_episodes&#39;</span><span class="p">]):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">rewards</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">observations</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">obs</span> <span class="o">=</span> <span class="n">tilings</span><span class="o">.</span><span class="n">active_tiles</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">())</span> <span class="c1"># a x d</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_steps&#39;</span><span class="p">]):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">obs</span> <span class="o">=</span> <span class="n">tilings</span><span class="o">.</span><span class="n">active_tiles</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">score</span> <span class="o">+=</span> <span class="n">reward</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">agent</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">break</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">agent</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">episode_rewards</span><span class="p">[</span><span class="n">ep</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;EP: </span><span class="si">{}</span><span class="s2"> -------- Return: </span><span class="si">{}</span><span class="s2">      &#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="p">,</span> <span class="n">score</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">&#34;</span><span class="se">\r</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>I used tile coding and the grid world environment in our library. If you want you can modify a little to use another state representation or Rich Sutton&rsquo;s tile coding library, or for environment gym.</p>
+<p>Anyways, what we do is pretty simple if you read through, and you can ask for clarification on any point if looks weird.</p>
+<p>Main point here are the agent functions and how we use them, all three are used as we said, on each step we have the <code>agent.step()</code>, for each step we have the <code>update()</code> called except the terminal state. Which we will call <code>end()</code> instead.</p>
+<p>I will give only one graph as result as usual, here is 100 runs on the stochastic grid world environment.</p>
+<p><img loading="lazy" src="/posts/blog_posts/semi_gradient_control/images/sg_sarsa_figure.jpg" type="" alt=""  /></p>
+<p>If you liked this post follow <a href="https://github.com/BedirT/BetterRL">BetterRL</a>, and keep a like down below. I have a blog series on RL algorithms that you can <a href="bedirt.github.io">check out</a>. Also you can check the repo where I share raw python RL code for both environments and algorithms. Any comments are appreciated!</p>
+<p><a href="https://github.com/BedirT/BetterRL/blob/master/value_based/Semi_Gradient_SARSA.py">For full code</a></p>
+]]></content:encoded>
+    </item>
+    
+  </channel>
+</rss>

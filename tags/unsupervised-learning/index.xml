@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Unsupervised Learning on BedirTapkan</title>
+    <link>https://bedirt.github.io/tags/unsupervised-learning/</link>
+    <description>Recent content in Unsupervised Learning on BedirTapkan</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sat, 27 Feb 2016 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirt.github.io/tags/unsupervised-learning/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Machine Learning Basics</title>
+      <link>https://bedirt.github.io/posts/blog_posts/ml_basics/</link>
+      <pubDate>Sat, 27 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirt.github.io/posts/blog_posts/ml_basics/</guid>
+      <description>An introduction to Supervised vs Unsupervised Learning</description>
+      <content:encoded><![CDATA[<p>Reaaally introductory post for Machine Learning basics. What is Supervised and Unsupervised learning?</p>
+<h2 id="supervised-learning">Supervised Learning</h2>
+<p><strong>Supervised learning</strong> is the most common machine learning problem. In Supervised Learning we already know what the correct output should be like.</p>
+<p>There are two categories for supervised learning, first one is <strong>&ldquo;regression problem&rdquo;</strong> and the second one is <strong>&ldquo;classification problem&rdquo;</strong>. I will explain both with examples.</p>
+<h2 id="regression-problems">Regression Problems</h2>
+<p>In regression we have an output that is continous and we are trying to predict what will be the correct answer/output/label for our input. Lets see an example to understand the concept better.</p>
+<h3 id="examples">Examples:</h3>
+<p>Let&rsquo;s say we have a friend who has a chocalate company. He has a lot of money and he wants to make his product sell as many as Snickers. OK. But his chocalates are not famous as Snickers. Now , what he should do is, take a look at the competitor. There is a chart which has two dimensions. One is the price. Another is the popularity. Now that since we have continous output for the prices. We will predict the one that we are looking for. (I will just give the popularities according to myself.)</p>
+<p><img loading="lazy" src="/posts/blog_posts/ml_basics/images/graphs1.png" type="" alt=""  /></p>
+<p>Now, looking at this output. What should we do is, putting a straight or polinomial line to the outputs.</p>
+<p><img loading="lazy" src="/posts/blog_posts/ml_basics/images/graphs2.png" type="" alt=""  /></p>
+<p><img loading="lazy" src="/posts/blog_posts/ml_basics/images/graphs3.png" type="" alt=""  /></p>
+<p>Then we will have our line that will help us to predict the price. According to the surveys, our chocalates have 8 point for the popularity. So what will be the best price according to the survey and the industry&hellip;</p>
+<p><img loading="lazy" src="/posts/blog_posts/ml_basics/images/graphs4.png" type="" alt=""  /></p>
+<p>It seems something like 70¢ &hellip;</p>
+<p>This is the regression problem &hellip;</p>
+<h2 id="classification-problems">Classification Problems</h2>
+<p>In classification, the simplest one, binary classification, we have two options, either true or false. We also can say that we will predict the result in a binary map. Let&rsquo;s check an example.</p>
+<h3 id="examples-1">Examples:</h3>
+<p>Let&rsquo;s give an absurd example so that it will be more permament. So we have a friend who just ate 5 kilos of Nutella and he is 24 years old. We want to predict if he will get sick or not. And we have a dataset that have people&rsquo;s ages that ate 5 kilos of Nutella and got the sick or not !!</p>
+<p><img loading="lazy" src="/posts/blog_posts/ml_basics/images/graphs5.png" type="" alt=""  /></p>
+<p>So according to this graph our friend will get sick or not. It is a binary example. There is just two probabalities. This is a classification problem. Let&rsquo;s see the expected result &hellip;</p>
+<p><img loading="lazy" src="/posts/blog_posts/ml_basics/images/graphs6.png" type="" alt=""  /></p>
+<p>(He will probably get sick, according to our prediction.)</p>
+<h2 id="unsupervised-learning">Unsupervised Learning</h2>
+<p>The <strong>unsupervised learning</strong> is the second most common machine learning problem. In unsupervised learning we don&rsquo;t know the result for each input. We will obtain a structure form the data. We do not know what are the exact effects of our inputs. We will use <strong>clustering</strong> for this.</p>
+<h2 id="clustering-problem">Clustering Problem</h2>
+<p>We basically will seperate the data according to variables.</p>
+<p><img loading="lazy" src="/posts/blog_posts/ml_basics/images/graphs7.png" type="" alt=""  /></p>
+<p>Let&rsquo;s say you got hundred different composition classes&rsquo; final essays. They all have different topics. What clustering do is, classifying all the essays according to their topics. So that if we use clustering, all these classes&rsquo; articles will be separated. This is just one variable (topic). If you want, you can add more variables to make the groups more specific. In this case we can add words count for example.</p>]]></content:encoded>
+    </item>
+    
+  </channel>
+</rss>
