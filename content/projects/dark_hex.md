@@ -8,6 +8,8 @@ description: "An open-source library for training and evaluating agents in Dark 
 
 **Tools Used:** Python, C++, Tensorflow, Open-Spiel, Pandas, Numpy, Matplotlib, PyGame, PyDot, Tkinter
 
+**Topics:** Reinforcement Learning, Game Theory, Imperfect Information Games, Deep Learning, Machine Learning
+
 ## Introduction
 
 Dark Hex is an imperfect information version of the [Hex](https://en.wikipedia.org/wiki/Hex_(board_game)). Dark Hex is a phantom game, where a player have a chance to play concecutively. Due to this property Dark Hex is an extremely huge game. Which makes it really hard to train agents, and develop algorithms for. 
