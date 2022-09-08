@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>BedirTapkan</title>
-    <link>https://bedirt.github.io/</link>
-    <description>Recent content on BedirTapkan</description>
+    <title>Bedir Tapkan</title>
+    <link>https://bedirtapkan.com/</link>
+    <description>Recent content on Bedir Tapkan</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 11 Mar 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirt.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>© 2022</copyright>
+    <lastBuildDate>Wed, 11 Mar 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Average Reward, Continuing Tasks and Discounting</title>
-      <link>https://bedirt.github.io/posts/blog_posts/average_reward/</link>
+      <link>https://bedirtapkan.com/posts/blog_posts/average_reward/</link>
       <pubDate>Wed, 11 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/posts/blog_posts/average_reward/</guid>
+      <guid>https://bedirtapkan.com/posts/blog_posts/average_reward/</guid>
       <description>Prime numbers are really important, how do we find them though?</description>
       <content:encoded><![CDATA[<h3 id="prerequisites">Prerequisites</h3>
 <ul>
@@ -140,10 +141,10 @@ $$</p>
     
     <item>
       <title>Semi-Gradient Control Methods</title>
-      <link>https://bedirt.github.io/posts/blog_posts/semi_gradient_control/</link>
+      <link>https://bedirtapkan.com/posts/blog_posts/semi_gradient_control/</link>
       <pubDate>Tue, 10 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/posts/blog_posts/semi_gradient_control/</guid>
+      <guid>https://bedirtapkan.com/posts/blog_posts/semi_gradient_control/</guid>
       <description>Prime numbers are really important, how do we find them though?</description>
       <content:encoded><![CDATA[<h3 id="prerequisites">Prerequisites</h3>
 <ul>
@@ -471,10 +472,10 @@ $$</p>
     
     <item>
       <title>Counting Sort</title>
-      <link>https://bedirt.github.io/posts/blog_posts/counting_sort/</link>
+      <link>https://bedirtapkan.com/posts/blog_posts/counting_sort/</link>
       <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/posts/blog_posts/counting_sort/</guid>
+      <guid>https://bedirtapkan.com/posts/blog_posts/counting_sort/</guid>
       <description>One of the most efficient sorting algorithms</description>
       <content:encoded><![CDATA[<p>Counting sort is a nice in-place sorting algorithm that we can use for sorting instantly. (This is mostly used for competitive programming.) What I meant by this is, we can use counting sort when we are getting the input. This will not get any additional cost for us, and really good technique for using in-place sorting. I&rsquo;ll get there after explaining the algorithm.</p>
 <!-- raw HTML omitted -->
@@ -588,10 +589,10 @@ weAreCounting = [0, 0, 1, 2, 1, 0, 0, 1, 0, 1]
     
     <item>
       <title>Factorizing a Number</title>
-      <link>https://bedirt.github.io/posts/blog_posts/prime_factorization/</link>
+      <link>https://bedirtapkan.com/posts/blog_posts/prime_factorization/</link>
       <pubDate>Sun, 20 Nov 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/posts/blog_posts/prime_factorization/</guid>
+      <guid>https://bedirtapkan.com/posts/blog_posts/prime_factorization/</guid>
       <description>Prime numbers are really important, how do we find them though?</description>
       <content:encoded><![CDATA[<p><strong>Before starting-</strong> What is Prime Factorization ? What is a Prime number ? If you are curious about these please checkout this link before proceed because I will not explain them here :)</p>
 <p><a href="https://en.wikipedia.org/wiki/Prime_number">Wikipedia - Prime Numbers</a></p>
@@ -723,10 +724,10 @@ weAreCounting = [0, 0, 1, 2, 1, 0, 0, 1, 0, 1]
     
     <item>
       <title>Kadane&#39;s Algorithm</title>
-      <link>https://bedirt.github.io/posts/blog_posts/kadane/</link>
+      <link>https://bedirtapkan.com/posts/blog_posts/kadane/</link>
       <pubDate>Sun, 18 Sep 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/posts/blog_posts/kadane/</guid>
+      <guid>https://bedirtapkan.com/posts/blog_posts/kadane/</guid>
       <description>How to find sum of maximum of the subarrays</description>
       <content:encoded><![CDATA[<p>What we will learn today is, how to find the , in optimal solution. First, let&rsquo;s clarify the goal a bit.</p>
 <p>What is subarray? Subarray is an array that is included in the bigger array. So if we have an array that has 7 elements in it. What we have is elements that have indexes of: 0, 1, 2, 3, 4, 5, 6 . A subarray is smaller array inside of this big array. So for example 1, 2, 3  or 4, 5 are subarrays. But 1, 3 is not a subarray because the subarray should be contiguous. So our task is to find the largest contiguous array in our big array.</p>
@@ -770,10 +771,10 @@ weAreCounting = [0, 0, 1, 2, 1, 0, 0, 1, 0, 1]
     
     <item>
       <title>Machine Learning Basics</title>
-      <link>https://bedirt.github.io/posts/blog_posts/ml_basics/</link>
+      <link>https://bedirtapkan.com/posts/blog_posts/ml_basics/</link>
       <pubDate>Sat, 27 Feb 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/posts/blog_posts/ml_basics/</guid>
+      <guid>https://bedirtapkan.com/posts/blog_posts/ml_basics/</guid>
       <description>An introduction to Supervised vs Unsupervised Learning</description>
       <content:encoded><![CDATA[<p>Reaaally introductory post for Machine Learning basics. What is Supervised and Unsupervised learning?</p>
 <h2 id="supervised-learning">Supervised Learning</h2>

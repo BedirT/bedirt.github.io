@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Unsupervised Learning on BedirTapkan</title>
-    <link>https://bedirt.github.io/tags/unsupervised-learning/</link>
-    <description>Recent content in Unsupervised Learning on BedirTapkan</description>
+    <title>Unsupervised Learning on Bedir Tapkan</title>
+    <link>https://bedirtapkan.com/tags/unsupervised-learning/</link>
+    <description>Recent content in Unsupervised Learning on Bedir Tapkan</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 27 Feb 2016 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirt.github.io/tags/unsupervised-learning/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>© 2022</copyright>
+    <lastBuildDate>Sat, 27 Feb 2016 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/tags/unsupervised-learning/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Machine Learning Basics</title>
-      <link>https://bedirt.github.io/posts/blog_posts/ml_basics/</link>
+      <link>https://bedirtapkan.com/posts/blog_posts/ml_basics/</link>
       <pubDate>Sat, 27 Feb 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/posts/blog_posts/ml_basics/</guid>
+      <guid>https://bedirtapkan.com/posts/blog_posts/ml_basics/</guid>
       <description>An introduction to Supervised vs Unsupervised Learning</description>
       <content:encoded><![CDATA[<p>Reaaally introductory post for Machine Learning basics. What is Supervised and Unsupervised learning?</p>
 <h2 id="supervised-learning">Supervised Learning</h2>

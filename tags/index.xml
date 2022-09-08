@@ -1,107 +1,108 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Tags on BedirTapkan</title>
-    <link>https://bedirt.github.io/tags/</link>
-    <description>Recent content in Tags on BedirTapkan</description>
+    <title>Tags on Bedir Tapkan</title>
+    <link>https://bedirtapkan.com/tags/</link>
+    <description>Recent content in Tags on Bedir Tapkan</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 11 Mar 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirt.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>© 2022</copyright>
+    <lastBuildDate>Wed, 11 Mar 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>BetterRL</title>
-      <link>https://bedirt.github.io/tags/betterrl/</link>
+      <link>https://bedirtapkan.com/tags/betterrl/</link>
       <pubDate>Wed, 11 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/betterrl/</guid>
+      <guid>https://bedirtapkan.com/tags/betterrl/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Control</title>
-      <link>https://bedirt.github.io/tags/control/</link>
+      <link>https://bedirtapkan.com/tags/control/</link>
       <pubDate>Wed, 11 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/control/</guid>
+      <guid>https://bedirtapkan.com/tags/control/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Reinforcement Learning</title>
-      <link>https://bedirt.github.io/tags/reinforcement-learning/</link>
+      <link>https://bedirtapkan.com/tags/reinforcement-learning/</link>
       <pubDate>Wed, 11 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/reinforcement-learning/</guid>
+      <guid>https://bedirtapkan.com/tags/reinforcement-learning/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>SARSA</title>
-      <link>https://bedirt.github.io/tags/sarsa/</link>
+      <link>https://bedirtapkan.com/tags/sarsa/</link>
       <pubDate>Wed, 11 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/sarsa/</guid>
+      <guid>https://bedirtapkan.com/tags/sarsa/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Algorithms</title>
-      <link>https://bedirt.github.io/tags/algorithms/</link>
+      <link>https://bedirtapkan.com/tags/algorithms/</link>
       <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/algorithms/</guid>
+      <guid>https://bedirtapkan.com/tags/algorithms/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Competitive programming</title>
-      <link>https://bedirt.github.io/tags/competitive-programming/</link>
+      <link>https://bedirtapkan.com/tags/competitive-programming/</link>
       <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/competitive-programming/</guid>
+      <guid>https://bedirtapkan.com/tags/competitive-programming/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Dynamic Programming</title>
-      <link>https://bedirt.github.io/tags/dynamic-programming/</link>
+      <link>https://bedirtapkan.com/tags/dynamic-programming/</link>
       <pubDate>Sun, 18 Sep 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/dynamic-programming/</guid>
+      <guid>https://bedirtapkan.com/tags/dynamic-programming/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Machine Learning</title>
-      <link>https://bedirt.github.io/tags/machine-learning/</link>
+      <link>https://bedirtapkan.com/tags/machine-learning/</link>
       <pubDate>Sat, 27 Feb 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/machine-learning/</guid>
+      <guid>https://bedirtapkan.com/tags/machine-learning/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Supervised Learning</title>
-      <link>https://bedirt.github.io/tags/supervised-learning/</link>
+      <link>https://bedirtapkan.com/tags/supervised-learning/</link>
       <pubDate>Sat, 27 Feb 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/supervised-learning/</guid>
+      <guid>https://bedirtapkan.com/tags/supervised-learning/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
       <title>Unsupervised Learning</title>
-      <link>https://bedirt.github.io/tags/unsupervised-learning/</link>
+      <link>https://bedirtapkan.com/tags/unsupervised-learning/</link>
       <pubDate>Sat, 27 Feb 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirt.github.io/tags/unsupervised-learning/</guid>
+      <guid>https://bedirtapkan.com/tags/unsupervised-learning/</guid>
       <description></description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>

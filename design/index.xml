@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Designs on BedirTapkan</title>
-    <link>https://bedirt.github.io/design/</link>
-    <description>Recent content in Designs on BedirTapkan</description>
-    <generator>Hugo -- gohugo.io</generator><atom:link href="https://bedirt.github.io/design/index.xml" rel="self" type="application/rss+xml" />
+    <title>Designs on Bedir Tapkan</title>
+    <link>https://bedirtapkan.com/design/</link>
+    <description>Recent content in Designs on Bedir Tapkan</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>© 2022</copyright><atom:link href="https://bedirtapkan.com/design/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>I&#39;m Not a Beast</title>
+      <link>https://bedirtapkan.com/design/not_a_beast/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirtapkan.com/design/not_a_beast/</guid>
+      <description>Just got my HUION 22 Pro a couple weeks ago, had to jump in and make something interesting. Didn&amp;rsquo;t think much :) Just pen on the tablet!
+Didn&amp;rsquo;t spend much time texturing or adding fine details. Just a quick sculpting and some basic lighting. Still took me around an hour and half to get it done.
+Enjoy!</description>
+      <content:encoded><![CDATA[<p>Just got my HUION 22 Pro a couple weeks ago, had to jump in and
+make something interesting. Didn&rsquo;t think much :) Just pen on the tablet!</p>
+<p>Didn&rsquo;t spend much time texturing or adding fine details. Just
+a quick sculpting and some basic lighting. Still took me around an
+hour and half to get it done.</p>
+<p>Enjoy!</p>
+<!-- raw HTML omitted -->
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/dyEWGVJLQgc" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+]]></content:encoded>
+    </item>
+    
   </channel>
 </rss>
