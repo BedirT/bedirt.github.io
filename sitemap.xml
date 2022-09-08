@@ -2,10 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://bedirtapkan.com/posts/blog_posts/average_reward/</loc>
-    <lastmod>2020-03-11T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://bedirtapkan.com/</loc>
+    <lastmod>2022-08-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://bedirtapkan.com/projects/dark_hex/</loc>
+    <lastmod>2022-08-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://bedirtapkan.com/projects/</loc>
+    <lastmod>2022-08-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://bedirtapkan.com/posts/blog_posts/average_reward/</loc>
     <lastmod>2020-03-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://bedirtapkan.com/tags/betterrl/</loc>
@@ -68,10 +74,6 @@
     <loc>https://bedirtapkan.com/design/</loc>
   </url><url>
     <loc>https://bedirtapkan.com/design/not_a_beast/</loc>
-  </url><url>
-    <loc>https://bedirtapkan.com/projects/</loc>
-  </url><url>
-    <loc>https://bedirtapkan.com/projects/projects/</loc>
   </url><url>
     <loc>https://bedirtapkan.com/search/</loc>
   </url><url>
