@@ -1,7 +1,8 @@
-baseURL: "https://bedirt.github.io"
-title: BedirTapkan
+baseURL: "https://bedirtapkan.com"
+title: Bedir Tapkan
 paginate: 5
 theme: PaperModX
+copyright: "© 2022"
 
 enableRobotsTXT: true
 buildDrafts: false
@@ -74,22 +75,22 @@ params:
   comments: true
   hidemeta: false
   hideSummary: false
-  showtoc: false
+  showtoc: true
   tocopen: false
   math: true
 
   assets:
     disableHLJS: true # to disable highlight.js
     # disableFingerprinting: true
-    favicon: "images/favicons/favicon-196x196.png"
-    favicon16x16: "images/favicons/favicon-16x16.png"
-    favicon32x32: "images/favicons/favicon-32x32.png"
-    apple_touch_icon: "images/favicons/apple-touch-icon-144x144.png"
-    safari_pinned_tab: "images/favicons/apple-touch-icon-114x114.png"
+    favicon: "/favicons/favicon-196x196.png"
+    favicon16x16: "/favicons/favicon-16x16.png"
+    favicon32x32: "/favicons/favicon-32x32.png"
+    apple_touch_icon: "/favicons/apple-touch-icon-144x144.png"
+    safari_pinned_tab: "/favicons/apple-touch-icon-114x114.png"
 
   label:
     text: "BedirTapkan"
-    icon: "images/fav.ico"
+    icon: "/fav.ico"
     iconHeight: 45
 
   # profile-mode
@@ -98,7 +99,7 @@ params:
     title: Hello, I'm Bedir Tapkan
     subtitle: > 
             Welcome to my website! I am a passionate Machine Learning Engineer
-            and Researcher. I am currently working on **Game Theory** and **Reinforcement Learning**. 
+            and Researcher. I am currently working on **Reinforcement Learning** and **Game Theory**. 
             I do share my experience and thoughts on problems and their solutions
             I have recently encountered, on my blog and youtube channel. I also 
             love spending time on 3D sculpting and thinkering about the world around me.
