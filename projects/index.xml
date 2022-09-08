@@ -16,6 +16,7 @@
       <description>An open-source library for training and evaluating agents in Dark Hex, a large-scale imperfect information game.</description>
       <content:encoded><![CDATA[<p><a href="https://github.com/BedirT/darkhex">Github Link</a></p>
 <p><strong>Tools Used:</strong> Python, C++, Tensorflow, Open-Spiel, Pandas, Numpy, Matplotlib, PyGame, PyDot, Tkinter</p>
+<p><strong>Topics:</strong> Reinforcement Learning, Game Theory, Imperfect Information Games, Deep Learning, Machine Learning</p>
 <h2 id="introduction">Introduction</h2>
 <p>Dark Hex is an imperfect information version of the <a href="https://en.wikipedia.org/wiki/Hex_(board_game)">Hex</a>. Dark Hex is a phantom game, where a player have a chance to play concecutively. Due to this property Dark Hex is an extremely huge game. Which makes it really hard to train agents, and develop algorithms for.</p>
 <p>In this project I implemented certain tools to help generate new strategies, and come up with better players eventually. The project includes my thesis work, along side all the results and experiments I have done. We have the best known players implemented (that we developed) as well as the methods we used to train them.</p>
