@@ -47,4 +47,4 @@ gs.draw(o, "file_name");
 
 Which gives the following graph:
 
-![neuron](https://github.com/BedirT/Microcpp/blob/master/micrograd/graph_single_neuron.png)
+![neuron](https://raw.githubusercontent.com/BedirT/Microcpp/master/micrograd/graph_single_neuron.png)
