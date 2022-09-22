@@ -137,6 +137,30 @@
     </item>
     
     <item>
+      <title>Co-Agent Networks</title>
+      <link>https://bedirtapkan.com/projects/co_agent_networks/</link>
+      <pubDate>Tue, 17 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirtapkan.com/projects/co_agent_networks/</guid>
+      <description>Developing a new Reinforcement Learning framework by utilizing the well known neural network structure of &amp;#39;Nodes&amp;#39;</description>
+      <content:encoded><![CDATA[<!-- raw HTML omitted -->
+<p><strong>Tools Used:</strong> Python, PyTorch, OpenAI Gym</p>
+<p><strong>Topics:</strong> Reinforcement Learning, Deep Learning, Neural Networks, Machine Learning</p>
+<h2 id="introduction">Introduction</h2>
+<p>Co-Agent Networks is an actor-critic framework that utilizes some set of interactive nodes. We took this idea under investigation and developed multiple supervised and unsupervised settings that utilizes the nodes as actor-critic agents. The idea of Co-Agent systems is introduced by Philips S. Thomas, and is still being investigated.</p>
+<h2 id="features">Features</h2>
+<p>We have developed a fully working framework that utilizes the nodes as actor-critic agents. We have completed multiple experiments and reported the results for the future researchers.</p>
+<p>Read more about Co-MDP and Co-Agent Networks here:</p>
+<ul>
+<li><a href="https://icml.cc/Conferences/2011/papers/134_icmlpaper.pdf">Conjugate Markov Decision Processes</a></li>
+<li><a href="https://proceedings.neurips.cc/paper/2011/file/1e6e0a04d20f50967c64dac2d639a577-Paper.pdf">Policy Gradient Coagent Networks</a></li>
+<li><a href="https://proceedings.mlr.press/v119/kostas20a.html">Asynchronous Coagent Networks</a></li>
+</ul>
+<p>To learn more about our implementation and results check out my blog post titled <a href="posts/coagent.md">Co-agent Networks, Neural Network that think</a>.</p>
+]]></content:encoded>
+    </item>
+    
+    <item>
       <title>CO2 clustring detection on ISS</title>
       <link>https://bedirtapkan.com/projects/iss_co2/iss_co2/</link>
       <pubDate>Fri, 20 Apr 2018 00:00:00 +0000</pubDate>
@@ -162,6 +186,31 @@
 <p>The second stage was to collect more data. We decided to build an easy to use offline tool (since internet is not an option) that is easily installable to ISS computers, and can be used to collect data. So we decided to build a web application that can be used to visualize the data, and make it easier to understand for the astranouts. The tool is written in <strong>Python</strong>, and uses the <strong>Flask</strong> framework. For the visualization we used <strong>plotly</strong> and <strong>javascript</strong> and made it easy to use for the astranouts. The tool collects data from the sensors, and the astranouts annotate where needed. The data is then saved in a database, and can be used for further analysis.</p>
 <p>We sent the tool to ISS, and they started using it. Since the wait times are long to send anything to ISS, we delivered the data collection tools along with the models for the further studies. Another team will continue the work for the third stage once they have collected enough data.</p>
 <p>Here is the <a href="pdf/nasa_poster_co2_iss.pdf">poster we have presented</a> at the <strong>NASA Wearable Technologies</strong></p>
+]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>Cakma Sair</title>
+      <link>https://bedirtapkan.com/projects/cakmasair/</link>
+      <pubDate>Fri, 02 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirtapkan.com/projects/cakmasair/</guid>
+      <description>A turkish poem generator using NLP (twitter bot).</description>
+      <content:encoded><![CDATA[<p><a href="https://github.com/AhmetHamzaEmra/CakmaSair">Github Link</a></p>
+<p><strong>Tools Used:</strong> Python, Tflearn, Numpy, Pandas, BeautifulSoup, Tweepy</p>
+<p><strong>Topics:</strong> Machine Learning, Deep Learning, Natural Language Processing, Twitter Bot, Web Scraping, Recurrent Neural Networks</p>
+<h2 id="introduction">Introduction</h2>
+<p>Cakma Sair is a twitter bot that generates turkish poems using NLP. It uses a dataset of 1000+ turkish poems we scraped from multiple turkish poetry websites. We think that poetry is a very important part of turkish culture, and we wanted to create a bot that can generate turkish poems.</p>
+<p>We are using Recurrent Neural Networks (RNN) with word2vec to train the model. We then use tweepy to tweet the generated poems based on people&rsquo;s inputs.</p>
+<h2 id="tools">Tools</h2>
+<ul>
+<li><strong>CakmaSair</strong>: The main tool that generates the poems. It is a python script that uses a trained model to generate poems. It uses tweepy to tweet the generated poems.</li>
+<li><strong>ScrapePoems</strong>: A tool that scrapes turkish poems from multiple turkish poetry websites. It uses BeautifulSoup to scrape the poems and save them to a txt file.</li>
+</ul>
+<p>Here is a sample of the generated poems:</p>
+<p>
+  <img loading="lazy" src="https://raw.githubusercontent.com/AhmetHamzaEmra/CakmaSairOrganization/master/Screen%20Shot%202018-03-01%20at%201.40.08%20PM.png?token=ATpOheGbaJ1HdoXIO3LVCmiC2BREXJOgks5aoZLkwA%3D%3D" alt="poem1"  /></p>
+<p>Go ahead and tweet at <a href="https://twitter.com/Cakma_Sair">@CakmaSair</a> to generate a poem!</p>
 ]]></content:encoded>
     </item>
     
