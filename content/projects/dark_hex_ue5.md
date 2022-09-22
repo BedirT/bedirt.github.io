@@ -1,7 +1,7 @@
 ---
 title: "Dark Hex Online (UE5)"
 date: 2022-09-20
-description: "An open-source library for training and evaluating agents in Dark Hex, a large-scale imperfect information game."
+description: "An online version of Dark Hex with appealing graphics and a simple UI."
 ---
 
 [Github Link](https://github.com/BedirT/darkhex)
