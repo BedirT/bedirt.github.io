@@ -4,7 +4,7 @@ date: 2022-09-20
 description: "An online version of Dark Hex with appealing graphics and a simple UI."
 ---
 
-[Github Link](https://github.com/BedirT/darkhex)
+<!-- [Github Link](https://github.com/BedirT/darkhex) -->
 
 **Tools Used:** Unreal Engine, C++, Blender
 
