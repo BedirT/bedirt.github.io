@@ -6,33 +6,107 @@
     <description>Recent content in Projects on Bedir Tapkan</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>© 2022</copyright>
-    <lastBuildDate>Sat, 20 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/projects/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 21 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/projects/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>CO2 clustring detection on ISS</title>
-      <link>https://bedirtapkan.com/projects/iss_co2/iss_co2/</link>
-      <pubDate>Sat, 20 Aug 2022 00:00:00 +0000</pubDate>
+      <title>MicroGradCpp</title>
+      <link>https://bedirtapkan.com/projects/microgradcpp/</link>
+      <pubDate>Wed, 21 Sep 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://bedirtapkan.com/projects/iss_co2/iss_co2/</guid>
-      <description>Detecting CO2 clusters on ISS using a custom built neural network model with time-series data. Data processing and visualization tools for further evaluation.</description>
-      <content:encoded><![CDATA[<p><strong>Tools Used:</strong> Python, PyTorch, Numpy, Pandas, JavaScript, Scikit-learn, Flask</p>
-<p><strong>Topics:</strong> Machine Learning, Deep Learning, Time-Series, Data Visualization, Data Processing</p>
-<h2 id="problem">Problem</h2>
-<p>The International Space Station (ISS) is a space station, or a habitable artificial satellite, in low Earth orbit. Given that it is in space, with no gravity, air circulation is very hard to manage. Due to lack of circulation any CO2 that is produced by the astronauts is not dispersed, and accumulates in the same area. This can be a problem, as the CO2 levels can reach a dangerous level, and can cause health issues for the astronauts. Especially when they are sleeping, or doing other activities that require them to be in a specific area for a long time. Lack of oxygen first causes dizziness, and headaches, and if the levels are high enough, it can cause unconsciousness, and even death.</p>
-<h2 id="solution">Solution</h2>
-<p>Astranouts have a very strict schedule, and they are always doing something based on that schedule. Some of the activities requires heavy physical activity, and some of them are more relaxed. The CO2 levels are higher during the physical activities, and lower during the relaxed activities. We can use the schedule information to see which activities are being performed at any time that the CO2 levels are high. This way we can detect the CO2 clusters, and see which activities are causing them. We can then use this information to make the schedule more efficient, and reduce the CO2 levels.</p>
-<h2 id="data">Data</h2>
-<p>The data is collected from the ISS, and it is a time-series data. The data is collected every 5 minutes, and it contains the CO2 levels in localized areas from the sensors placed on the ISS, and for certain times on the astronauts themselves. The sensors that were placed in the room are less effective since the CO2&rsquo;s are packed in small areas, and the sensors are not able to detect them. The sensors that are placed on the astronauts are more effective, since they are able to detect the CO2&rsquo;s that are being produced by the astronauts.</p>
-<p>The data collected proved not to be quite enough and that further collection plans with new systems was needed. (This is a part of this project).</p>
-<p>Unfortunately, the data is not public, even I have not seen the full data due to restrictions by NASA.</p>
-<h2 id="solution-1">Solution</h2>
-<p>The solution has multiple stages as we have multiple problems to solve. The first stage is to detect the CO2 clusters, and see which activities are causing them. The second stage is to collect more data by providing better tools, and improve the model. The third stage is to use the detected clusters to make the schedule more efficient, and reduce the CO2 levels.</p>
-<h3 id="stage-1">Stage 1</h3>
-<p>The first stage was to detect the CO2 clusters, and see which activities are causing them. We first adjusted the datasets to match each other and be usable in sync, since we had multiple sensors, from different rooms, and multiple astranouts with different schedules it was quite a challange to arrange the dataset properly.</p>
-<p>After arranging the dataset we looked for a suitable model to predict the CO2 levels based on activities performed. We tried a few different models, including linear ML models such as <strong>ARIMA</strong>, but ended up using a custom <strong>LSTM</strong> model. After long testing sessions we have concluded that the data was not enough to train a better model, and we needed to collect more data. In the end we achieved near <strong>75%</strong> accuracy on the test set, which is not bad, but not good enough for our purposes. So we decided to move on to the next stage, and leave the further model improvements for after we collect more data.</p>
-<h3 id="stage-2">Stage 2</h3>
-<p>The second stage was to collect more data. We decided to build an easy to use offline tool (since internet is not an option) that is easily installable to ISS computers, and can be used to collect data. So we decided to build a web application that can be used to visualize the data, and make it easier to understand for the astranouts. The tool is written in <strong>Python</strong>, and uses the <strong>Flask</strong> framework. For the visualization we used <strong>plotly</strong> and <strong>javascript</strong> and made it easy to use for the astranouts. The tool collects data from the sensors, and the astranouts annotate where needed. The data is then saved in a database, and can be used for further analysis.</p>
-<p>We sent the tool to ISS, and they started using it. Since the wait times are long to send anything to ISS, we delivered the data collection tools along with the models for the further studies. Another team will continue the work for the third stage once they have collected enough data.</p>
-<p>Here is the <a href="nasa_poster_co2_iss.pdf">poster we have presented</a> at the <strong>NASA Wearable Technologies</strong></p>
+      <guid>https://bedirtapkan.com/projects/microgradcpp/</guid>
+      <description>MicroGrad implementation in C&#43;&#43; with a simple API.</description>
+      <content:encoded><![CDATA[<p><a href="https://github.com/BedirT/microcpp">Github Link</a></p>
+<p><strong>Tools Used:</strong> C++, Graphviz</p>
+<p><strong>Topics:</strong> Deep Learning, Machine Learning</p>
+<h2 id="introduction">Introduction</h2>
+<p>MicroGradCpp is a C++ implementation of MicroGrad, a minimalistic deep learning library. It includes an API to calculate gradients, and to train neural networks in single neuron level. It is a very simple library, and it is very easy to use. It is a very good tool to learn how neural networks work, and how they are trained.</p>
+<p>The project is a replicate of Andrej Karpathy&rsquo;s <a href="https://github.com/karpathy/micrograd">MicroGrad</a> with a few extra features and in C++.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Custom value and gradient system.</li>
+<li>Graphviz support for visualizing the graph.</li>
+<li>Fully working neural network implementation.</li>
+</ul>
+<p>Here is an implementation of a single neuron:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1"> 1</a>
+</span><span class="lnt" id="hl-0-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-2"> 2</a>
+</span><span class="lnt" id="hl-0-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-3"> 3</a>
+</span><span class="lnt" id="hl-0-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-4"> 4</a>
+</span><span class="lnt" id="hl-0-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-5"> 5</a>
+</span><span class="lnt" id="hl-0-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-6"> 6</a>
+</span><span class="lnt" id="hl-0-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-7"> 7</a>
+</span><span class="lnt" id="hl-0-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-8"> 8</a>
+</span><span class="lnt" id="hl-0-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-9"> 9</a>
+</span><span class="lnt" id="hl-0-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-10">10</a>
+</span><span class="lnt" id="hl-0-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-11">11</a>
+</span><span class="lnt" id="hl-0-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-12">12</a>
+</span><span class="lnt" id="hl-0-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-13">13</a>
+</span><span class="lnt" id="hl-0-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-14">14</a>
+</span><span class="lnt" id="hl-0-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-15">15</a>
+</span><span class="lnt" id="hl-0-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-16">16</a>
+</span><span class="lnt" id="hl-0-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-17">17</a>
+</span><span class="lnt" id="hl-0-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-18">18</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">Value</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="s">&#34;x1&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Value</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s">&#34;x2&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// weights
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Value</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="s">&#34;w1&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Value</span> <span class="n">w2</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&#34;w2&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// bias
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Value</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="mf">6.8813735870195432</span><span class="p">,</span> <span class="s">&#34;b&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// neuron (x1*w1 + x2*w2 + b)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Value</span> <span class="n">x1w1</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">*</span> <span class="n">w1</span><span class="p">;</span> <span class="n">x1w1</span><span class="p">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#34;x1w1&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Value</span> <span class="n">x2w2</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">*</span> <span class="n">w2</span><span class="p">;</span> <span class="n">x2w2</span><span class="p">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#34;x2w2&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Value</span> <span class="n">x1w1_x2w2</span> <span class="o">=</span> <span class="n">x1w1</span> <span class="o">+</span> <span class="n">x2w2</span><span class="p">;</span> <span class="n">x1w1_x2w2</span><span class="p">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#34;x1w1_x2w2&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Value</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x1w1_x2w2</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span> <span class="n">n</span><span class="p">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#34;n&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// output w tanh
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Value</span> <span class="n">o</span> <span class="o">=</span> <span class="n">n</span><span class="p">.</span><span class="n">tanh</span><span class="p">();</span> <span class="n">o</span><span class="p">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&#34;o&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">o</span><span class="p">.</span><span class="n">backward</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Graph</span> <span class="n">gs</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">gs</span><span class="p">.</span><span class="n">draw</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s">&#34;file_name&#34;</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Which gives the following graph:</p>
+<p>
+  <img loading="lazy" src="https://github.com/BedirT/Microcpp/blob/master/micrograd/graph_single_neuron.png" alt="neuron"  /></p>
+]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>Dark Hex Online (UE5)</title>
+      <link>https://bedirtapkan.com/projects/dark_hex_ue5/</link>
+      <pubDate>Tue, 20 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirtapkan.com/projects/dark_hex_ue5/</guid>
+      <description>An online version of Dark Hex with appealing graphics and a simple UI.</description>
+      <content:encoded><![CDATA[<!-- raw HTML omitted -->
+<p><strong>Tools Used:</strong> Unreal Engine, C++, Blender</p>
+<p><strong>Topics:</strong> Unreal Engine, Game Development, Imperfect Information Games</p>
+<h2 id="introduction">Introduction</h2>
+<p>Dark Hex Online is a multiplayer version of Dark Hex. It is a game where players can play against each other, or against the AI. The game is built on Unreal Engine 5, and is currently in development. The game is still in early stages.</p>
+<p>We are hoping to release the game on Steam, and we are currently working on the Steam integration. We are also working on adding more features to the game, and improving the game.</p>
+<p>The reason we are building this game is to make Dark Hex more accessible to the public. We want to make it easier for people to play the game, and to make it easier for people to train agents. We are also hoping to make it easier for people to develop new strategies, and to come up with new ideas. On top of this we want to present a platform where people can play Dark Hex, and have fun, and hopefully build a better community around the game.</p>
+<h1 id="todos-and-progress">Todos and Progress</h1>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Design the game; pieces and board. (Blender)</li>
+<li><input checked="" disabled="" type="checkbox"> Create a dynamic board system.</li>
+<li><input checked="" disabled="" type="checkbox"> Setup lighting and camera.</li>
+<li><input checked="" disabled="" type="checkbox"> Setup piece movement and effects.</li>
+<li><input checked="" disabled="" type="checkbox"> Setup ghost cell system.</li>
+<li><input checked="" disabled="" type="checkbox"> Setup the game logic. (Hex)</li>
+<li><input disabled="" type="checkbox"> Setup the game logic. (Dark Hex)</li>
+<li><input disabled="" type="checkbox"> Network setup / online multiplayer.</li>
+<li><input disabled="" type="checkbox"> UI design and implementation.</li>
+<li><input disabled="" type="checkbox"> Adding the trained agents.</li>
+<li><input disabled="" type="checkbox"> Adding AI arena and easily addable AI systems.</li>
+<li><input disabled="" type="checkbox"> Setup Steam integration.</li>
+<li><input disabled="" type="checkbox"> Setup ranking system / leaderboards.</li>
+<li><input disabled="" type="checkbox"> Intro and tutorial.</li>
+<li><input disabled="" type="checkbox"> Different game modes (Abrupt, Flash DH, Noisy DH, etc.)</li>
+</ul>
 ]]></content:encoded>
     </item>
     
@@ -59,6 +133,35 @@
 <li><strong>SimPly/SimPly+</strong>: The algorithms we used to train our agents. The details of the algorithm can be found in the thesis.</li>
 <li>More tools are on the previous version. I am still cleaning up and organizing the code, and will be adding them soon.</li>
 </ul>
+]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>CO2 clustring detection on ISS</title>
+      <link>https://bedirtapkan.com/projects/iss_co2/iss_co2/</link>
+      <pubDate>Fri, 20 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirtapkan.com/projects/iss_co2/iss_co2/</guid>
+      <description>Detecting CO2 clusters on ISS using a custom built neural network model with time-series data. Data processing and visualization tools for further evaluation.</description>
+      <content:encoded><![CDATA[<p><strong>Tools Used:</strong> Python, PyTorch, Numpy, Pandas, JavaScript, Scikit-learn, Flask</p>
+<p><strong>Topics:</strong> Machine Learning, Deep Learning, Time-Series, Data Visualization, Data Processing</p>
+<h2 id="problem">Problem</h2>
+<p>The International Space Station (ISS) is a space station, or a habitable artificial satellite, in low Earth orbit. Given that it is in space, with no gravity, air circulation is very hard to manage. Due to lack of circulation any CO2 that is produced by the astronauts is not dispersed, and accumulates in the same area. This can be a problem, as the CO2 levels can reach a dangerous level, and can cause health issues for the astronauts. Especially when they are sleeping, or doing other activities that require them to be in a specific area for a long time. Lack of oxygen first causes dizziness, and headaches, and if the levels are high enough, it can cause unconsciousness, and even death.</p>
+<h2 id="solution">Solution</h2>
+<p>Astranouts have a very strict schedule, and they are always doing something based on that schedule. Some of the activities requires heavy physical activity, and some of them are more relaxed. The CO2 levels are higher during the physical activities, and lower during the relaxed activities. We can use the schedule information to see which activities are being performed at any time that the CO2 levels are high. This way we can detect the CO2 clusters, and see which activities are causing them. We can then use this information to make the schedule more efficient, and reduce the CO2 levels.</p>
+<h2 id="data">Data</h2>
+<p>The data is collected from the ISS, and it is a time-series data. The data is collected every 5 minutes, and it contains the CO2 levels in localized areas from the sensors placed on the ISS, and for certain times on the astronauts themselves. The sensors that were placed in the room are less effective since the CO2&rsquo;s are packed in small areas, and the sensors are not able to detect them. The sensors that are placed on the astronauts are more effective, since they are able to detect the CO2&rsquo;s that are being produced by the astronauts.</p>
+<p>The data collected proved not to be quite enough and that further collection plans with new systems was needed. (This is a part of this project).</p>
+<p>Unfortunately, the data is not public, even I have not seen the full data due to restrictions by NASA.</p>
+<h2 id="solution-1">Solution</h2>
+<p>The solution has multiple stages as we have multiple problems to solve. The first stage is to detect the CO2 clusters, and see which activities are causing them. The second stage is to collect more data by providing better tools, and improve the model. The third stage is to use the detected clusters to make the schedule more efficient, and reduce the CO2 levels.</p>
+<h3 id="stage-1">Stage 1</h3>
+<p>The first stage was to detect the CO2 clusters, and see which activities are causing them. We first adjusted the datasets to match each other and be usable in sync, since we had multiple sensors, from different rooms, and multiple astranouts with different schedules it was quite a challange to arrange the dataset properly.</p>
+<p>After arranging the dataset we looked for a suitable model to predict the CO2 levels based on activities performed. We tried a few different models, including linear ML models such as <strong>ARIMA</strong>, but ended up using a custom <strong>LSTM</strong> model. After long testing sessions we have concluded that the data was not enough to train a better model, and we needed to collect more data. In the end we achieved near <strong>75%</strong> accuracy on the test set, which is not bad, but not good enough for our purposes. So we decided to move on to the next stage, and leave the further model improvements for after we collect more data.</p>
+<h3 id="stage-2">Stage 2</h3>
+<p>The second stage was to collect more data. We decided to build an easy to use offline tool (since internet is not an option) that is easily installable to ISS computers, and can be used to collect data. So we decided to build a web application that can be used to visualize the data, and make it easier to understand for the astranouts. The tool is written in <strong>Python</strong>, and uses the <strong>Flask</strong> framework. For the visualization we used <strong>plotly</strong> and <strong>javascript</strong> and made it easy to use for the astranouts. The tool collects data from the sensors, and the astranouts annotate where needed. The data is then saved in a database, and can be used for further analysis.</p>
+<p>We sent the tool to ISS, and they started using it. Since the wait times are long to send anything to ISS, we delivered the data collection tools along with the models for the further studies. Another team will continue the work for the third stage once they have collected enough data.</p>
+<p>Here is the <a href="pdf/nasa_poster_co2_iss.pdf">poster we have presented</a> at the <strong>NASA Wearable Technologies</strong></p>
 ]]></content:encoded>
     </item>
     
