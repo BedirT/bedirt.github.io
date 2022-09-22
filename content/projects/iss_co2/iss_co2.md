@@ -1,6 +1,6 @@
 ---
 title: "CO2 clustring detection on ISS"
-date: 2022-08-20
+date: 2018-04-20
 description: "Detecting CO2 clusters on ISS using a custom built neural network model with time-series data. Data processing and visualization tools for further evaluation."
 ---
 
