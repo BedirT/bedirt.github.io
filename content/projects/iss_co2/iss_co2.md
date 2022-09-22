@@ -40,4 +40,4 @@ The second stage was to collect more data. We decided to build an easy to use of
 
 We sent the tool to ISS, and they started using it. Since the wait times are long to send anything to ISS, we delivered the data collection tools along with the models for the further studies. Another team will continue the work for the third stage once they have collected enough data.
 
-Here is the [poster we have presented](nasa_poster_co2_iss.pdf) at the **NASA Wearable Technologies**
+Here is the [poster we have presented](pdf/nasa_poster_co2_iss.pdf) at the **NASA Wearable Technologies**
