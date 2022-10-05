@@ -23,7 +23,7 @@ languages:
     taxonomies:
       category: categories
       tag: tags
-      series: series
+      topic: topics
     menu:
       main:
         - identifier: About
@@ -57,7 +57,6 @@ params:
   description: "Everything about Me & Myself & BT"
   keywords: [Blog, Portfolio, Personal Website, RL, Game Theory]
   author: Bedir Tapkan
-  # author: ["Me", "You"] # multiple authors
   # images: ["/content/images/"]
   defaultTheme: auto # dark, light
   disableThemeToggle: false
@@ -142,8 +141,8 @@ params:
       url: "https://www.youtube.com/channel/UCAExPNjoRE0aLfc96Eo0ZRQ"
 
   analytics:
-    google:
-      SiteVerificationTag: "XYZabc"
+    # google:
+    #   SiteVerificationTag: "XYZabc"
 
   cover:
     hidden: true # hide everywhere but not in structured data
