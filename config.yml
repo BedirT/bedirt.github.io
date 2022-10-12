@@ -14,7 +14,7 @@ enableEmoji: true
 
 minify:
   disableXML: true
-  minifyOutput: true
+  minifyOutput: false
 
 languages:
   en:
@@ -53,11 +53,11 @@ outputs:
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  title: Bedir Tapkan
+  title: "Bedir Tapkan"
   description: "Everything about Me & Myself & BT"
   keywords: [Blog, Portfolio, Personal Website, RL, Game Theory]
-  author: Bedir Tapkan
-  # images: ["/content/images/"]
+  author: "Bedir Tapkan"
+  images: ["logo.png"]
   defaultTheme: auto # dark, light
   disableThemeToggle: false
 
@@ -81,16 +81,16 @@ params:
   assets:
     disableHLJS: true # to disable highlight.js
     # disableFingerprinting: true
-    favicon: "/favicons/favicon-196x196.png"
-    favicon16x16: "/favicons/favicon-16x16.png"
-    favicon32x32: "/favicons/favicon-32x32.png"
-    apple_touch_icon: "/favicons/apple-touch-icon-144x144.png"
-    safari_pinned_tab: "/favicons/apple-touch-icon-114x114.png"
+    favicon: "favicons/favicon-196x196.png"
+    favicon16x16: "favicons/favicon-16x16.png"
+    favicon32x32: "favicons/favicon-32x32.png"
+    apple_touch_icon: "favicons/apple-touch-icon-144x144.png"
+    safari_pinned_tab: "favicons/apple-touch-icon-114x114.png"
 
   label:
     text: "BedirTapkan"
-    icon: "/fav.ico"
-    iconHeight: 45
+    icon: "/favicons/apple-touch-icon-144x144.png"
+    iconHeight: 35
 
   # profile-mode
   profileMode:

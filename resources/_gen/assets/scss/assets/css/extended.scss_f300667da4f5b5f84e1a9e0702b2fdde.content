@@ -1,6 +1,36 @@
 @charset "UTF-8";
 /*
 color candidates:
+#48C0A3 青碧
+#519A73 蒼黃
+#1BD1A5 碧色
+#7BCFA6 玉色
+*/
+body.type-essays {
+  --signature: #48C0A3;
+  --signature-bg: rgba(72, 192, 164, 0.427);
+  --siguature-bg-dim: rgba(72, 192, 164, 0.298);
+  --link-hover-color: var(--signature);
+  --link-hover-underline-color: var(--signature);
+  --link-hover-underline-shadow: 0 2px 0 var(--link-hover-underline-color);
+  --link-background-color: var(--siguature-bg-dim); }
+  body.type-essays .post-entry {
+    /* same as .post-header h2 */ }
+    body.type-essays .post-entry .entry-title {
+      font-size: 24px;
+      line-height: 1.3;
+      margin-bottom: calc(var(--content-gap) / 2); }
+      body.type-essays .post-entry .entry-title a {
+        color: var(--primary);
+        transition: var(--link-transition); }
+        body.type-essays .post-entry .entry-title a:hover {
+          color: var(--link-hover-color);
+          box-shadow: var(--link-hover-underline-shadow); }
+    body.type-essays .post-entry .post-meta {
+      margin-bottom: var(--content-gap); }
+
+/*
+color candidates:
 #CB3A56 茜色
 #F05654 銀紅
 #F20C00 石榴紅
@@ -16,6 +46,7 @@ body.type-newsletter {
   --link-hover-color: var(--signature);
   --link-hover-underline-color: var(--signature);
   --link-hover-underline-shadow: 0 2px 0 var(--link-hover-underline-color);
+  --link-background-color: var(--signature-bg-dim);
   /* a links in section/archives page content and regular page post-content */
   /* shared */ }
   @media screen and (max-width: 500px) {
