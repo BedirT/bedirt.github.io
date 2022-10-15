@@ -116,6 +116,14 @@ params:
         url: projects
       - name: Fun Stuff
         url: design
+      - name: "My 3D World"
+        url: "https://bedirtapkan.artstation.com/"
+        params:
+          external: true
+      - name: "My Flat World"
+        url: "https://tapkan41d9.myportfolio.com/"
+        params:
+          external: true
 
   # home-info mode
   homeInfoParams:
