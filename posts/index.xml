@@ -6,7 +6,489 @@
     <description>Recent content in Posts on Bedir Tapkan</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>© 2022</copyright>
-    <lastBuildDate>Wed, 26 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 01 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Sentiment Analysis A to B: Episode 1</title>
+      <link>https://bedirtapkan.com/posts/blog_posts/sentiment_ab_1/</link>
+      <pubDate>Tue, 01 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirtapkan.com/posts/blog_posts/sentiment_ab_1/</guid>
+      <description>Sentiment Analysis Experiments, Data Prep, Representations and Logistic Regression</description>
+      <content:encoded><![CDATA[<h1 id="sentiment-analysis-a-to-b-episode-1">Sentiment Analysis A to B: Episode 1</h1>
+<p>In this series, I will work my way into different Sentiment Analysis methods and experiment with other techniques. I will use the data from the <a href="https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis">IMDB review dataset</a> acquired from Kaggle. The series is called A to B since I need to cover all the methods and the best, for that matter. I am covering some I find exciting and test-worthy.</p>
+<p>In this episode, I will be examining/going over the following:</p>
+<ul>
+<li>Data preprocessing for sentiment analysis</li>
+<li>2 different feature representations:
+<ul>
+<li>Sparse vector representation</li>
+<li>Word frequency counts</li>
+</ul>
+</li>
+<li>Comparison using logistic regression</li>
+</ul>
+<h2 id="feature-representation">Feature Representation</h2>
+<p>Your model will be, at most, as good as your data, and your data will be only as good as you understand them to be, hence the features. I want to see the most useless or naive approaches and agile methods and benchmark them for both measures of prediction success and for training and prediction time.</p>
+<p>Before anything else, let&rsquo;s load, organize and clean our data really quick:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1"> 1</a>
+</span><span class="lnt" id="hl-0-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-2"> 2</a>
+</span><span class="lnt" id="hl-0-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-3"> 3</a>
+</span><span class="lnt" id="hl-0-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-4"> 4</a>
+</span><span class="lnt" id="hl-0-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-5"> 5</a>
+</span><span class="lnt" id="hl-0-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-6"> 6</a>
+</span><span class="lnt" id="hl-0-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-7"> 7</a>
+</span><span class="lnt" id="hl-0-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-8"> 8</a>
+</span><span class="lnt" id="hl-0-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-9"> 9</a>
+</span><span class="lnt" id="hl-0-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-10">10</a>
+</span><span class="lnt" id="hl-0-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-11">11</a>
+</span><span class="lnt" id="hl-0-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-12">12</a>
+</span><span class="lnt" id="hl-0-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-13">13</a>
+</span><span class="lnt" id="hl-0-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-14">14</a>
+</span><span class="lnt" id="hl-0-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-15">15</a>
+</span><span class="lnt" id="hl-0-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-16">16</a>
+</span><span class="lnt" id="hl-0-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-17">17</a>
+</span><span class="lnt" id="hl-0-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-18">18</a>
+</span><span class="lnt" id="hl-0-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-19">19</a>
+</span><span class="lnt" id="hl-0-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-20">20</a>
+</span><span class="lnt" id="hl-0-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-21">21</a>
+</span><span class="lnt" id="hl-0-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-22">22</a>
+</span><span class="lnt" id="hl-0-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-23">23</a>
+</span><span class="lnt" id="hl-0-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-24">24</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">CSV</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_data</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;data/kaggle_data/movie.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">CSV</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">data</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">split_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># split 80/10/10</span>
+</span></span><span class="line"><span class="cl">    <span class="n">train_split</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.8</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">val_split</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.9</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">data</span><span class="p">[:</span><span class="n">train_split</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">train_split</span><span class="p">:</span><span class="n">val_split</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">val_split</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">save_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">train</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">split_data</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">save_data</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="s1">&#39;data/train.csv&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">save_data</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="s1">&#39;data/val.csv&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">save_data</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="s1">&#39;data/test.csv&#39;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Let&rsquo;s start with creating a proper and clean vocabulary that we will use for all the representations we will examine.</p>
+<h3 id="clean-vocabulary">Clean Vocabulary</h3>
+<p>We just read all the words as a set, to begin with,</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-1">1</a>
+</span><span class="lnt" id="hl-1-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-2">2</a>
+</span><span class="lnt" id="hl-1-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-3">3</a>
+</span><span class="lnt" id="hl-1-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-4">4</a>
+</span><span class="lnt" id="hl-1-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-5">5</a>
+</span><span class="lnt" id="hl-1-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-6">6</a>
+</span><span class="lnt" id="hl-1-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-7">7</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Get all the words</span>
+</span></span><span class="line"><span class="cl"><span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_data</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># len(words) = 7391216</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Get the vocabulary</span>
+</span></span><span class="line"><span class="cl"><span class="n">dirty_vocab</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># len(dirty_vocab) = 331056</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>So for the beginning of the representation, we have 331.056 words in our vocabulary. This number is every non-sense included, though. We also didn&rsquo;t consider any lowercase - uppercase conversion. So let&rsquo;s clean these step by step.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-2-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-1">1</a>
+</span><span class="lnt" id="hl-2-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-2">2</a>
+</span><span class="lnt" id="hl-2-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-3">3</a>
+</span><span class="lnt" id="hl-2-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-4">4</a>
+</span><span class="lnt" id="hl-2-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-5">5</a>
+</span><span class="lnt" id="hl-2-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-6">6</a>
+</span><span class="lnt" id="hl-2-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-7">7</a>
+</span><span class="lnt" id="hl-2-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-8">8</a>
+</span><span class="lnt" id="hl-2-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-9">9</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Convert to lowercase</span>
+</span></span><span class="line"><span class="cl"><span class="n">vocab</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">dirty_vocab</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># len(vocab) = 295827</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Remove punctuation</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">RegexpTokenizer</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">RegexpTokenizer</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\w+&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vocab</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vocab</span><span class="p">))])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># len(vocab) = 84757</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We reduced the number from 331.056 to 84.757. We can do more. With this method, we encode every word we see in every form possible. So, for example, &ldquo;called,&rdquo; &ldquo;calling,&rdquo; &ldquo;calls,&rdquo; and &ldquo;call&rdquo; will all be a separate words. Let&rsquo;s get rid of that and make them reduce to their roots. Here we start getting help from the dedicated NLP library NLTK since I don&rsquo;t want to define all these rules myself (nor could I):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-3-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-1">1</a>
+</span><span class="lnt" id="hl-3-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-2">2</a>
+</span><span class="lnt" id="hl-3-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-3">3</a>
+</span><span class="lnt" id="hl-3-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-4">4</a>
+</span><span class="lnt" id="hl-3-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-5">5</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Reduce words to their stems</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">nltk.stem</span> <span class="kn">import</span> <span class="n">PorterStemmer</span>
+</span></span><span class="line"><span class="cl"><span class="n">stemmer</span> <span class="o">=</span> <span class="n">PorterStemmer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vocab</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">stemmer</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">vocab</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># len(vocab) = 58893</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The last step towards cleaning will be to get rid of stopwords. These are &rsquo;end,&rsquo; &lsquo;are,&rsquo; &lsquo;is,&rsquo; etc. words in the English language.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-4-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-1">1</a>
+</span><span class="lnt" id="hl-4-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-2">2</a>
+</span><span class="lnt" id="hl-4-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-3">3</a>
+</span><span class="lnt" id="hl-4-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-4">4</a>
+</span><span class="lnt" id="hl-4-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-5">5</a>
+</span><span class="lnt" id="hl-4-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-6">6</a>
+</span><span class="lnt" id="hl-4-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-7">7</a>
+</span><span class="lnt" id="hl-4-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-8">8</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Remove connectives</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">nltk</span>
+</span></span><span class="line"><span class="cl"><span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;stopwords&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+</span></span><span class="line"><span class="cl"><span class="n">stop_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;English))</span>
+</span></span><span class="line"><span class="cl"><span class="n">vocab</span> <span class="o">=</span> <span class="n">vocab</span> <span class="o">-</span> <span class="n">stop_words</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># len(vocab) = 58764</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now that we have good words, we can set up a lookup table to keep encodings for each word.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-5-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-1">1</a>
+</span><span class="lnt" id="hl-5-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Vocabulary dictionary</span>
+</span></span><span class="line"><span class="cl"><span class="n">vocab_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">w</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vocab</span><span class="p">)}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now we have a dictionary for every proper word we have in the data set. Therefore, we are ready to prepare different feature representations.</p>
+<p>Since we will convert sentences in this clean form, again and again, later on, let&rsquo;s create a function that combines all these methods:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1"> 1</a>
+</span><span class="lnt" id="hl-6-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-2"> 2</a>
+</span><span class="lnt" id="hl-6-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-3"> 3</a>
+</span><span class="lnt" id="hl-6-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-4"> 4</a>
+</span><span class="lnt" id="hl-6-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-5"> 5</a>
+</span><span class="lnt" id="hl-6-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-6"> 6</a>
+</span><span class="lnt" id="hl-6-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-7"> 7</a>
+</span><span class="lnt" id="hl-6-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-8"> 8</a>
+</span><span class="lnt" id="hl-6-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-9"> 9</a>
+</span><span class="lnt" id="hl-6-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-10">10</a>
+</span><span class="lnt" id="hl-6-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-11">11</a>
+</span><span class="lnt" id="hl-6-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-12">12</a>
+</span><span class="lnt" id="hl-6-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-13">13</a>
+</span><span class="lnt" id="hl-6-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-14">14</a>
+</span><span class="lnt" id="hl-6-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-15">15</a>
+</span><span class="lnt" id="hl-6-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-16">16</a>
+</span><span class="lnt" id="hl-6-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-17">17</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Function to combine all the above to clean a sentence</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">clean_sentence</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Convert to lowercase</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sentence</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Words</span>
+</span></span><span class="line"><span class="cl">    <span class="n">words</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Remove punctuation</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">RegexpTokenizer</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\w+&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">words</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">words</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Remove stop words</span>
+</span></span><span class="line"><span class="cl">    <span class="n">stop_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;English))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span> <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stop_words</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Reduce words to their stems</span>
+</span></span><span class="line"><span class="cl">    <span class="n">stemmer</span> <span class="o">=</span> <span class="n">PorterStemmer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">stemmer</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># remove repeated words</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Ideally, we could initialize <code>tokenizer</code> <code>stemmer</code> and <code>stop_words</code> globally (or as a class parameter), so we don&rsquo;t have to keep initializing.</p>
+<h3 id="sparse-vector-representation">Sparse Vector Representation</h3>
+<p>This will represent every word we see in the database as a feature… Sounds unfeasible? Yeah, it should be. I see multiple problems here. The main one we all think about is this is a massive vector for each sentence with a lot of zeros (hence the name). This means most of the data we have is telling us practically the same thing as the minor part; we have these words in this sentence vs. we don&rsquo;t have all these words. Second, we are not keeping any correlation between words (since we are just examining word by word).</p>
+<p>We go ahead and create a function for encoding every word for a sentence:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-7-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-1">1</a>
+</span><span class="lnt" id="hl-7-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-2">2</a>
+</span><span class="lnt" id="hl-7-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-3">3</a>
+</span><span class="lnt" id="hl-7-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-4">4</a>
+</span><span class="lnt" id="hl-7-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-5">5</a>
+</span><span class="lnt" id="hl-7-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-6">6</a>
+</span><span class="lnt" id="hl-7-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-7">7</a>
+</span><span class="lnt" id="hl-7-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-8">8</a>
+</span><span class="lnt" id="hl-7-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-9">9</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># function to convert a sentence to a vector encoding</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">encode_sparse</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">words</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vocab</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">clean_words</span> <span class="o">=</span> <span class="n">clean_sentence</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">clean_words</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">vocab_dict</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">vec</span><span class="p">[</span><span class="n">vocab_dict</span><span class="p">[</span><span class="n">w</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">vec</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We then convert all the data we have using this encoding (in a single matrix):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-8-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-1">1</a>
+</span><span class="lnt" id="hl-8-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">train_data_sparse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">encode_sparse</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">val_data_sparse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">encode_sparse</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>That&rsquo;s it for this representation.</p>
+<h3 id="word-frequency-representation">Word Frequency Representation</h3>
+<p>This version practically reduces the 10.667 dimensions to 3 instead. We are going to count the number of negative sentences a word passes in as well as positive sentences. This will give us a table indicating how many positive and negative sentences a word has found in:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-9-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-1">1</a>
+</span><span class="lnt" id="hl-9-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-2">2</a>
+</span><span class="lnt" id="hl-9-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-3">3</a>
+</span><span class="lnt" id="hl-9-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-4">4</a>
+</span><span class="lnt" id="hl-9-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-5">5</a>
+</span><span class="lnt" id="hl-9-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-6">6</a>
+</span><span class="lnt" id="hl-9-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-7">7</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Counting frequency of words</span>
+</span></span><span class="line"><span class="cl"><span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">vocab</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span> <span class="c1"># [positive, negative]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_data</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">words</span> <span class="o">=</span> <span class="n">clean_sentence</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">vocab_dict</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">freqs</span><span class="p">[</span><span class="n">vocab_dict</span><span class="p">[</span><span class="n">w</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The next thing to do is to convert these enormous numbers into probabilities. There are multiple points to add here: First, we are getting the probability of this single word being in many positive and negative sentences, so the values will be minimal. Hence we need to use a log scale to avoid floating point problems. Second is, we might get words that don&rsquo;t appear in our dictionary, which will have a likelihood of 0. Since we don&rsquo;t want a 0 division, we add laplacian smoothing, like normalizing all the values with a small initial. Here goes the code:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-10-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-1">1</a>
+</span><span class="lnt" id="hl-10-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Convert to log probabilities with Laplace smoothing</span>
+</span></span><span class="line"><span class="cl"><span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">counts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">vocab</span><span class="p">)))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After getting the frequencies and fixing the problems we mentioned, we now define the new encoding method for this version of the features</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-11-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-1">1</a>
+</span><span class="lnt" id="hl-11-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-2">2</a>
+</span><span class="lnt" id="hl-11-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-3">3</a>
+</span><span class="lnt" id="hl-11-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-4">4</a>
+</span><span class="lnt" id="hl-11-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-5">5</a>
+</span><span class="lnt" id="hl-11-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-6">6</a>
+</span><span class="lnt" id="hl-11-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-7">7</a>
+</span><span class="lnt" id="hl-11-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-8">8</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">encode_freq</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">words</span> <span class="o">=</span> <span class="n">clean_sentence</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span> <span class="c1"># [bias, positive, negative]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">vocab_dict</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">vocab_dict</span><span class="p">[</span><span class="n">word</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">vocab_dict</span><span class="p">[</span><span class="n">word</span><span class="p">],</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">vec</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We end by converting our data as before</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-12-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-1">1</a>
+</span><span class="lnt" id="hl-12-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">train_data_pos_neg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">encode_freq</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">val_data_pos_neg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">encode_freq</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Let&rsquo;s take a sneak peek at what our data looks like:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-13-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-1"> 1</a>
+</span><span class="lnt" id="hl-13-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-2"> 2</a>
+</span><span class="lnt" id="hl-13-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-3"> 3</a>
+</span><span class="lnt" id="hl-13-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-4"> 4</a>
+</span><span class="lnt" id="hl-13-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-5"> 5</a>
+</span><span class="lnt" id="hl-13-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-6"> 6</a>
+</span><span class="lnt" id="hl-13-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-7"> 7</a>
+</span><span class="lnt" id="hl-13-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-8"> 8</a>
+</span><span class="lnt" id="hl-13-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-9"> 9</a>
+</span><span class="lnt" id="hl-13-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-10">10</a>
+</span><span class="lnt" id="hl-13-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-11">11</a>
+</span><span class="lnt" id="hl-13-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-12">12</a>
+</span><span class="lnt" id="hl-13-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-13">13</a>
+</span><span class="lnt" id="hl-13-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-14">14</a>
+</span><span class="lnt" id="hl-13-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-15">15</a>
+</span><span class="lnt" id="hl-13-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-16">16</a>
+</span><span class="lnt" id="hl-13-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-17">17</a>
+</span><span class="lnt" id="hl-13-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-18">18</a>
+</span><span class="lnt" id="hl-13-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-19">19</a>
+</span><span class="lnt" id="hl-13-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-20">20</a>
+</span><span class="lnt" id="hl-13-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-21">21</a>
+</span><span class="lnt" id="hl-13-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-22">22</a>
+</span><span class="lnt" id="hl-13-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-23">23</a>
+</span><span class="lnt" id="hl-13-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-24">24</a>
+</span><span class="lnt" id="hl-13-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-25">25</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Visualize the data with PCA</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Create a PCA instance. </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># This will reduce the data to 2 dimensions </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># as opposed to 3, where we have 2 features and a bias, more on that in next episode.</span>
+</span></span><span class="line"><span class="cl"><span class="n">PCA</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Fit the PCA instance to the training data</span>
+</span></span><span class="line"><span class="cl"><span class="n">x_data</span> <span class="o">=</span> <span class="n">train_data_pos_neg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">PCA</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Transform the training data to 2 dimensions ignoring the bias. This is due to the fact that the bias is a constant and will not affect the PCA</span>
+</span></span><span class="line"><span class="cl"><span class="n">x_data_2d</span> <span class="o">=</span> <span class="n">PCA</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x_data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_data_2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x_data_2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">train_data_pos_neg</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;bwr&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;First Principal Component&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Second Principal Component&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Setup legend</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
+</span></span><span class="line"><span class="cl"><span class="n">red_patch</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Negative&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">blue_patch</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Positive&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">red_patch</span><span class="p">,</span> <span class="n">blue_patch</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p></p>
+<p>A better would be to use PCA for this kind of representation, but for now, we will ignore that fact since we want to explore that in episode 2.</p>
+<h2 id="model-development">Model Development</h2>
+<p>This episode mainly focuses on cleaning the data and developing decent representations. This is why I will only include a single model to test everything; Logistic Regression.</p>
+<h3 id="logistic-regression">Logistic Regression</h3>
+<p>Logistic regression is a simple single-layer network with sigmoid activation. This is an excellent baseline as it is one of the simplest binary classification methods. I am not explaining this method in depth, so if you want to learn more, please do so. I will use a simple <code>PyTorch</code> implementation.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-14-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-1">1</a>
+</span><span class="lnt" id="hl-14-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-2">2</a>
+</span><span class="lnt" id="hl-14-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-3">3</a>
+</span><span class="lnt" id="hl-14-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-4">4</a>
+</span><span class="lnt" id="hl-14-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-5">5</a>
+</span><span class="lnt" id="hl-14-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-6">6</a>
+</span><span class="lnt" id="hl-14-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-7">7</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">LogisticRegression</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We then define the loss function and the optimizer to use. I am using Binary Cross Entropy for the loss function and Adam for the optimization with a learning rate of <code>0.01</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-15-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-1"> 1</a>
+</span><span class="lnt" id="hl-15-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-2"> 2</a>
+</span><span class="lnt" id="hl-15-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-3"> 3</a>
+</span><span class="lnt" id="hl-15-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-4"> 4</a>
+</span><span class="lnt" id="hl-15-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-5"> 5</a>
+</span><span class="lnt" id="hl-15-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-6"> 6</a>
+</span><span class="lnt" id="hl-15-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-7"> 7</a>
+</span><span class="lnt" id="hl-15-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-8"> 8</a>
+</span><span class="lnt" id="hl-15-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-9"> 9</a>
+</span><span class="lnt" id="hl-15-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-10">10</a>
+</span><span class="lnt" id="hl-15-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-11">11</a>
+</span><span class="lnt" id="hl-15-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-12">12</a>
+</span><span class="lnt" id="hl-15-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-13">13</a>
+</span><span class="lnt" id="hl-15-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-14">14</a>
+</span><span class="lnt" id="hl-15-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-15">15</a>
+</span><span class="lnt" id="hl-15-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-16">16</a>
+</span><span class="lnt" id="hl-15-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-17">17</a>
+</span><span class="lnt" id="hl-15-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-18">18</a>
+</span><span class="lnt" id="hl-15-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-19">19</a>
+</span><span class="lnt" id="hl-15-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-20">20</a>
+</span><span class="lnt" id="hl-15-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-21">21</a>
+</span><span class="lnt" id="hl-15-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-22">22</a>
+</span><span class="lnt" id="hl-15-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-23">23</a>
+</span><span class="lnt" id="hl-15-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-24">24</a>
+</span><span class="lnt" id="hl-15-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-25">25</a>
+</span><span class="lnt" id="hl-15-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-26">26</a>
+</span><span class="lnt" id="hl-15-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-27">27</a>
+</span><span class="lnt" id="hl-15-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-28">28</a>
+</span><span class="lnt" id="hl-15-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-29">29</a>
+</span><span class="lnt" id="hl-15-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-30">30</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">Cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;CPU&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">x_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BCELoss</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Train the model</span>
+</span></span><span class="line"><span class="cl"><span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">100</span>
+</span></span><span class="line"><span class="cl"><span class="n">train_loss</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="n">val_loss</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Forward pass</span>
+</span></span><span class="line"><span class="cl">    <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">y_train</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Backward and optimize</span>
+</span></span><span class="line"><span class="cl">    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">train_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Validation</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">y_val</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="n">val_loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">epoch</span><span class="p">)</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Epoch [</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">], Loss: </span><span class="si">{:.4f}</span><span class="s1">&#39;</span> 
+</span></span><span class="line"><span class="cl">               <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">,</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Sparse Representation Training</strong> We first start with training the sparse representation. I trained for <code>100</code> epochs and reached <code>0.614</code> training accuracy and <code>0.606</code> validation accuracy. Here is the learning curve</p>
+<p></p>
+<p><strong>Word Frequency Representation</strong> <strong>Training</strong> I trained using the same parameter settings above, reaching <code>0.901</code> training accuracy and <code>0.861</code> validation accuracy. Here is the learning curve in the log scale</p>
+<p></p>
+]]></content:encoded>
+    </item>
+    
     <item>
       <title>Lecture Notes - Makemore Part 3: Activations &amp; Gradients, BatchNorm</title>
       <link>https://bedirtapkan.com/posts/blog_posts/makemore3/</link>
