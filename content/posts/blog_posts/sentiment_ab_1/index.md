@@ -239,7 +239,7 @@ blue_patch = mpatches.Patch(color='blue', label='Positive')
 plt.legend(handles=[red_patch, blue_patch])
 ```
 
-![Untitled](graph.png)
+![Untitled](images/graph.png)
 
 A better would be to use PCA for this kind of representation, but for now, we will ignore that fact since we want to explore that in episode 2.
 
@@ -298,11 +298,11 @@ for epoch in range(num_epochs):
 
 **Sparse Representation Training** We first start with training the sparse representation. I trained for `100` epochs and reached `0.614` training accuracy and `0.606` validation accuracy. Here is the learning curve
 
-![Untitled](graph1.png)
+![Untitled](images/graph1.png)
 
 **Word Frequency Representation** **Training** I trained using the same parameter settings above, reaching `0.901` training accuracy and `0.861` validation accuracy. Here is the learning curve in the log scale
 
-![Untitled](graph2.png)
+![Untitled](images/graph2.png)
 
 ### Naive Bayes
 
