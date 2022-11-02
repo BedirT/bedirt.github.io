@@ -684,7 +684,7 @@ function toggleThemeListener() {
 </span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">red_patch</span><span class="p">,</span> <span class="n">blue_patch</span><span class="p">])</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p></p>
+</div><p><img loading="lazy" src="/posts/blog_posts/sentiment_ab_1/images/graph.png" type="" alt="Untitled"  /></p>
 <p>A better would be to use PCA for this kind of representation, but for now, we will ignore that fact since we want to explore that in episode 2.</p>
 <h2 id="model-development">Model Development<a hidden class="anchor" aria-hidden="true" href="#model-development">¶</a></h2>
 <p>This episode mainly focuses on cleaning the data and developing decent representations. This is why I will only include Logistic Regression for representation comparison, we then can compare Naive Bayes and Logistic Regression to pick a baseline for ourselves.</p>
@@ -778,9 +778,9 @@ function toggleThemeListener() {
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><strong>Sparse Representation Training</strong> We first start with training the sparse representation. I trained for <code>100</code> epochs and reached <code>0.614</code> training accuracy and <code>0.606</code> validation accuracy. Here is the learning curve</p>
-<p></p>
+<p><img loading="lazy" src="/posts/blog_posts/sentiment_ab_1/images/graph1.png" type="" alt="Untitled"  /></p>
 <p><strong>Word Frequency Representation</strong> <strong>Training</strong> I trained using the same parameter settings above, reaching <code>0.901</code> training accuracy and <code>0.861</code> validation accuracy. Here is the learning curve in the log scale</p>
-<p></p>
+<p><img loading="lazy" src="/posts/blog_posts/sentiment_ab_1/images/graph2.png" type="" alt="Untitled"  /></p>
 <h3 id="naive-bayes">Naive Bayes<a hidden class="anchor" aria-hidden="true" href="#naive-bayes">¶</a></h3>
 <p>The next really good baseline is Naive Bayes. This is a very simple model that is very fast to train and has a very good accuracy. Naive Bayes is a probabilistic model that uses Bayes&rsquo; theorem to calculate the probability of a class given the input. The main assumption of this model is that the features are independent of each other. This is why it is called Naive. To give a basic intuition of how this model works, let&rsquo;s say we have a sentence <code>I love this movie</code> and we want to classify it as positive or negative. We first calculate the probability of the sentence being positive and negative using the conditional frequency probability we calculated above and multiply them by the prior probability of the class. The class with the highest probability is the predicted class.</p>
 <p>To put it in other terms, this is the Bayes Rule:</p>
