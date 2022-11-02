@@ -8,6 +8,8 @@ ShowToc: true
 ---
 # Sentiment Analysis A to B: Episode 1
 
+[Github Repo](https://github.com/BedirT/SentimentAnalysisAtoB) | [Full-code notebook](https://github.com/BedirT/SentimentAnalysisAtoB/blob/main/ep1.ipynb)
+
 In this series, I will work my way into different Sentiment Analysis methods and experiment with other techniques. I will use the data from the [IMDB review dataset](https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis) acquired from Kaggle. The series is called A to B since I need to cover all the methods and the best, for that matter. I am covering some I find exciting and test-worthy.
 
 In this episode, I will be examining/going over the following:
@@ -16,7 +18,9 @@ In this episode, I will be examining/going over the following:
 - 2 different feature representations:
     - Sparse vector representation
     - Word frequency counts
-- Comparison using logistic regression
+- Comparison using:
+    - Logistic regression
+    - Naive Bayes
 
 ## Feature Representation
 
@@ -241,7 +245,7 @@ A better would be to use PCA for this kind of representation, but for now, we wi
 
 ## Model Development
 
-This episode mainly focuses on cleaning the data and developing decent representations. This is why I will only include a single model to test everything; Logistic Regression.
+This episode mainly focuses on cleaning the data and developing decent representations. This is why I will only include Logistic Regression for representation comparison, we then can compare Naive Bayes and Logistic Regression to pick a baseline for ourselves.
 
 ### Logistic Regression
 
@@ -299,3 +303,92 @@ for epoch in range(num_epochs):
 **Word Frequency Representation** **Training** I trained using the same parameter settings above, reaching `0.901` training accuracy and `0.861` validation accuracy. Here is the learning curve in the log scale
 
 ![Untitled](graph2.png)
+
+### Naive Bayes
+
+The next really good baseline is Naive Bayes. This is a very simple model that is very fast to train and has a very good accuracy. Naive Bayes is a probabilistic model that uses Bayes' theorem to calculate the probability of a class given the input. The main assumption of this model is that the features are independent of each other. This is why it is called Naive. To give a basic intuition of how this model works, let's say we have a sentence `I love this movie` and we want to classify it as positive or negative. We first calculate the probability of the sentence being positive and negative using the conditional frequency probability we calculated above and multiply them by the prior probability of the class. The class with the highest probability is the predicted class. 
+
+To put it in other terms, this is the Bayes Rule:
+
+$$P(C|X) = \frac{P(X|C)P(C)}{P(X)}$$
+
+We then calculate $P(w_i|pos)$ and $P(w_i|neg)$ for each word in the sentence where $w_i$ is the $i^{th}$ word in the sentence and $pos$ and $neg$ are the positive and negative classes respectively. We then multiply the ratio of these, so:
+
+$$\prod_{i=1}^{n} \frac{P(w_i|pos)}{P(w_i|neg)}$$
+
+If the result is greater than 1, we predict the sentence to be positive, otherwise negative. When we convert this to log space and add the log prior, we get the Naive Bayes equation:
+
+$$\log \frac{P(pos)}{P(neg)} + \sum_{i=1}^{n} \log \frac{P(w_i|pos)}{P(w_i|neg)}$$
+
+We now implement this in python and numpy.
+
+```python
+# Naive Bayes model (vanilla implementation)
+class NaiveBayes:
+
+    def __init__(self, num_classes=2):
+        self.num_classes = num_classes
+
+    def fit(self, X, y):
+        # Log Prior: num_pos/num_neg
+        num_pos = (y == 1).sum()
+        num_neg = (y == 0).sum()
+        self.log_prior = np.log(num_pos/num_neg)
+
+        # Frequency table for words
+        self.lambda_ = {}
+        for i, data in enumerate(X):
+            sentence = clean_sentence(data)
+            label = int(y[i])
+            for j, word in enumerate(sentence):
+                if word not in self.lambda_:
+                    self.lambda_[word] = np.zeros(self.num_classes)
+                self.lambda_[word][label] += 1
+        
+        # Convert to word probabilities with Laplace smoothing
+        N_pos = sum([self.lambda_[word][1] for word in self.lambda_])
+        N_neg = sum([self.lambda_[word][0] for word in self.lambda_])
+        V = len(self.lambda_)
+        for word in self.lambda_:
+            self.lambda_[word][1] = (self.lambda_[word][1] + 1) / (N_pos + V)
+            self.lambda_[word][0] = (self.lambda_[word][0] + 1) / (N_neg + V)
+
+        # Convert to log likelihood
+        for word in self.lambda_:
+            self.lambda_[word] = np.log(self.lambda_[word][1]/self.lambda_[word][0])
+
+    def predict(self, X):
+        # Without matrix implementation
+        y_pred = []
+        for i, data in enumerate(X):
+            sentence = clean_sentence(data)
+            log_posterior = self.log_prior
+            for j, word in enumerate(sentence):
+                if word in self.lambda_:
+                    log_posterior += self.lambda_[word]
+            y_pred.append(log_posterior > 0)
+        return np.array(y_pred)
+```
+
+Here we recreate the frequency table as lambda_ and converting the counts to frequencies as well as log likelihood. So we have a self containing naive bayes method.
+
+We then test and get `0.9` for training accuracy and `0.859` for test accuracy.
+
+```python
+# Train with freqs
+X_train, y_train = [x[0] for x in train_data], np.array([int(x[1]) for x in train_data])
+X_val, y_val = [x[0] for x in val_data], np.array([int(x[1]) for x in val_data])
+
+# Train a Naive Bayes model
+model = NaiveBayes()
+model.fit(X_train, y_train)
+
+# Test the model
+y_pred = model.predict(X_train)
+acc = (y_pred == y_train).mean()
+
+y_pred = model.predict(X_val)
+acc = (y_pred == y_val).mean()
+```
+
+So we got pretty much the same exact result as Logistic regression. The upside of Naive Bayes is that it is very fast to train and has a very good accuracy. The downside is that it is not very flexible and does not capture the relationship between the features. This is why we use more complex models like Neural Networks. Coming soon! But first we need to learn more about representations. Next episode we will experiment on word embeddings and vector space representations.
