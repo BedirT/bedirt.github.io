@@ -56,7 +56,7 @@
   "keywords": [
     "NLP", "Machine Learning", "Sentiment Analysis"
   ],
-  "wordCount" : "1762",
+  "wordCount" : "2437",
   "inLanguage": "en",
   "datePublished": "2022-11-01T00:00:00Z",
   "dateModified": "2022-11-01T00:00:00Z",
@@ -269,9 +269,9 @@ function toggleThemeListener() {
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon" style="user-select: text;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" style="user-select: text;"></path><line x1="7" y1="7" x2="7" y2="7" style="user-select: text;"></line></svg>
   <span class="post-tags"><a href="https://bedirtapkan.com/tags/nlp/">NLP</a><a href="https://bedirtapkan.com/tags/machine-learning/">Machine Learning</a><a href="https://bedirtapkan.com/tags/sentiment-analysis/">Sentiment Analysis</a></span></span><span class="meta-item">
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text" style="user-select: text;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" style="user-select: text;"></path><polyline points="14 2 14 8 20 8" style="user-select: text;"></polyline><line x1="16" y1="13" x2="8" y2="13" style="user-select: text;"></line><line x1="16" y1="17" x2="8" y2="17" style="user-select: text;"></line><polyline points="10 9 9 9 8 9" style="user-select: text;"></polyline></svg>
-  <span>1762 words</span></span><span class="meta-item">
+  <span>2437 words</span></span><span class="meta-item">
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 15"></polyline></svg>
-  <span>9 min</span></span>
+  <span>12 min</span></span>
 
       
       
@@ -294,6 +294,7 @@ function toggleThemeListener() {
     <li><a href="#model-development">Model Development</a>
       <ul>
         <li><a href="#logistic-regression">Logistic Regression</a></li>
+        <li><a href="#naive-bayes">Naive Bayes</a></li>
       </ul>
     </li>
   </ul>
@@ -303,6 +304,7 @@ function toggleThemeListener() {
 </div>
 
   <div class="post-content"><h1 id="sentiment-analysis-a-to-b-episode-1">Sentiment Analysis A to B: Episode 1<a hidden class="anchor" aria-hidden="true" href="#sentiment-analysis-a-to-b-episode-1">¶</a></h1>
+<p><a href="https://github.com/BedirT/SentimentAnalysisAtoB">Github Repo</a> | <a href="https://github.com/BedirT/SentimentAnalysisAtoB/blob/main/ep1.ipynb">Full-code notebook</a></p>
 <p>In this series, I will work my way into different Sentiment Analysis methods and experiment with other techniques. I will use the data from the <a href="https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis">IMDB review dataset</a> acquired from Kaggle. The series is called A to B since I need to cover all the methods and the best, for that matter. I am covering some I find exciting and test-worthy.</p>
 <p>In this episode, I will be examining/going over the following:</p>
 <ul>
@@ -313,7 +315,12 @@ function toggleThemeListener() {
 <li>Word frequency counts</li>
 </ul>
 </li>
-<li>Comparison using logistic regression</li>
+<li>Comparison using:
+<ul>
+<li>Logistic regression</li>
+<li>Naive Bayes</li>
+</ul>
+</li>
 </ul>
 <h2 id="feature-representation">Feature Representation<a hidden class="anchor" aria-hidden="true" href="#feature-representation">¶</a></h2>
 <p>Your model will be, at most, as good as your data, and your data will be only as good as you understand them to be, hence the features. I want to see the most useless or naive approaches and agile methods and benchmark them for both measures of prediction success and for training and prediction time.</p>
@@ -680,7 +687,7 @@ function toggleThemeListener() {
 </div><p></p>
 <p>A better would be to use PCA for this kind of representation, but for now, we will ignore that fact since we want to explore that in episode 2.</p>
 <h2 id="model-development">Model Development<a hidden class="anchor" aria-hidden="true" href="#model-development">¶</a></h2>
-<p>This episode mainly focuses on cleaning the data and developing decent representations. This is why I will only include a single model to test everything; Logistic Regression.</p>
+<p>This episode mainly focuses on cleaning the data and developing decent representations. This is why I will only include Logistic Regression for representation comparison, we then can compare Naive Bayes and Logistic Regression to pick a baseline for ourselves.</p>
 <h3 id="logistic-regression">Logistic Regression<a hidden class="anchor" aria-hidden="true" href="#logistic-regression">¶</a></h3>
 <p>Logistic regression is a simple single-layer network with sigmoid activation. This is an excellent baseline as it is one of the simplest binary classification methods. I am not explaining this method in depth, so if you want to learn more, please do so. I will use a simple <code>PyTorch</code> implementation.</p>
 <div class="highlight"><div class="chroma">
@@ -774,6 +781,148 @@ function toggleThemeListener() {
 <p></p>
 <p><strong>Word Frequency Representation</strong> <strong>Training</strong> I trained using the same parameter settings above, reaching <code>0.901</code> training accuracy and <code>0.861</code> validation accuracy. Here is the learning curve in the log scale</p>
 <p></p>
+<h3 id="naive-bayes">Naive Bayes<a hidden class="anchor" aria-hidden="true" href="#naive-bayes">¶</a></h3>
+<p>The next really good baseline is Naive Bayes. This is a very simple model that is very fast to train and has a very good accuracy. Naive Bayes is a probabilistic model that uses Bayes&rsquo; theorem to calculate the probability of a class given the input. The main assumption of this model is that the features are independent of each other. This is why it is called Naive. To give a basic intuition of how this model works, let&rsquo;s say we have a sentence <code>I love this movie</code> and we want to classify it as positive or negative. We first calculate the probability of the sentence being positive and negative using the conditional frequency probability we calculated above and multiply them by the prior probability of the class. The class with the highest probability is the predicted class.</p>
+<p>To put it in other terms, this is the Bayes Rule:</p>
+<p>$$P(C|X) = \frac{P(X|C)P(C)}{P(X)}$$</p>
+<p>We then calculate $P(w_i|pos)$ and $P(w_i|neg)$ for each word in the sentence where $w_i$ is the $i^{th}$ word in the sentence and $pos$ and $neg$ are the positive and negative classes respectively. We then multiply the ratio of these, so:</p>
+<p>$$\prod_{i=1}^{n} \frac{P(w_i|pos)}{P(w_i|neg)}$$</p>
+<p>If the result is greater than 1, we predict the sentence to be positive, otherwise negative. When we convert this to log space and add the log prior, we get the Naive Bayes equation:</p>
+<p>$$\log \frac{P(pos)}{P(neg)} + \sum_{i=1}^{n} \log \frac{P(w_i|pos)}{P(w_i|neg)}$$</p>
+<p>We now implement this in python and numpy.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-16-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-1"> 1</a>
+</span><span class="lnt" id="hl-16-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-2"> 2</a>
+</span><span class="lnt" id="hl-16-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-3"> 3</a>
+</span><span class="lnt" id="hl-16-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-4"> 4</a>
+</span><span class="lnt" id="hl-16-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-5"> 5</a>
+</span><span class="lnt" id="hl-16-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-6"> 6</a>
+</span><span class="lnt" id="hl-16-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-7"> 7</a>
+</span><span class="lnt" id="hl-16-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-8"> 8</a>
+</span><span class="lnt" id="hl-16-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-9"> 9</a>
+</span><span class="lnt" id="hl-16-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-10">10</a>
+</span><span class="lnt" id="hl-16-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-11">11</a>
+</span><span class="lnt" id="hl-16-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-12">12</a>
+</span><span class="lnt" id="hl-16-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-13">13</a>
+</span><span class="lnt" id="hl-16-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-14">14</a>
+</span><span class="lnt" id="hl-16-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-15">15</a>
+</span><span class="lnt" id="hl-16-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-16">16</a>
+</span><span class="lnt" id="hl-16-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-17">17</a>
+</span><span class="lnt" id="hl-16-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-18">18</a>
+</span><span class="lnt" id="hl-16-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-19">19</a>
+</span><span class="lnt" id="hl-16-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-20">20</a>
+</span><span class="lnt" id="hl-16-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-21">21</a>
+</span><span class="lnt" id="hl-16-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-22">22</a>
+</span><span class="lnt" id="hl-16-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-23">23</a>
+</span><span class="lnt" id="hl-16-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-24">24</a>
+</span><span class="lnt" id="hl-16-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-25">25</a>
+</span><span class="lnt" id="hl-16-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-26">26</a>
+</span><span class="lnt" id="hl-16-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-27">27</a>
+</span><span class="lnt" id="hl-16-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-28">28</a>
+</span><span class="lnt" id="hl-16-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-29">29</a>
+</span><span class="lnt" id="hl-16-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-30">30</a>
+</span><span class="lnt" id="hl-16-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-31">31</a>
+</span><span class="lnt" id="hl-16-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-32">32</a>
+</span><span class="lnt" id="hl-16-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-33">33</a>
+</span><span class="lnt" id="hl-16-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-34">34</a>
+</span><span class="lnt" id="hl-16-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-35">35</a>
+</span><span class="lnt" id="hl-16-36"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-36">36</a>
+</span><span class="lnt" id="hl-16-37"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-37">37</a>
+</span><span class="lnt" id="hl-16-38"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-38">38</a>
+</span><span class="lnt" id="hl-16-39"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-39">39</a>
+</span><span class="lnt" id="hl-16-40"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-40">40</a>
+</span><span class="lnt" id="hl-16-41"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-41">41</a>
+</span><span class="lnt" id="hl-16-42"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-42">42</a>
+</span><span class="lnt" id="hl-16-43"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-43">43</a>
+</span><span class="lnt" id="hl-16-44"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-44">44</a>
+</span><span class="lnt" id="hl-16-45"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-16-45">45</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Naive Bayes model (vanilla implementation)</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">NaiveBayes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Log Prior: num_pos/num_neg</span>
+</span></span><span class="line"><span class="cl">        <span class="n">num_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">num_neg</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">log_prior</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">num_pos</span><span class="o">/</span><span class="n">num_neg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Frequency table for words</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">sentence</span> <span class="o">=</span> <span class="n">clean_sentence</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">label</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">word</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="c1"># Convert to word probabilities with Laplace smoothing</span>
+</span></span><span class="line"><span class="cl">        <span class="n">N_pos</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">        <span class="n">N_neg</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">        <span class="n">V</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">N_pos</span> <span class="o">+</span> <span class="n">V</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">N_neg</span> <span class="o">+</span> <span class="n">V</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Convert to log likelihood</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Without matrix implementation</span>
+</span></span><span class="line"><span class="cl">        <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">sentence</span> <span class="o">=</span> <span class="n">clean_sentence</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">log_posterior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_prior</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">log_posterior</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">y_pred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_posterior</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here we recreate the frequency table as lambda_ and converting the counts to frequencies as well as log likelihood. So we have a self containing naive bayes method.</p>
+<p>We then test and get <code>0.9</code> for training accuracy and <code>0.859</code> for test accuracy.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-17-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-1"> 1</a>
+</span><span class="lnt" id="hl-17-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-2"> 2</a>
+</span><span class="lnt" id="hl-17-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-3"> 3</a>
+</span><span class="lnt" id="hl-17-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-4"> 4</a>
+</span><span class="lnt" id="hl-17-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-5"> 5</a>
+</span><span class="lnt" id="hl-17-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-6"> 6</a>
+</span><span class="lnt" id="hl-17-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-7"> 7</a>
+</span><span class="lnt" id="hl-17-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-8"> 8</a>
+</span><span class="lnt" id="hl-17-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-9"> 9</a>
+</span><span class="lnt" id="hl-17-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-10">10</a>
+</span><span class="lnt" id="hl-17-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-11">11</a>
+</span><span class="lnt" id="hl-17-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-12">12</a>
+</span><span class="lnt" id="hl-17-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-13">13</a>
+</span><span class="lnt" id="hl-17-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-17-14">14</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Train with freqs</span>
+</span></span><span class="line"><span class="cl"><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Train a Naive Bayes model</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">NaiveBayes</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Test the model</span>
+</span></span><span class="line"><span class="cl"><span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">acc</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_train</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">acc</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_val</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>So we got pretty much the same exact result as Logistic regression. The upside of Naive Bayes is that it is very fast to train and has a very good accuracy. The downside is that it is not very flexible and does not capture the relationship between the features. This is why we use more complex models like Neural Networks. Coming soon! But first we need to learn more about representations. Next episode we will experiment on word embeddings and vector space representations.</p>
 
 
   </div>
