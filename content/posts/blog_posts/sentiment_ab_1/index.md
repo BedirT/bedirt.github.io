@@ -1,18 +1,17 @@
 ---
 author: "Bedir Tapkan"
-title: "Sentiment Analysis A to B: Episode 1"
+title: "NLP Series: ABC of Sentiment Analysis"
 date: 2022-11-01
-description: "Sentiment Analysis Experiments, Data Prep, Representations and Logistic Regression"
+description: "Sentiment Analysis Experiments, Data Prep, Representations and Logistic Regression & Naive Bayes"
 tags: ["NLP", "Machine Learning", "Sentiment Analysis"]
 ShowToc: true
 ---
-# Sentiment Analysis A to B: Episode 1
 
 [Github Repo](https://github.com/BedirT/SentimentAnalysisAtoB) | [Full-code notebook](https://github.com/BedirT/SentimentAnalysisAtoB/blob/main/ep1.ipynb)
 
-In this series, I will work my way into different Sentiment Analysis methods and experiment with other techniques. I will use the data from the [IMDB review dataset](https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis) acquired from Kaggle. The series is called A to B since I need to cover all the methods and the best, for that matter. I am covering some I find exciting and test-worthy.
+In this post, I will work my way into basic Sentiment Analysis methods and experiment with some techniques. I will use the data from the [IMDB review dataset](https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis) acquired from Kaggle.
 
-In this episode, I will be examining/going over the following:
+We will be examining/going over the following:
 
 - Data preprocessing for sentiment analysis
 - 2 different feature representations:
@@ -370,7 +369,7 @@ class NaiveBayes:
         return np.array(y_pred)
 ```
 
-Here we recreate the frequency table as lambda_ and converting the counts to frequencies as well as log likelihood. So we have a self containing naive bayes method.
+Here we recreate the frequency table as `lambda_` and converting the counts to frequencies as well as log likelihood. So we have a self containing naive bayes method.
 
 We then test and get `0.9` for training accuracy and `0.859` for test accuracy.
 
@@ -391,4 +390,4 @@ y_pred = model.predict(X_val)
 acc = (y_pred == y_val).mean()
 ```
 
-So we got pretty much the same exact result as Logistic regression. The upside of Naive Bayes is that it is very fast to train and has a very good accuracy. The downside is that it is not very flexible and does not capture the relationship between the features. This is why we use more complex models like Neural Networks. Coming soon! But first we need to learn more about representations. Next episode we will experiment on word embeddings and vector space representations.
+So we got pretty much the same exact result as Logistic regression. The upside of Naive Bayes is that it is very fast to train and has a very good accuracy. The downside is that it is not very flexible and does not capture the relationship between the features. This is why we use more complex models like Neural Networks. Later on I might have another post on more mature methods.
