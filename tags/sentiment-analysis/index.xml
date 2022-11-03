@@ -8,16 +8,15 @@
     <copyright>© 2022</copyright>
     <lastBuildDate>Tue, 01 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/tags/sentiment-analysis/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Sentiment Analysis A to B: Episode 1</title>
+      <title>NLP Series: ABC of Sentiment Analysis</title>
       <link>https://bedirtapkan.com/posts/blog_posts/sentiment_ab_1/</link>
       <pubDate>Tue, 01 Nov 2022 00:00:00 +0000</pubDate>
       
       <guid>https://bedirtapkan.com/posts/blog_posts/sentiment_ab_1/</guid>
-      <description>Sentiment Analysis Experiments, Data Prep, Representations and Logistic Regression</description>
-      <content:encoded><![CDATA[<h1 id="sentiment-analysis-a-to-b-episode-1">Sentiment Analysis A to B: Episode 1</h1>
-<p><a href="https://github.com/BedirT/SentimentAnalysisAtoB">Github Repo</a> | <a href="https://github.com/BedirT/SentimentAnalysisAtoB/blob/main/ep1.ipynb">Full-code notebook</a></p>
-<p>In this series, I will work my way into different Sentiment Analysis methods and experiment with other techniques. I will use the data from the <a href="https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis">IMDB review dataset</a> acquired from Kaggle. The series is called A to B since I need to cover all the methods and the best, for that matter. I am covering some I find exciting and test-worthy.</p>
-<p>In this episode, I will be examining/going over the following:</p>
+      <description>Sentiment Analysis Experiments, Data Prep, Representations and Logistic Regression &amp;amp; Naive Bayes</description>
+      <content:encoded><![CDATA[<p><a href="https://github.com/BedirT/SentimentAnalysisAtoB">Github Repo</a> | <a href="https://github.com/BedirT/SentimentAnalysisAtoB/blob/main/ep1.ipynb">Full-code notebook</a></p>
+<p>In this post, I will work my way into basic Sentiment Analysis methods and experiment with some techniques. I will use the data from the <a href="https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis">IMDB review dataset</a> acquired from Kaggle.</p>
+<p>We will be examining/going over the following:</p>
 <ul>
 <li>Data preprocessing for sentiment analysis</li>
 <li>2 different feature representations:
@@ -597,7 +596,7 @@
 </span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>Here we recreate the frequency table as lambda_ and converting the counts to frequencies as well as log likelihood. So we have a self containing naive bayes method.</p>
+</div><p>Here we recreate the frequency table as <code>lambda_</code> and converting the counts to frequencies as well as log likelihood. So we have a self containing naive bayes method.</p>
 <p>We then test and get <code>0.9</code> for training accuracy and <code>0.859</code> for test accuracy.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -633,7 +632,7 @@
 </span></span><span class="line"><span class="cl"><span class="n">acc</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">==</span> <span class="n">y_val</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>So we got pretty much the same exact result as Logistic regression. The upside of Naive Bayes is that it is very fast to train and has a very good accuracy. The downside is that it is not very flexible and does not capture the relationship between the features. This is why we use more complex models like Neural Networks. Coming soon! But first we need to learn more about representations. Next episode we will experiment on word embeddings and vector space representations.</p>
+</div><p>So we got pretty much the same exact result as Logistic regression. The upside of Naive Bayes is that it is very fast to train and has a very good accuracy. The downside is that it is not very flexible and does not capture the relationship between the features. This is why we use more complex models like Neural Networks. Later on I might have another post on more mature methods.</p>
 ]]></content:encoded>
     </item>
     
