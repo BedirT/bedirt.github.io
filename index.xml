@@ -6,7 +6,934 @@
     <description>Recent content on Bedir Tapkan</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>© 2022</copyright>
-    <lastBuildDate>Tue, 01 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 22 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://bedirtapkan.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Object Detection ABCs - Setting Up Metrics</title>
+      <link>https://bedirtapkan.com/posts/blog_posts/object_detection_abc/</link>
+      <pubDate>Tue, 22 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://bedirtapkan.com/posts/blog_posts/object_detection_abc/</guid>
+      <description>A little tutorial on setting up object detection metrics and basics, prepping for YOLO implementation.</description>
+      <content:encoded><![CDATA[<p>These are my notes on refreshing my object detection knowledge. We will start with bounding boxes for localization and cover everything we need before jumping in to implement YOLO algorithms.</p>
+<p>This tutorial includes answers to the following questions:</p>
+<ul>
+<li>What is localization?</li>
+<li>What are a bounding box and sliding window?</li>
+<li>How to measure the success of a predicted bounding box: Intersection over the union.</li>
+<li>How to get rid of extra bounding boxes: Non-max suppression.</li>
+<li>Evaluation Metric for Object Detection: Mean average precision</li>
+</ul>
+<h5 id="check-references-for-addresses-of-the-imagesreferences"><a href="#references">Check references for addresses of the images.</a></h5>
+<h2 id="object-detection">Object Detection</h2>
+<p>Object Detection is finding objects in an image and where they are located in the image. Adding localization or location on detected objects for a classification task will give us object detection.</p>
+<p>We mainly use Deep Learning approaches for modern applications (what a surprise 🙂). On the other hand, object detection focuses on how to solve localization problems for the most part, so we will focus on some methods to help us solve this issue to begin with.</p>
+<h2 id="localization">Localization</h2>
+<p>Localization is an easy concept. For example, imagine we have an image of a cat; I can classify this image as a cat with some confidence level. If I want to show where the cat is in the image, I need to use localization; to determine what part of the image the cat is at. Similarly, if we had multiple objects on the scene, we could detect each separately, classifying the image as numerous. <em>We call this location identification of various objects <strong>localization</strong></em>.</p>
+<p><img loading="lazy" src="/posts/blog_posts/object_detection_abc/images/img.png" type="" alt="image from &lt;a href=&#34;https://www.datacamp.com/tutorial/object-detection-guide&#34;&gt;https://www.datacamp.com/tutorial/object-detection-guide&lt;/a&gt;"  /></p>
+<p>While we try to classify an image, our model will also predict where is the predicted object located, or rather where the bounding box is located. To do this, we have additional parameters to describe the location of the bounding box. For example, we can define a bounding box using the coordinates of its corners or the location of its middle point and height and weight. I&rsquo;ll talk about that later.</p>
+<h2 id="bounding-box--sliding-window">Bounding Box &amp; Sliding Window</h2>
+<p>As we discussed, a bounding box surrounds an object in the image. The red, green and blue boxes in the image above are examples of bounding boxes. That’s great; how do we handle drawing these boxes, though?</p>
+<p>There are many ways proposed, and I am sure the research will continue on it for some time, but the primary approach we have is called a sliding window. A sliding window is to have a box run around all the images and try to find which part of the image actually has the object we are predicting.</p>
+<p><img loading="lazy" src="/posts/blog_posts/object_detection_abc/images/img1.png" type="" alt="image from &lt;a href=&#34;https://pyimagesearch.com/2015/03/23/sliding-windows-for-object-detection-with-python-and-opencv/&#34;&gt;https://pyimagesearch.com/2015/03/23/sliding-windows-for-object-detection-with-python-and-opencv/&lt;/a&gt;"  /></p>
+<p>As we can guess, this is a slow method, considering how many boxes there are for every image (you also have to run your model on each window). So there is some work on improving this method&rsquo;s speed.</p>
+<p>The next problem is getting multiple bounding boxes for an image. We will see how to handle this as well.</p>
+<h2 id="intersection-over-union">Intersection over Union</h2>
+<p>This is a simple method to calculate the error of a given prediction. We check the intersection of the real bounding box and the prediction, and divide it into the union of the two. Very simple, isn’t it?</p>
+<p><img loading="lazy" src="/posts/blog_posts/object_detection_abc/images/img2.png" type="" alt="image from &lt;a href=&#34;https://pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/&#34;&gt;https://pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/&lt;/a&gt;"  /></p>
+<p>What we need to do now is to write a simple geometric formula to determine the area of intersection and the union. Let’s jump in using PyTorch. For the sake of understanding, I will first give the non-vectorized implementation, then upgrade the lines to vectorized version</p>
+<p>The first thing we need to do is to convert the midpoint representation to corners. W</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-0-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-1"> 1</a>
+</span><span class="lnt" id="hl-0-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-2"> 2</a>
+</span><span class="lnt" id="hl-0-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-3"> 3</a>
+</span><span class="lnt" id="hl-0-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-4"> 4</a>
+</span><span class="lnt" id="hl-0-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-5"> 5</a>
+</span><span class="lnt" id="hl-0-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-6"> 6</a>
+</span><span class="lnt" id="hl-0-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-7"> 7</a>
+</span><span class="lnt" id="hl-0-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-8"> 8</a>
+</span><span class="lnt" id="hl-0-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-9"> 9</a>
+</span><span class="lnt" id="hl-0-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-10">10</a>
+</span><span class="lnt" id="hl-0-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-11">11</a>
+</span><span class="lnt" id="hl-0-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-12">12</a>
+</span><span class="lnt" id="hl-0-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-13">13</a>
+</span><span class="lnt" id="hl-0-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-14">14</a>
+</span><span class="lnt" id="hl-0-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-15">15</a>
+</span><span class="lnt" id="hl-0-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-16">16</a>
+</span><span class="lnt" id="hl-0-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-17">17</a>
+</span><span class="lnt" id="hl-0-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-18">18</a>
+</span><span class="lnt" id="hl-0-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-19">19</a>
+</span><span class="lnt" id="hl-0-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-0-20">20</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># We are given representations for both boxes: box_pred, box_target</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># both are torch.Tensor with dimensions (N, 4)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Let&#39;s assume we also describe the method of representation: box_format \in [&#39;corners&#39;, &#39;midpoint&#39;]</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">box_format</span> <span class="o">==</span> <span class="s2">&#34;midpoint&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Convert midpoint to corners</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pred_box</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">target_box</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">        <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">        <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span>
+</span></span><span class="line"><span class="cl">        <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We are basically just iterating through all the boxes we have in the list and changing their values using width and height from the middle point. If we know the middle point, we can remove half of the width and height to find the top left corner of the image (in python images are 0,0 on the top left and getting higher numbers towards south and east). So the formula for the top left corner is $x_1 = m_x - \frac{w}{2}$ where $m_x$ is the x for the middle point and $w$ is the width. The same logic goes for y. If we add $w$ to this value we will find the $x_2$.</p>
+<p>Now if we do this way, we are not making use of tensor operations, so let’s alter the code to get a faster calculation</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-1-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-1">1</a>
+</span><span class="lnt" id="hl-1-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-2">2</a>
+</span><span class="lnt" id="hl-1-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-3">3</a>
+</span><span class="lnt" id="hl-1-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-1-4">4</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">box_format</span> <span class="o">==</span> <span class="s2">&#34;midpoint&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Convert midpoint to corners</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pred_box</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">target_box</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If you didn’t get what’s happening here, please ponder over the code a little to grasp how the two of them are the same.</p>
+<p>Now that we setup the corners, we need to find the intersection and the union of the areas. To find the area we can simply multiply the height and width which are equal to the distance between the x’s and y’s. So $A = abs(y_2-y_1)\times abs(x_2-x_1)$. We can get the area for boxes with this logic</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-2-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-1">1</a>
+</span><span class="lnt" id="hl-2-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-2">2</a>
+</span><span class="lnt" id="hl-2-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-3">3</a>
+</span><span class="lnt" id="hl-2-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-4">4</a>
+</span><span class="lnt" id="hl-2-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-5">5</a>
+</span><span class="lnt" id="hl-2-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-6">6</a>
+</span><span class="lnt" id="hl-2-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-7">7</a>
+</span><span class="lnt" id="hl-2-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-2-8">8</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pred_box</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">box1_x_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">box1_y_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">box1_area</span> <span class="o">=</span> <span class="n">box1_x_diff</span> <span class="o">*</span> <span class="n">box1_y_diff</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">box2_x_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">box2_y_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">box2_area</span> <span class="o">=</span> <span class="n">box2_x_diff</span> <span class="o">*</span> <span class="n">box2_y_diff</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We now have everything but the intersection. To find the intersection we can use a simple idea.</p>
+<ul>
+<li>The $x$ for the first point (top left corner of the intersection) will be the maximum of the $x_1$ of the target and the prediction.</li>
+<li>The $y$ for the first point will be the maximum of the $y_1$’s.</li>
+<li>In the same way, the $x_2$ will be the minimum of the two $x_2$’s.</li>
+<li>$y_2$ will be the minimum of the current $y_2$’s.</li>
+</ul>
+<p>So we can just find the corners and use the same logic as the boxes to find the area of the intersection <code>intersection = (x2 - x1) * (y2 - y1)</code>. Though we need a little extra here, we have a probability that there is nothing at the intersection in which case we need to just say so, meaning we need to increase the value to <code>0</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-3-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-1">1</a>
+</span><span class="lnt" id="hl-3-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-2">2</a>
+</span><span class="lnt" id="hl-3-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-3">3</a>
+</span><span class="lnt" id="hl-3-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-4">4</a>
+</span><span class="lnt" id="hl-3-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-5">5</a>
+</span><span class="lnt" id="hl-3-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-6">6</a>
+</span><span class="lnt" id="hl-3-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-7">7</a>
+</span><span class="lnt" id="hl-3-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-8">8</a>
+</span><span class="lnt" id="hl-3-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-3-9">9</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pred_box</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x2</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y2</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">x_diff</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span> <span class="k">if</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y_diff</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span> <span class="k">if</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intersection</span> <span class="o">=</span> <span class="n">x_diff</span> <span class="o">*</span> <span class="n">y_diff</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We could just use <code>clamp(0)</code> instead of an <code>if-else</code> statement there, but I wanted to make it as easy to comprehend as possible.</p>
+<p>Let’s combine everything and PyTorchify at the same time</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-4-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-1"> 1</a>
+</span><span class="lnt" id="hl-4-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-2"> 2</a>
+</span><span class="lnt" id="hl-4-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-3"> 3</a>
+</span><span class="lnt" id="hl-4-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-4"> 4</a>
+</span><span class="lnt" id="hl-4-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-5"> 5</a>
+</span><span class="lnt" id="hl-4-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-6"> 6</a>
+</span><span class="lnt" id="hl-4-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-7"> 7</a>
+</span><span class="lnt" id="hl-4-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-8"> 8</a>
+</span><span class="lnt" id="hl-4-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-9"> 9</a>
+</span><span class="lnt" id="hl-4-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-10">10</a>
+</span><span class="lnt" id="hl-4-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-11">11</a>
+</span><span class="lnt" id="hl-4-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-12">12</a>
+</span><span class="lnt" id="hl-4-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-13">13</a>
+</span><span class="lnt" id="hl-4-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-14">14</a>
+</span><span class="lnt" id="hl-4-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-15">15</a>
+</span><span class="lnt" id="hl-4-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-16">16</a>
+</span><span class="lnt" id="hl-4-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-17">17</a>
+</span><span class="lnt" id="hl-4-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-18">18</a>
+</span><span class="lnt" id="hl-4-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-19">19</a>
+</span><span class="lnt" id="hl-4-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-20">20</a>
+</span><span class="lnt" id="hl-4-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-21">21</a>
+</span><span class="lnt" id="hl-4-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-22">22</a>
+</span><span class="lnt" id="hl-4-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-23">23</a>
+</span><span class="lnt" id="hl-4-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-24">24</a>
+</span><span class="lnt" id="hl-4-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-25">25</a>
+</span><span class="lnt" id="hl-4-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-26">26</a>
+</span><span class="lnt" id="hl-4-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-27">27</a>
+</span><span class="lnt" id="hl-4-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-28">28</a>
+</span><span class="lnt" id="hl-4-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-29">29</a>
+</span><span class="lnt" id="hl-4-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-30">30</a>
+</span><span class="lnt" id="hl-4-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-31">31</a>
+</span><span class="lnt" id="hl-4-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-32">32</a>
+</span><span class="lnt" id="hl-4-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-33">33</a>
+</span><span class="lnt" id="hl-4-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-34">34</a>
+</span><span class="lnt" id="hl-4-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-4-35">35</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">intersection_over_union</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pred_box</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">target_box</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">box_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&#34;midpoint&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Calculates intersection over union (IoU) for two sets of boxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">    
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Args:
+</span></span></span><span class="line"><span class="cl"><span class="s2">        pred_box: (tensor) Bounds for the predicted boxes, sized [N,4]
+</span></span></span><span class="line"><span class="cl"><span class="s2">        target_box: (tensor) Bounds for the target boxes, sized [N,4]
+</span></span></span><span class="line"><span class="cl"><span class="s2">        box_format: (str) midpoint/corners, if boxes are (x,y,w,h) or (x1,y1,x2,y2)
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">box_format</span> <span class="o">==</span> <span class="s2">&#34;midpoint&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Convert midpoint to corners</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pred_box</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">             <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">target_box</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="p">(</span><span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">             <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Get the coordinates of bounding boxes</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Intersection area</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intersection</span> <span class="o">=</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Union Area</span>
+</span></span><span class="line"><span class="cl">    <span class="n">box1_area</span> <span class="o">=</span> <span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">pred_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">box2_area</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_box</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">union</span> <span class="o">=</span> <span class="n">box1_area</span> <span class="o">+</span> <span class="n">box2_area</span> <span class="o">-</span> <span class="n">intersection</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">intersection</span> <span class="o">/</span> <span class="n">union</span>  <span class="c1"># iou</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You can check the easy version on the <a href="none">GitHub repo</a>.</p>
+<p>That’s all for the IOU! Now let’s jump over to non-max suppression.</p>
+<h2 id="non-max-suppression">Non-max Suppression</h2>
+<p>As we mentioned before we might get multiple bounding boxes that fit an object. We need to clean these up and keep only one (one box to rule them all…). We introduce non-max suppression precisely to do this.</p>
+<p><img loading="lazy" src="/posts/blog_posts/object_detection_abc/images/img3.png" type="" alt="image from &lt;a href=&#34;https://pjreddie.com/darknet/yolov1/&#34;&gt;https://pjreddie.com/darknet/yolov1/&lt;/a&gt;"  /></p>
+<p>For each object in our scene we get multiple boxes around, and we need to see if these boxes are actually for the same object and if so we should remove them and keep a single one.</p>
+<p>For this, we get all the boxes that say this part of the image is a dog with some confidence. We pick the box with the most confidence and compare all the others with this box using IoU. After that, by using some threshold value, we remove all the boxes that are above the threshold.</p>
+<p>Before all this, we can also discard all the boxes that are below some confidence level, which would ease our job a little.</p>
+<p>One last thing to mention before jumping in the code, we do this separately for each class. So for bikes, we would go over the boxes one more time, and for cars too etc.</p>
+<p>Time for the code!</p>
+<p>So to begin with, we will assume we got some boxes <code>bboxes</code> as a tensor, <code>iou_threshold</code> for the IoU comparison and <code>threshold</code> for confidence threshold.</p>
+<p>We first handle the conversion from <code>h</code> and <code>w</code> as before.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-5-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-1">1</a>
+</span><span class="lnt" id="hl-5-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-2">2</a>
+</span><span class="lnt" id="hl-5-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-3">3</a>
+</span><span class="lnt" id="hl-5-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-4">4</a>
+</span><span class="lnt" id="hl-5-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-5">5</a>
+</span><span class="lnt" id="hl-5-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-6">6</a>
+</span><span class="lnt" id="hl-5-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-5-7">7</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">box_format</span> <span class="o">==</span> <span class="s2">&#34;midpoint&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bboxes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">        <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">        <span class="n">box</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span>
+</span></span><span class="line"><span class="cl">        <span class="n">box</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now that we have proper variables, we then eliminate the boxes that are below the prediction threshold, then we sort the boxes based on their probabilities (so we can consider the highest probability first.)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-6-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-1">1</a>
+</span><span class="lnt" id="hl-6-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-6-2">2</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">bboxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bboxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">bboxes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then we simply iterate through each box and remove all the boxes that have a higher IoU value than the threshold we gave (we also keep the boxes from other classes). We then append the box we examined for among the boxes to keep.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-7-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-1"> 1</a>
+</span><span class="lnt" id="hl-7-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-2"> 2</a>
+</span><span class="lnt" id="hl-7-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-3"> 3</a>
+</span><span class="lnt" id="hl-7-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-4"> 4</a>
+</span><span class="lnt" id="hl-7-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-5"> 5</a>
+</span><span class="lnt" id="hl-7-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-6"> 6</a>
+</span><span class="lnt" id="hl-7-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-7"> 7</a>
+</span><span class="lnt" id="hl-7-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-8"> 8</a>
+</span><span class="lnt" id="hl-7-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-9"> 9</a>
+</span><span class="lnt" id="hl-7-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-10">10</a>
+</span><span class="lnt" id="hl-7-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-7-11">11</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">while</span> <span class="n">bboxes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">chosen_box</span> <span class="o">=</span> <span class="n">bboxes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">coords</span> <span class="o">=</span> <span class="n">chosen_box</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bboxes</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bboxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">chosen_box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span>
+</span></span><span class="line"><span class="cl">        <span class="n">intersection_over_union</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">coords</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">:]),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">box_format</span><span class="o">=</span><span class="n">box_format</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">iou_threshold</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bboxes_after_nms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen_box</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>That’s all, let’s bring it all together.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-8-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-1"> 1</a>
+</span><span class="lnt" id="hl-8-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-2"> 2</a>
+</span><span class="lnt" id="hl-8-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-3"> 3</a>
+</span><span class="lnt" id="hl-8-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-4"> 4</a>
+</span><span class="lnt" id="hl-8-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-5"> 5</a>
+</span><span class="lnt" id="hl-8-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-6"> 6</a>
+</span><span class="lnt" id="hl-8-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-7"> 7</a>
+</span><span class="lnt" id="hl-8-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-8"> 8</a>
+</span><span class="lnt" id="hl-8-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-9"> 9</a>
+</span><span class="lnt" id="hl-8-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-10">10</a>
+</span><span class="lnt" id="hl-8-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-11">11</a>
+</span><span class="lnt" id="hl-8-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-12">12</a>
+</span><span class="lnt" id="hl-8-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-13">13</a>
+</span><span class="lnt" id="hl-8-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-14">14</a>
+</span><span class="lnt" id="hl-8-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-15">15</a>
+</span><span class="lnt" id="hl-8-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-16">16</a>
+</span><span class="lnt" id="hl-8-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-17">17</a>
+</span><span class="lnt" id="hl-8-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-18">18</a>
+</span><span class="lnt" id="hl-8-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-19">19</a>
+</span><span class="lnt" id="hl-8-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-20">20</a>
+</span><span class="lnt" id="hl-8-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-21">21</a>
+</span><span class="lnt" id="hl-8-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-22">22</a>
+</span><span class="lnt" id="hl-8-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-23">23</a>
+</span><span class="lnt" id="hl-8-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-24">24</a>
+</span><span class="lnt" id="hl-8-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-25">25</a>
+</span><span class="lnt" id="hl-8-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-26">26</a>
+</span><span class="lnt" id="hl-8-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-27">27</a>
+</span><span class="lnt" id="hl-8-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-28">28</a>
+</span><span class="lnt" id="hl-8-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-29">29</a>
+</span><span class="lnt" id="hl-8-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-30">30</a>
+</span><span class="lnt" id="hl-8-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-31">31</a>
+</span><span class="lnt" id="hl-8-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-32">32</a>
+</span><span class="lnt" id="hl-8-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-33">33</a>
+</span><span class="lnt" id="hl-8-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-34">34</a>
+</span><span class="lnt" id="hl-8-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-35">35</a>
+</span><span class="lnt" id="hl-8-36"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-36">36</a>
+</span><span class="lnt" id="hl-8-37"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-37">37</a>
+</span><span class="lnt" id="hl-8-38"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-38">38</a>
+</span><span class="lnt" id="hl-8-39"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-39">39</a>
+</span><span class="lnt" id="hl-8-40"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-40">40</a>
+</span><span class="lnt" id="hl-8-41"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-41">41</a>
+</span><span class="lnt" id="hl-8-42"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-8-42">42</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">non_max_suppression</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bboxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">box_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&#34;corners&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Does Non Max Suppression given bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">    
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Args:
+</span></span></span><span class="line"><span class="cl"><span class="s2">        bboxes: (torch.tensor) All bboxes with their class probabilities,
+</span></span></span><span class="line"><span class="cl"><span class="s2">            shape: [N, 6] (class_pred, prob, x1, y1, x2, y2) or
+</span></span></span><span class="line"><span class="cl"><span class="s2">                   [N, 6] (class_pred, prob, x, y, w, h)
+</span></span></span><span class="line"><span class="cl"><span class="s2">        iou_threshold: (float) threshold where predicted bboxes is correct
+</span></span></span><span class="line"><span class="cl"><span class="s2">        threshold: (float) threshold to remove predicted bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">        box_format: (str) &#34;midpoint&#34; or &#34;corners&#34; used to specify bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">bboxes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Converting midpoint to corners</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">box_format</span> <span class="o">==</span> <span class="s2">&#34;midpoint&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bboxes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">            <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">            <span class="n">box</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span>
+</span></span><span class="line"><span class="cl">            <span class="n">box</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">bboxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bboxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bboxes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bboxes_after_nms</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="n">bboxes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">chosen_box</span> <span class="o">=</span> <span class="n">bboxes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">coords</span> <span class="o">=</span> <span class="n">chosen_box</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bboxes</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bboxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">chosen_box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span>
+</span></span><span class="line"><span class="cl">            <span class="n">intersection_over_union</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">coords</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">:]),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">box_format</span><span class="o">=</span><span class="n">box_format</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">iou_threshold</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bboxes_after_nms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen_box</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">bboxes_after_nms</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Done with that as well, we now can focus on the boxes we actually care about, next up is mean average precision.</p>
+<h2 id="mean-average-precision">Mean Average Precision</h2>
+<p>So we have an object detection model, how do we evaluate this? The most common metric out there (currently) is the <strong>Mean Average Precision (mAP).</strong> As we do, we will quickly cover the basics and jump into code.</p>
+<p>We trained our model, now we are testing using the test or validation data. We will use <strong>precision/recall</strong> to evaluate. So before doing more, let’s go over precision and recall really quickly.</p>
+<h3 id="precisionrecall">Precision/Recall</h3>
+<p>When we make a prediction, we are either right or wrong. Though we can be wrong in different ways. We can say false to something that was true, or true to something that was false. This introduces the idea of <strong>False Positive</strong> and <strong>False Negative.</strong> False positive is when the predicted value is positive but the actual result is negative, and False negative is vice versa. Of course, for this, we need to define truth values to the results.</p>
+<p>Other notions introduced here are <strong>True Positive</strong> and <strong>True Negative.</strong> True positives are the true values our model got to predict right, and true negatives are the negative values where our model got it right.</p>
+<p>In our case, for object detection, the predictions we make are the positives, and the predictions we didn’t make are the negatives. So false negatives would be the target boxes that we could not predict (I will explain in a bit how we say if we actually predicted a box right, though you can already guess). If we combine true positives and false positives we get all the predictions we made. If we divide the correct predictions from all predictions we get precision, so $p=\frac{TP}{TP + FP}$. If we combine all the truths, so all the target values whether or not we predicted right, we can reach recall $r = \frac{TP}{TP + FN}$. The diagram below explains it perfectly.</p>
+<p><img loading="lazy" src="/posts/blog_posts/object_detection_abc/images/img4.png" type="" alt="image from &lt;a href=&#34;https://towardsdatascience.com/whats-the-deal-with-accuracy-precision-recall-and-f1-f5d8b4db1021&#34;&gt;https://towardsdatascience.com/whats-the-deal-with-accuracy-precision-recall-and-f1-f5d8b4db1021&lt;/a&gt;"  /></p>
+<h3 id="back-to-map">Back to mAP</h3>
+<p>Now that we know what precision and recall are, how are they used for evaluation in our case?</p>
+<p>First of all, how do we know if a prediction is wrong? Yes, we will use IoU as described above. If the IoU value (with a target) is greater than some threshold we will assume that box is correct.</p>
+<p>Here are the steps for finding mean average precision:</p>
+<ul>
+<li>First, we will find the truth values (TP, FP) of all the predictions we made.</li>
+<li>Then we will sort the boxes based on their confidence score (just as before).</li>
+<li>Then we will iterate through the boxes (starting from the highest confidence) and calculate precision and recall for the values up to that point. For example, if we have ten target boxes, and the first box in our list has a TP as the result; we will have a precision of $1/1$ and recall of $1/10$. Let’s say the second one is an FP, then precision will get to $1/2$ and recall will stay the same. Long story short, whenever we see an FP we will increment only the <strong>denominator on the precision</strong> and if we see a TP we will increment <strong>both nominators.</strong></li>
+<li>Next, we will calculate the <strong>area under the P/R curve</strong> which will be an average precision for a class.</li>
+<li>Then, we do all these again for all the classes and average the results.</li>
+<li>Lastly, we must use different IoU values to do the same thing and get the average of the results.</li>
+</ul>
+<p>Well, that seemed longer than it actually is, let’s dive into code to get a better grasp.</p>
+<h3 id="code">Code</h3>
+<p>To make things easier to follow, I want to start with the function definition, so we have all the variables set in place before we piece everything else together.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-9-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-1"> 1</a>
+</span><span class="lnt" id="hl-9-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-2"> 2</a>
+</span><span class="lnt" id="hl-9-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-3"> 3</a>
+</span><span class="lnt" id="hl-9-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-4"> 4</a>
+</span><span class="lnt" id="hl-9-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-5"> 5</a>
+</span><span class="lnt" id="hl-9-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-6"> 6</a>
+</span><span class="lnt" id="hl-9-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-7"> 7</a>
+</span><span class="lnt" id="hl-9-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-8"> 8</a>
+</span><span class="lnt" id="hl-9-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-9"> 9</a>
+</span><span class="lnt" id="hl-9-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-10">10</a>
+</span><span class="lnt" id="hl-9-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-11">11</a>
+</span><span class="lnt" id="hl-9-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-12">12</a>
+</span><span class="lnt" id="hl-9-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-9-13">13</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">mean_average_precision</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pred_boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">true_boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">box_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&#34;midpoint&#34;</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">		<span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">		Args:
+</span></span></span><span class="line"><span class="cl"><span class="s2">        pred_boxes: (list) list of lists containing all bboxes with each bboxes 
+</span></span></span><span class="line"><span class="cl"><span class="s2">            specified as [train_idx, class_pred, prob_score, x1, y1, x2, y2] or
+</span></span></span><span class="line"><span class="cl"><span class="s2">                         [train_idx, class_pred, prob_score, x, y, w, h]
+</span></span></span><span class="line"><span class="cl"><span class="s2">        target_boxes: (list) similar to pred_boxes except all the correct ones
+</span></span></span><span class="line"><span class="cl"><span class="s2">        iou_threshold: (float) threshold where predicted bboxes is correct
+</span></span></span><span class="line"><span class="cl"><span class="s2">        box_format: (str) &#34;midpoint&#34; or &#34;corners&#34; used to specify bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">        num_classes: (int) number of classes
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After that, we will continue with the first step as usual: convert the point format…</p>
+<p>In the main part, we will iterate through all the classes, and keep our attention on those only. So to do that we get the targets and predictions for a single class to begin with. We also create a list to keep track of the average precisions.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-10-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-1">1</a>
+</span><span class="lnt" id="hl-10-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-2">2</a>
+</span><span class="lnt" id="hl-10-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-3">3</a>
+</span><span class="lnt" id="hl-10-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-4">4</a>
+</span><span class="lnt" id="hl-10-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-5">5</a>
+</span><span class="lnt" id="hl-10-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-6">6</a>
+</span><span class="lnt" id="hl-10-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-10-7">7</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">average_precisions</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_classes</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Getting all the detections with the particular class</span>
+</span></span><span class="line"><span class="cl">    <span class="n">detections</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">pred_boxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Getting all the ground truth boxes with the particular class</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ground_truths</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">target_boxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We will use only these boxes for our next steps (so we only focus on one class at a time). This is preferred since we need to check each box with possible targets. It will make more sense in a bit.</p>
+<p>Next up, we sort our predictions based on their probabilities and create a couple of variables for tracking and all. We define <code>precisions</code> list for keeping true positives and false positives. 1’s will be TP and 0’s will be FP.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-11-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-1"> 1</a>
+</span><span class="lnt" id="hl-11-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-2"> 2</a>
+</span><span class="lnt" id="hl-11-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-3"> 3</a>
+</span><span class="lnt" id="hl-11-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-4"> 4</a>
+</span><span class="lnt" id="hl-11-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-5"> 5</a>
+</span><span class="lnt" id="hl-11-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-6"> 6</a>
+</span><span class="lnt" id="hl-11-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-7"> 7</a>
+</span><span class="lnt" id="hl-11-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-8"> 8</a>
+</span><span class="lnt" id="hl-11-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-9"> 9</a>
+</span><span class="lnt" id="hl-11-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-10">10</a>
+</span><span class="lnt" id="hl-11-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-11">11</a>
+</span><span class="lnt" id="hl-11-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-12">12</a>
+</span><span class="lnt" id="hl-11-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-13">13</a>
+</span><span class="lnt" id="hl-11-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-14">14</a>
+</span><span class="lnt" id="hl-11-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-15">15</a>
+</span><span class="lnt" id="hl-11-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-16">16</a>
+</span><span class="lnt" id="hl-11-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-17">17</a>
+</span><span class="lnt" id="hl-11-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-18">18</a>
+</span><span class="lnt" id="hl-11-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-11-19">19</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Counting the number of bboxes</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_predicted</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_predicted</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_target</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_target</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># If there are no predictions or no targets then AP is 0</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">n_predicted</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">n_target</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">average_precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Sorting the predictions by the probability score</span>
+</span></span><span class="line"><span class="cl"><span class="n">c_predicted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">c_predicted</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Defining a list to keep track of which target bboxes have</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># already been matched to a prediction</span>
+</span></span><span class="line"><span class="cl"><span class="n">target_boxes_already_matched</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Defining a list to keep track of the precision at each detection</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># (i.e. for each prediction)</span>
+</span></span><span class="line"><span class="cl"><span class="n">precisions</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now that we are set, we will iterate through all the predictions. While only considering the target boxes that are for the same image we will check each target and decide if the prediction we are checking passes the IoU threshold for that target. If so we will mark that target done so we don’t consider it for the next prediction. We also will add a true positive to our precisions (adding 1).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-12-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-1"> 1</a>
+</span><span class="lnt" id="hl-12-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-2"> 2</a>
+</span><span class="lnt" id="hl-12-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-3"> 3</a>
+</span><span class="lnt" id="hl-12-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-4"> 4</a>
+</span><span class="lnt" id="hl-12-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-5"> 5</a>
+</span><span class="lnt" id="hl-12-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-6"> 6</a>
+</span><span class="lnt" id="hl-12-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-7"> 7</a>
+</span><span class="lnt" id="hl-12-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-8"> 8</a>
+</span><span class="lnt" id="hl-12-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-9"> 9</a>
+</span><span class="lnt" id="hl-12-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-10">10</a>
+</span><span class="lnt" id="hl-12-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-11">11</a>
+</span><span class="lnt" id="hl-12-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-12">12</a>
+</span><span class="lnt" id="hl-12-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-13">13</a>
+</span><span class="lnt" id="hl-12-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-14">14</a>
+</span><span class="lnt" id="hl-12-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-15">15</a>
+</span><span class="lnt" id="hl-12-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-16">16</a>
+</span><span class="lnt" id="hl-12-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-17">17</a>
+</span><span class="lnt" id="hl-12-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-18">18</a>
+</span><span class="lnt" id="hl-12-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-19">19</a>
+</span><span class="lnt" id="hl-12-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-20">20</a>
+</span><span class="lnt" id="hl-12-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-21">21</a>
+</span><span class="lnt" id="hl-12-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-22">22</a>
+</span><span class="lnt" id="hl-12-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-23">23</a>
+</span><span class="lnt" id="hl-12-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-24">24</a>
+</span><span class="lnt" id="hl-12-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-25">25</a>
+</span><span class="lnt" id="hl-12-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-26">26</a>
+</span><span class="lnt" id="hl-12-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-27">27</a>
+</span><span class="lnt" id="hl-12-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-28">28</a>
+</span><span class="lnt" id="hl-12-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-29">29</a>
+</span><span class="lnt" id="hl-12-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-30">30</a>
+</span><span class="lnt" id="hl-12-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-31">31</a>
+</span><span class="lnt" id="hl-12-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-32">32</a>
+</span><span class="lnt" id="hl-12-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-33">33</a>
+</span><span class="lnt" id="hl-12-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-34">34</a>
+</span><span class="lnt" id="hl-12-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-12-35">35</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Iterating through all the predicted bboxes</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">c_predicted</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Getting the image index</span>
+</span></span><span class="line"><span class="cl">    <span class="n">img_idx</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Getting the target boxes which correspond to the same image</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># as the prediction</span>
+</span></span><span class="line"><span class="cl">    <span class="n">target_boxes_with_same_img_idx</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">c_target</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">img_idx</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># If there are no target boxes in the image then the prediction</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># is automatically a false positive</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_boxes_with_same_img_idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Iterating through all the target bboxes in the image</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">target_boxes_with_same_img_idx</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># If the target bbox has already been matched to a prediction </span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># then we skip</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">target_boxes_already_matched</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># If the IoU between the target and the prediction is above</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># the threshold then the prediction is a true positive</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">intersection_over_union</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="mi">3</span><span class="p">:]),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="mi">3</span><span class="p">:]),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">box_format</span><span class="o">=</span><span class="n">box_format</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span> <span class="o">&gt;</span> <span class="n">iou_threshold</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">target_boxes_already_matched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now we need to calculate precisions and recalls, just like we mentioned while explaining the algorithm (adding to the nominator/denominator thing). We will also add an extra zero to make the graph (for AUC) go from 0 to 1. Lastly, we use the trapezoidal rule to calculate the AUC for precision recall.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-13-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-1"> 1</a>
+</span><span class="lnt" id="hl-13-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-2"> 2</a>
+</span><span class="lnt" id="hl-13-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-3"> 3</a>
+</span><span class="lnt" id="hl-13-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-4"> 4</a>
+</span><span class="lnt" id="hl-13-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-5"> 5</a>
+</span><span class="lnt" id="hl-13-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-6"> 6</a>
+</span><span class="lnt" id="hl-13-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-7"> 7</a>
+</span><span class="lnt" id="hl-13-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-8"> 8</a>
+</span><span class="lnt" id="hl-13-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-9"> 9</a>
+</span><span class="lnt" id="hl-13-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-10">10</a>
+</span><span class="lnt" id="hl-13-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-11">11</a>
+</span><span class="lnt" id="hl-13-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-12">12</a>
+</span><span class="lnt" id="hl-13-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-13">13</a>
+</span><span class="lnt" id="hl-13-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-14">14</a>
+</span><span class="lnt" id="hl-13-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-15">15</a>
+</span><span class="lnt" id="hl-13-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-16">16</a>
+</span><span class="lnt" id="hl-13-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-13-17">17</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># If all the predictions are false positives then precision is 0</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">precisions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">average_precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculating the precision and recall at each detection</span>
+</span></span><span class="line"><span class="cl"><span class="n">precisions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">precisions</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_predicted</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl"><span class="n">recalls</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">precisions</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_target</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_predicted</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Adding an extra precision and recall value of 0 and 1 respectively</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># to make the graph go from 0 to 1</span>
+</span></span><span class="line"><span class="cl"><span class="n">precisions</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">recalls</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculating the average precision using the precision-recall curve </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># using the trapezoidal rule in pytorch</span>
+</span></span><span class="line"><span class="cl"><span class="n">average_precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">precisions</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">recalls</span><span class="p">)))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Let’s put all the bells and whistles together and get our fully formed function:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-14-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-1">  1</a>
+</span><span class="lnt" id="hl-14-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-2">  2</a>
+</span><span class="lnt" id="hl-14-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-3">  3</a>
+</span><span class="lnt" id="hl-14-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-4">  4</a>
+</span><span class="lnt" id="hl-14-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-5">  5</a>
+</span><span class="lnt" id="hl-14-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-6">  6</a>
+</span><span class="lnt" id="hl-14-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-7">  7</a>
+</span><span class="lnt" id="hl-14-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-8">  8</a>
+</span><span class="lnt" id="hl-14-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-9">  9</a>
+</span><span class="lnt" id="hl-14-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-10"> 10</a>
+</span><span class="lnt" id="hl-14-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-11"> 11</a>
+</span><span class="lnt" id="hl-14-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-12"> 12</a>
+</span><span class="lnt" id="hl-14-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-13"> 13</a>
+</span><span class="lnt" id="hl-14-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-14"> 14</a>
+</span><span class="lnt" id="hl-14-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-15"> 15</a>
+</span><span class="lnt" id="hl-14-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-16"> 16</a>
+</span><span class="lnt" id="hl-14-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-17"> 17</a>
+</span><span class="lnt" id="hl-14-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-18"> 18</a>
+</span><span class="lnt" id="hl-14-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-19"> 19</a>
+</span><span class="lnt" id="hl-14-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-20"> 20</a>
+</span><span class="lnt" id="hl-14-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-21"> 21</a>
+</span><span class="lnt" id="hl-14-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-22"> 22</a>
+</span><span class="lnt" id="hl-14-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-23"> 23</a>
+</span><span class="lnt" id="hl-14-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-24"> 24</a>
+</span><span class="lnt" id="hl-14-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-25"> 25</a>
+</span><span class="lnt" id="hl-14-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-26"> 26</a>
+</span><span class="lnt" id="hl-14-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-27"> 27</a>
+</span><span class="lnt" id="hl-14-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-28"> 28</a>
+</span><span class="lnt" id="hl-14-29"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-29"> 29</a>
+</span><span class="lnt" id="hl-14-30"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-30"> 30</a>
+</span><span class="lnt" id="hl-14-31"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-31"> 31</a>
+</span><span class="lnt" id="hl-14-32"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-32"> 32</a>
+</span><span class="lnt" id="hl-14-33"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-33"> 33</a>
+</span><span class="lnt" id="hl-14-34"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-34"> 34</a>
+</span><span class="lnt" id="hl-14-35"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-35"> 35</a>
+</span><span class="lnt" id="hl-14-36"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-36"> 36</a>
+</span><span class="lnt" id="hl-14-37"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-37"> 37</a>
+</span><span class="lnt" id="hl-14-38"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-38"> 38</a>
+</span><span class="lnt" id="hl-14-39"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-39"> 39</a>
+</span><span class="lnt" id="hl-14-40"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-40"> 40</a>
+</span><span class="lnt" id="hl-14-41"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-41"> 41</a>
+</span><span class="lnt" id="hl-14-42"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-42"> 42</a>
+</span><span class="lnt" id="hl-14-43"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-43"> 43</a>
+</span><span class="lnt" id="hl-14-44"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-44"> 44</a>
+</span><span class="lnt" id="hl-14-45"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-45"> 45</a>
+</span><span class="lnt" id="hl-14-46"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-46"> 46</a>
+</span><span class="lnt" id="hl-14-47"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-47"> 47</a>
+</span><span class="lnt" id="hl-14-48"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-48"> 48</a>
+</span><span class="lnt" id="hl-14-49"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-49"> 49</a>
+</span><span class="lnt" id="hl-14-50"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-50"> 50</a>
+</span><span class="lnt" id="hl-14-51"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-51"> 51</a>
+</span><span class="lnt" id="hl-14-52"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-52"> 52</a>
+</span><span class="lnt" id="hl-14-53"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-53"> 53</a>
+</span><span class="lnt" id="hl-14-54"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-54"> 54</a>
+</span><span class="lnt" id="hl-14-55"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-55"> 55</a>
+</span><span class="lnt" id="hl-14-56"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-56"> 56</a>
+</span><span class="lnt" id="hl-14-57"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-57"> 57</a>
+</span><span class="lnt" id="hl-14-58"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-58"> 58</a>
+</span><span class="lnt" id="hl-14-59"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-59"> 59</a>
+</span><span class="lnt" id="hl-14-60"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-60"> 60</a>
+</span><span class="lnt" id="hl-14-61"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-61"> 61</a>
+</span><span class="lnt" id="hl-14-62"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-62"> 62</a>
+</span><span class="lnt" id="hl-14-63"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-63"> 63</a>
+</span><span class="lnt" id="hl-14-64"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-64"> 64</a>
+</span><span class="lnt" id="hl-14-65"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-65"> 65</a>
+</span><span class="lnt" id="hl-14-66"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-66"> 66</a>
+</span><span class="lnt" id="hl-14-67"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-67"> 67</a>
+</span><span class="lnt" id="hl-14-68"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-68"> 68</a>
+</span><span class="lnt" id="hl-14-69"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-69"> 69</a>
+</span><span class="lnt" id="hl-14-70"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-70"> 70</a>
+</span><span class="lnt" id="hl-14-71"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-71"> 71</a>
+</span><span class="lnt" id="hl-14-72"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-72"> 72</a>
+</span><span class="lnt" id="hl-14-73"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-73"> 73</a>
+</span><span class="lnt" id="hl-14-74"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-74"> 74</a>
+</span><span class="lnt" id="hl-14-75"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-75"> 75</a>
+</span><span class="lnt" id="hl-14-76"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-76"> 76</a>
+</span><span class="lnt" id="hl-14-77"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-77"> 77</a>
+</span><span class="lnt" id="hl-14-78"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-78"> 78</a>
+</span><span class="lnt" id="hl-14-79"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-79"> 79</a>
+</span><span class="lnt" id="hl-14-80"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-80"> 80</a>
+</span><span class="lnt" id="hl-14-81"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-81"> 81</a>
+</span><span class="lnt" id="hl-14-82"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-82"> 82</a>
+</span><span class="lnt" id="hl-14-83"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-83"> 83</a>
+</span><span class="lnt" id="hl-14-84"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-84"> 84</a>
+</span><span class="lnt" id="hl-14-85"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-85"> 85</a>
+</span><span class="lnt" id="hl-14-86"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-86"> 86</a>
+</span><span class="lnt" id="hl-14-87"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-87"> 87</a>
+</span><span class="lnt" id="hl-14-88"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-88"> 88</a>
+</span><span class="lnt" id="hl-14-89"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-89"> 89</a>
+</span><span class="lnt" id="hl-14-90"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-90"> 90</a>
+</span><span class="lnt" id="hl-14-91"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-91"> 91</a>
+</span><span class="lnt" id="hl-14-92"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-92"> 92</a>
+</span><span class="lnt" id="hl-14-93"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-93"> 93</a>
+</span><span class="lnt" id="hl-14-94"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-94"> 94</a>
+</span><span class="lnt" id="hl-14-95"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-95"> 95</a>
+</span><span class="lnt" id="hl-14-96"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-96"> 96</a>
+</span><span class="lnt" id="hl-14-97"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-97"> 97</a>
+</span><span class="lnt" id="hl-14-98"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-98"> 98</a>
+</span><span class="lnt" id="hl-14-99"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-99"> 99</a>
+</span><span class="lnt" id="hl-14-100"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-100">100</a>
+</span><span class="lnt" id="hl-14-101"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-101">101</a>
+</span><span class="lnt" id="hl-14-102"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-14-102">102</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">mean_average_precision</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pred_boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">target_boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">box_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&#34;midpoint&#34;</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Calculates mean average precision
+</span></span></span><span class="line"><span class="cl"><span class="s2">    
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Args:
+</span></span></span><span class="line"><span class="cl"><span class="s2">        pred_boxes: (list) list of lists containing all bboxes with each bboxes 
+</span></span></span><span class="line"><span class="cl"><span class="s2">            specified as [img_idx, class_pred, prob_score, x1, y1, x2, y2] or
+</span></span></span><span class="line"><span class="cl"><span class="s2">                         [img_idx, class_pred, prob_score, x, y, w, h]
+</span></span></span><span class="line"><span class="cl"><span class="s2">        target_boxes: (list) similar to pred_boxes except all the correct ones
+</span></span></span><span class="line"><span class="cl"><span class="s2">        iou_threshold: (float) threshold where predicted bboxes is correct
+</span></span></span><span class="line"><span class="cl"><span class="s2">        box_format: (str) &#34;midpoint&#34; or &#34;corners&#34; used to specify bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">        num_classes: (int) number of classes
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Starting by defining a list for all AP for each class</span>
+</span></span><span class="line"><span class="cl">    <span class="n">average_precisions</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_classes</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Getting all the detections with the particular class</span>
+</span></span><span class="line"><span class="cl">        <span class="n">c_predicted</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">pred_boxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">class_</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Getting all the ground truth boxes with the particular class</span>
+</span></span><span class="line"><span class="cl">        <span class="n">c_target</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">target_boxes</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">class_</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Counting the number of bboxes</span>
+</span></span><span class="line"><span class="cl">        <span class="n">n_predicted</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_predicted</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">n_target</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_target</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># If there are no predictions or no targets then AP is 0</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">n_predicted</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">n_target</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">average_precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Sorting the predictions by the probability score</span>
+</span></span><span class="line"><span class="cl">        <span class="n">c_predicted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">c_predicted</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="c1"># Defining a list to keep track of which target bboxes have</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># already been matched to a prediction</span>
+</span></span><span class="line"><span class="cl">        <span class="n">target_boxes_already_matched</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Defining a list to keep track of the precision at each detection</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># (i.e. for each prediction)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">precisions</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Iterating through all the predicted bboxes</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">c_predicted</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Getting the image index</span>
+</span></span><span class="line"><span class="cl">            <span class="n">img_idx</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Getting the target boxes which correspond to the same image</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># as the prediction</span>
+</span></span><span class="line"><span class="cl">            <span class="n">target_boxes_with_same_img_idx</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="n">box</span> <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">c_target</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">img_idx</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># If there are no target boxes in the image then the prediction</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># is automatically a false positive</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_boxes_with_same_img_idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Iterating through all the target bboxes in the image</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">target_boxes_with_same_img_idx</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># If the target bbox has already been matched to a prediction </span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># then we skip</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">target_boxes_already_matched</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># If the IOU between the target and the prediction is above</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># the threshold then the prediction is a true positive</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">intersection_over_union</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="mi">3</span><span class="p">:]),</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="mi">3</span><span class="p">:]),</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">box_format</span><span class="o">=</span><span class="n">box_format</span>
+</span></span><span class="line"><span class="cl">                <span class="p">)</span> <span class="o">&gt;</span> <span class="n">iou_threshold</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">target_boxes_already_matched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># If all the predictions are false positives then precision is 0</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">precisions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">average_precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Calculating the precision and recall at each detection</span>
+</span></span><span class="line"><span class="cl">        <span class="n">precisions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">precisions</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_predicted</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">recalls</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">precisions</span><span class="p">[:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_target</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">									 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_predicted</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Adding an extra precision and recall value of 0 and 1 respectively</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># to make the graph go from 0 to 1</span>
+</span></span><span class="line"><span class="cl">        <span class="n">precisions</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">recalls</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Calculating the average precision using the precision-recall curve </span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># using the trapezoidal rule in pytorch</span>
+</span></span><span class="line"><span class="cl">        <span class="n">average_precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">					<span class="n">torch</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">precisions</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">recalls</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">average_precisions</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">average_precisions</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>That’s it! Wait… One last thing. This was for a single IoU threshold, we will need more than that. Let’s write a simple function that calls our <code>mean_average_precision</code> .</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt" id="hl-15-1"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-1"> 1</a>
+</span><span class="lnt" id="hl-15-2"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-2"> 2</a>
+</span><span class="lnt" id="hl-15-3"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-3"> 3</a>
+</span><span class="lnt" id="hl-15-4"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-4"> 4</a>
+</span><span class="lnt" id="hl-15-5"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-5"> 5</a>
+</span><span class="lnt" id="hl-15-6"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-6"> 6</a>
+</span><span class="lnt" id="hl-15-7"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-7"> 7</a>
+</span><span class="lnt" id="hl-15-8"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-8"> 8</a>
+</span><span class="lnt" id="hl-15-9"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-9"> 9</a>
+</span><span class="lnt" id="hl-15-10"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-10">10</a>
+</span><span class="lnt" id="hl-15-11"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-11">11</a>
+</span><span class="lnt" id="hl-15-12"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-12">12</a>
+</span><span class="lnt" id="hl-15-13"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-13">13</a>
+</span><span class="lnt" id="hl-15-14"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-14">14</a>
+</span><span class="lnt" id="hl-15-15"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-15">15</a>
+</span><span class="lnt" id="hl-15-16"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-16">16</a>
+</span><span class="lnt" id="hl-15-17"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-17">17</a>
+</span><span class="lnt" id="hl-15-18"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-18">18</a>
+</span><span class="lnt" id="hl-15-19"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-19">19</a>
+</span><span class="lnt" id="hl-15-20"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-20">20</a>
+</span><span class="lnt" id="hl-15-21"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-21">21</a>
+</span><span class="lnt" id="hl-15-22"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-22">22</a>
+</span><span class="lnt" id="hl-15-23"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-23">23</a>
+</span><span class="lnt" id="hl-15-24"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-24">24</a>
+</span><span class="lnt" id="hl-15-25"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-25">25</a>
+</span><span class="lnt" id="hl-15-26"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-26">26</a>
+</span><span class="lnt" id="hl-15-27"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-27">27</a>
+</span><span class="lnt" id="hl-15-28"><a style="outline: none; text-decoration:none; color:inherit" href="#hl-15-28">28</a>
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">map_driver</span><span class="p">(</span><span class="n">pred_boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">target_boxes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">starting_iou</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">               <span class="n">increment</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">ending_iou</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">               <span class="n">box_format</span><span class="o">=</span><span class="s2">&#34;midpoint&#34;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Calculates the mean average precision for a range of IOU thresholds
+</span></span></span><span class="line"><span class="cl"><span class="s2">    
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Args:
+</span></span></span><span class="line"><span class="cl"><span class="s2">        pred_boxes: (list) list of lists containing all bboxes with each bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">            specified as [img_idx, class_pred, prob_score, x1, y1, x2, y2] or
+</span></span></span><span class="line"><span class="cl"><span class="s2">                         [img_idx, class_pred, prob_score, x, y, w, h]
+</span></span></span><span class="line"><span class="cl"><span class="s2">        target_boxes: (list) same as the bbox list but contains the correct
+</span></span></span><span class="line"><span class="cl"><span class="s2">            bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">        starting_iou: (float) starting IOU threshold
+</span></span></span><span class="line"><span class="cl"><span class="s2">        increment: (float) increment to increase the IOU threshold by
+</span></span></span><span class="line"><span class="cl"><span class="s2">        ending_iou: (float) ending IOU threshold
+</span></span></span><span class="line"><span class="cl"><span class="s2">        num_classes: (int) number of classes
+</span></span></span><span class="line"><span class="cl"><span class="s2">        box_format: (str) &#34;midpoint&#34; or &#34;corners&#34; used to specify bboxes
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mean_average_precisions</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">iou_threshold</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">starting_iou</span><span class="p">,</span> <span class="n">ending_iou</span><span class="p">,</span> <span class="n">increment</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">mean_average_precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">mean_average_precision</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">pred_boxes</span><span class="p">,</span> <span class="n">target_boxes</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">,</span> <span class="n">box_format</span><span class="p">,</span> <span class="n">num_classes</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">mean_average_precisions</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And we are fully done. Now we know every bit we need to actually go ahead and implement our first object detection algorithm, which will be the first version of the still state-of-the-art YOLO algorithm. It now has YOLOv7, but we will start with implementing v1.</p>
+<p>You can find all the code from this tutorial <a href="https://github.com/BedirT/DeepLearningPractices/blob/main/object_detection/tools.py">here</a>.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://www.youtube.com/c/AladdinPersson">https://www.youtube.com/c/AladdinPersson</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)">https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)</a></li>
+<li><a href="https://labelyourdata.com/articles/mean-average-precision-map">https://labelyourdata.com/articles/mean-average-precision-map</a></li>
+<li><a href="https://web.archive.org/web/20191114213255/https://www.flinders.edu.au/science_engineering/fms/School-CSEM/publications/tech_reps-research_artfcts/TRRA_2007.pdf">https://en.wikipedia.org/wiki/Precision_and_recallhttps://web.archive.org/web/20191114213255/https://www.flinders.edu.au/science_engineering/fms/School-CSEM/publications/tech_reps-research_artfcts/TRRA_2007.pdf</a></li>
+<li>Image 1 from <a href="https://www.datacamp.com/tutorial/object-detection-guide">https://www.datacamp.com/tutorial/object-detection-guide</a></li>
+<li>Image 2 from <a href="https://pyimagesearch.com/2015/03/23/sliding-windows-for-object-detection-with-python-and-opencv/">https://pyimagesearch.com/2015/03/23/sliding-windows-for-object-detection-with-python-and-opencv/</a></li>
+<li>Image 3 from <a href="https://pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/">https://pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/</a></li>
+<li>Image 4 from <a href="https://pjreddie.com/darknet/yolov1/">https://pjreddie.com/darknet/yolov1/</a></li>
+<li>Image 5 from <a href="https://towardsdatascience.com/whats-the-deal-with-accuracy-precision-recall-and-f1-f5d8b4db1021">https://towardsdatascience.com/whats-the-deal-with-accuracy-precision-recall-and-f1-f5d8b4db1021</a></li>
+</ul>
+]]></content:encoded>
+    </item>
+    
     <item>
       <title>NLP Series: ABC of Sentiment Analysis</title>
       <link>https://bedirtapkan.com/posts/blog_posts/sentiment_ab_1/</link>
