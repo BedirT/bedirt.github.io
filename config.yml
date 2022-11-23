@@ -54,8 +54,8 @@ outputs:
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
   title: "Bedir Tapkan"
-  description: "Everything about Me & Myself & BT"
-  keywords: [Blog, Portfolio, Personal Website, RL, Game Theory]
+  description: "Everything about Me & Myself"
+  keywords: [Blog, Portfolio, Personal Website, Deep Learning, Reinforcement Learning, Machine Learning, Game Theory]
   author: "Bedir Tapkan"
   images: ["logo.png"]
   defaultTheme: auto # dark, light
@@ -98,7 +98,8 @@ params:
     title: Hello, I'm Bedir Tapkan
     subtitle: > 
             Welcome to my website! I am a passionate Machine Learning Engineer
-            and Researcher. I am currently working on **Reinforcement Learning** and **Game Theory**. 
+            and Researcher. I am currently working on some fun **Computer Vision**,
+            **NLP** and **Reinforcement Learning** projects. 
             I do share my experience and thoughts on problems and their solutions
             I have recently encountered, on my blog and youtube channel. I also 
             love spending time on 3D sculpting and thinkering about the world around me.
