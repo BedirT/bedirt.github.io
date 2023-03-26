@@ -1,7 +1,7 @@
 baseURL: "https://bedirtapkan.com"
 title: Bedir Tapkan
 paginate: 5
-theme: PaperModX
+theme: PaperModY
 copyright: "© 2022"
 
 enableRobotsTXT: true
