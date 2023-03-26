@@ -40,8 +40,8 @@ languages:
         - name: Search
           url: search/
           weight: 25
-        - identifier: 3D Projects
-          name: 3D Projects
+        - identifier: Design
+          name: Design
           url: design/
           weight: 30
 
@@ -117,11 +117,11 @@ params:
         url: projects
       - name: Fun Stuff
         url: design
-      - name: "My 3D World"
+      - name: "Artstation (3D)"
         url: "https://bedirtapkan.artstation.com/"
         params:
           external: true
-      - name: "My Flat World"
+      - name: "Behance (2D)"
         url: "https://tapkan41d9.myportfolio.com/"
         params:
           external: true
