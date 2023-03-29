@@ -36,8 +36,8 @@ Great ear shape. The good thing about ear is that everyone has different ones :)
 
 Here comes the nose and the eyes. I added wrinkles as much as I can to give the old feeling. I am iffy about the skin texture, but other than that the nose turned out pretty good. Eyes on the other hand are not the best, I always had trouble tackling the eyes... Will get better with practice of course.
 
-And finally here is the youtube video of the process. I didn't cut out much of the process, so you can see the whole thing from start to finish. Though I still made it a time lapse so you don't have to watch it for 4-5 hours :)
+<!-- And finally here is the youtube video of the process. I didn't cut out much of the process, so you can see the whole thing from start to finish. Though I still made it a time lapse so you don't have to watch it for 4-5 hours :) -->
 
-{{<youtube 5Z7Z8Z5Z7Z5>}}
+<!-- {{<youtube 5Z7Z8Z5Z7Z5>}} -->
 
 Happy blending!
