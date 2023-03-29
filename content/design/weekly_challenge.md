@@ -1,6 +1,7 @@
 ---
 title: "My 4-Week Blender Challenge: Pushing My Skills to the Next Level"
 tag: ["plan", "blender", "challenge"]
+date: 2023-03-26T00:00:00.000Z
 ---
 
 Hello, everyone! As you may know, I've been learning Blender for over a year now. I've followed some tutorials and created a few projects of my own, but I feel like it's time to push myself further and take on a new challenge. To do this, I've created a 4-week plan that focuses on different aspects of Blender, such as sculpting, modeling, animation, and coding. In this post, I'll be sharing my plan with you all, and I hope you find it inspiring or helpful for your own Blender journey.
