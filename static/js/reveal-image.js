@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (shouldContinue) {
             requestAnimationFrame(() => hoverAnimation(container, lerp_factor));
         }
-        console.log('hoverAnimation');
     }
 
     hoverImageContainers.forEach(function (container) {
