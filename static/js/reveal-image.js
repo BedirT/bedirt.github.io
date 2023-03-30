@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
     function animateClipPath(container, targetPercentage) {
         const currentPercentage = parseFloat(container.getAttribute('data-current-percentage') || '100');
-        const newPercentage = lerp(currentPercentage, targetPercentage, 0.0002);
+        const newPercentage = lerp(currentPercentage, targetPercentage, 0.0004);
 
         container.querySelector('.textured-image').style.clipPath = `polygon(0% 0, calc(${newPercentage}% + 1px) 0, calc(${newPercentage}% + 1px) 100%, 0% 100%)`;
         container.setAttribute('data-current-percentage', newPercentage);
@@ -34,26 +34,37 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     hoverImageContainers.forEach(function (container) {
-        container.addEventListener('mouseenter', function (event) {
+        function startHover(event) {
             container.setAttribute('data-mouse-over', 'true');
             updateTargetPercentage(container, event);
             hoverAnimation(container);
-        });
+        }
 
-        container.addEventListener('mousemove', function (event) {
+        function updateHover(event) {
             updateTargetPercentage(container, event);
             if (container.getAttribute('data-mouse-over') === 'true') {
                 hoverAnimation(container);
             }
-        });
+        }
 
-        container.addEventListener('mouseleave', function () {
+        function endHover() {
             if (container.getAttribute('data-mouse-over') === 'true') {
                 container.setAttribute('data-target-percentage', '100');
                 hoverAnimation(container);
             }
             container.setAttribute('data-mouse-over', 'false');
-        });
+        }
+
+        // Mouse event listeners
+        container.addEventListener('mouseenter', startHover);
+        container.addEventListener('mousemove', updateHover);
+        container.addEventListener('mouseleave', endHover);
+
+        // Touch event listeners
+        container.addEventListener('touchstart', startHover);
+        container.addEventListener('touchmove', updateHover);
+        container.addEventListener('touchend', endHover);
+        container.addEventListener('touchcancel', endHover);
     });
 });
   
