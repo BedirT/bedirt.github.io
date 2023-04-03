@@ -1,6 +1,6 @@
 ---
-title: "The Thinker: Lessons Learned from My Human Head Sculpt Project"
-tag: ["blender", "challenge", "sculpting"]
+title: "Week 1, Task 1: Lessons Learned from My Human Head Sculpture \"The Thinker\""
+tag: ["blender", "challenge", "sculpting", "anatomy"]
 date: 2023-03-28T00:00:00.000Z
 ---
 
