@@ -26,24 +26,21 @@ languages:
       topic: topics
     menu:
       main:
-        - identifier: About
-          name: About
+        - name: About
           url: about/
           weight: 1
-        - identifier: Projects
-          name: Projects
+        - name: Projects
           url: projects/
           weight: 5
-        - name: Archives
-          url: archives/
+        - name: Technical Posts
+          url: posts/
           weight: 20
-        - name: Search
-          url: search/
-          weight: 25
-        - identifier: Design
-          name: Design
+        - name: Art Posts
           url: design/
-          weight: 30
+          weight: 25
+        # - name: artstation
+        #   url: search/
+        #   weight: 30
 
 outputs:
   home:
@@ -55,7 +52,7 @@ params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
   title: "Bedir Tapkan"
   description: "Everything about Me & Myself"
-  keywords: [Blog, Portfolio, Personal Website, Deep Learning, Reinforcement Learning, Machine Learning, Game Theory]
+  keywords: [Blog, Portfolio, Personal Website, NLP, Machine Learning, Game Theory, 3D Sculpting, Blender]
   author: "Bedir Tapkan"
   images: ["logo.png"]
   defaultTheme: auto # dark, light
@@ -63,6 +60,7 @@ params:
 
   ShowReadingTime: true
   ShowShareButtons: true
+  ShareButtons: ["linkedin", "reddit", "twitter", "whatsapp", "telegram"]
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowCodeCopyButtons: true
@@ -111,20 +109,12 @@ params:
     # imageHeight: 120
     # imageTitle: my image
     buttons:
-      - name: Posts
+      - name: Technical Posts
         url: archives
       - name: Projects
         url: projects
-      - name: Fun Stuff
+      - name: Art Posts
         url: design
-      - name: "Artstation (3D)"
-        url: "https://bedirtapkan.artstation.com/"
-        params:
-          external: true
-      - name: "Behance (2D)"
-        url: "https://tapkan41d9.myportfolio.com/"
-        params:
-          external: true
 
   # home-info mode
   homeInfoParams:
@@ -148,6 +138,10 @@ params:
       url: "https://github.com/BedirT"
     - name: youtube
       url: "https://www.youtube.com/channel/UCAExPNjoRE0aLfc96Eo0ZRQ"
+    - name: artstation
+      url: "https://bedirtapkan.artstation.com/"
+    - name: behance
+      url: "https://tapkan41d9.myportfolio.com/"
 
   analytics:
     # google:
