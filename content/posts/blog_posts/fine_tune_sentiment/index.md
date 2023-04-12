@@ -161,6 +161,24 @@ metrics to evaluate the performance of our model.
 F1 score is a combination of precision and recall. So we decided to use F1 score and accuracy as our
 evaluation metrics.
 
+Here is the function that we will use to calculate the accuracy and F1 score.
+
+```python
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+
+def compute_metrics(eval_pred):
+    predictions, labels = eval_pred
+    preds = np.argmax(predictions, axis=1)
+    accuracy = accuracy_score(labels, preds)
+    precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='weighted')
+    return {
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f1': f1
+    }
+```
+
 # Initial Results
 
 Now that we have our models, and we have our evaluation metrics, we can start testing the pre-trained models.
@@ -239,3 +257,306 @@ get to GPT-4 performance with a smaller model.
 
 # Training a Sentiment Analysis Model
 
+Now that we have the labels for our data, we can start training our sentiment analysis model. We will discuss
+in order of the following steps:
+1. Data Preprocessing and Preparation
+2. Model Selection
+3. Model Training
+4. Model Evaluation
+
+## Data Preprocessing and Preparation
+
+Let's start by splitting the data into train and test sets. We will use 80% of the data for training, and 
+20% of the data for validation. We will use the extra 10000 data points we generated with GPT-4 to test the 
+performance of our model (test set). 
+
+Right before that, we need to do some preprocessing. We need to convert the labels to numbers. We will use
+the following mapping:
+1. Positive: 2
+2. Neutral: 1
+3. Negative: 0
+
+Aside from that, the labels by GPT-3.5 is not always correct. We can either drop these data points, or we can
+manually correct them. We decided to manually correct most, and leave some of the outliers alone. These examples
+include dots, different phrasings, etc. I will include couple of examples below.
+
+```python
+data.loc[data["label"] == "Negative (with a hint of frustration) ", "label"] = "Negative"
+data.loc[data["label"] == "Negative.", "label"] = "Negative"
+data.loc[data["label"] == "Mixed/Neutral.", "label"] = "Neutral"
+# ...
+
+# Convert labels to numbers
+label_mapping = {"Positive": 2, "Neutral": 1, "Negative": 0}
+data['label'] = data['label'].map(label_mapping)
+data.dropna(inplace=True)
+
+# Split the data into train and validation sets
+train, val = train_test_split(data, test_size=0.2, random_state=42)
+```
+
+We can check the distribution of the labels in the train and test sets. This will give us an idea of how
+balanced our data is.
+
+```python
+data["label"].value_counts()
+```
+
+```text
+0    62002
+1    34350
+2    23820
+```
+
+```python
+train["label"].value_counts()
+```
+
+```text
+0    49773
+1    27366
+2    18998
+```
+
+```python
+val["label"].value_counts()
+```
+
+```text
+0    12229
+1     6984
+2     4822
+```
+
+We can see that the distribution of the labels is not very balanced. We can see that the negative labels are
+the most common, and the positive labels are the least common. This is something we considered when we were
+deciding on how we will evaluate our model. But it is generally a good idea to know the distribution of the
+labels in the data.
+
+Next is to create data loader for pytorch. We prepare the data for training by creating a `Dataset` class.
+
+```python
+from torch.utils.data import Dataset
+
+class SentimentDataset(Dataset):
+    def __init__(self, data_file, tokenizer):
+        self.data = pd.read_csv(data_file)
+        self.tokenizer = tokenizer
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        text = self.data.loc[idx, 'text']
+        label = self.data.loc[idx, 'label']
+        inputs = self.tokenizer(text, truncation=True, padding='max_length', max_length=128, return_tensors="pt")
+        inputs['input_ids'] = inputs['input_ids'].squeeze()
+        inputs['attention_mask'] = inputs['attention_mask'].squeeze()
+        inputs['labels'] = torch.tensor(label, dtype=torch.long)  # Change this line
+        return inputs
+```
+
+## Model Selection
+
+Next step is to select a model to train. We will use the `transformers` library to train our models. We are 
+going to build a classifier on pre-trained language models such as BERT. In this section we will first discuss
+the different models we considered, how do they differ from each other, what are the pros and cons of each
+model, and then we will implement each model, train them and evaluate them. Here are the models we considered:
+
+1. BERT
+2. RoBERTa
+3. DistilBERT
+4. XLM-RoBERTa
+5. BERT-Large
+6. RoBERTa-Large
+7. DistilBERT-Large
+8. XLM-RoBERTa-Large
+
+We have 8 different models, 4 of them are small models, and 4 of them are the large versions of the small models.
+Let's go over each model and explain how they differ from each other.
+
+### BERT
+
+BERT is a transformer-based model introduced by Google in 2018 in the paper [BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805). 
+It was a significant milestone in the field of NLP, as it achieved state-of-the-art results on several tasks. 
+BERT is pre-trained on large amounts of text data and can be fine-tuned for various NLP tasks, such as sentiment 
+analysis, question-answering, and more. BERT uses bidirectional context, which means that it considers both left 
+and right contexts in text when learning representations. This characteristic allows the model to have a better 
+understanding of the textual context. Even though it is still used by many researchers, it is not the most recent 
+model, so it usually is outperformed by newer models.
+
+**Pros:**
+
+- Achieves high performance on many NLP tasks.
+- Can be fine-tuned for specific tasks.
+- Bidirectional context improves the understanding of textual information.
+
+**Cons:**
+
+- Large model size.
+
+### RoBERTa
+
+RoBERTa is an optimized version of BERT, introduced by Facebook AI in 2019 in the paper [RoBERTa: A Robustly Optimized BERT Pretraining Approach](https://arxiv.org/abs/1907.11692). 
+It builds upon BERT's architecture but implements several modifications that improve its performance. Some key 
+changes include a **larger training dataset**, **longer training time**, and **the removal of the next-sentence 
+prediction task** during pre-training. RoBERTa also uses dynamic masking, which allows the model to see multiple masks for 
+the same token during pre-training, resulting in better performance on downstream tasks.
+
+**Pros:**
+
+- Improved performance compared to BERT on several NLP tasks.
+- Retains the benefits of BERT, such as fine-tuning capabilities and bidirectional context.
+
+**Cons:**
+
+- Still has large model size and high computational requirements, similar to BERT.
+
+### DistilBERT
+
+DistilBERT is a smaller version of BERT, introduced by Hugging Face in 2019 in the paper [DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter](https://arxiv.org/abs/1910.01108). 
+It aims to maintain most of BERT's performance while reducing its size and computational requirements. DistilBERT
+has approximately half the number of parameters as BERT and is faster during training and inference. The 
+distillation process involves training a smaller model (the student) to mimic the behavior of a larger model 
+(the teacher), in this case, BERT.
+
+**Pros:**
+
+- Reduced model size and faster training and inference.
+- Retains a substantial portion of BERT's performance.
+- Can be fine-tuned for specific tasks.
+
+**Cons:**
+
+- Slightly lower performance compared to BERT and RoBERTa.
+
+### XLM-RoBERTa
+
+XLM-RoBERTa is a multilingual version of RoBERTa, introduced by Facebook AI in 2019 in the paper [Unsupervised Cross-lingual Representation Learning at Scale](https://arxiv.org/abs/1911.02116). 
+It is pre-trained on a large dataset comprising 100 languages. XLM-RoBERTa builds upon the RoBERTa architecture 
+and aims to offer improved performance on cross-lingual tasks, such as machine translation and multilingual sentiment 
+analysis.
+
+**Pros:**
+
+- Multilingual model that can be used for cross-lingual tasks.
+- Retains the benefits of RoBERTa, such as improved performance compared to BERT and DistilBERT.
+- Can be fine-tuned for specific tasks.
+
+**Cons:**
+
+- Still has large model size and high computational requirements.
+
+We will now implement each of these models and train them on our data. 
+
+## Training
+
+We will train each of the models on the training set, and evaluate them on the validation set. We use the
+`transformers` library to train our models. Switching between models is very easy, as the `transformers` library
+provides a unified API for all the models.
+
+```python
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments
+```
+
+We will use the `Trainer` class to train our models. The `Trainer` class is a high-level API that handles
+the training loop, evaluation loop, and prediction loop. It also handles the data loading, model saving,
+and model loading. We will use the `TrainingArguments` class to specify the training arguments, such as
+the number of epochs, the batch size, and the learning rate.
+
+```python
+model_name = 'bert-base-uncased' # we are changing this for each model
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=3)
+
+train_dataset = SentimentDataset('train.csv', tokenizer)
+val_dataset = SentimentDataset('val.csv', tokenizer)
+
+# Training arguments
+training_args = TrainingArguments(
+    output_dir='./results',          # output directory
+    num_train_epochs=3,              # total number of training epochs
+    per_device_train_batch_size=64,  # batch size per device during training
+    per_device_eval_batch_size=64,   # batch size for evaluation
+    evaluation_strategy='epoch',     # evaluation strategy to adopt during training
+    save_strategy='epoch',           # model saving strategy
+    load_best_model_at_end=True,     # load the best model found during training
+    metric_for_best_model='accuracy',# metric to use for selecting the best model
+    seeed=42,                        # random seed for initialization
+    learning_rate=5e-5,              # learning rate
+    warmup_steps=100,                # number of warmup steps for learning rate scheduler
+    weight_decay=0.05,               # strength of weight decay
+    learning_rate_scheduler='linear',# learning rate scheduler
+    logging_dir='./logs',            # directory for storing logs
+    logging_steps=10,
+)
+```
+
+After setting the arguments, we also set up the optimizer and the learning rate scheduler. We use the AdamW optimizer
+with a linear learning rate scheduler. We also set the random seed to 42 for reproducibility.
+
+```python
+from transformers import AdamW, get_linear_schedule_with_warmup
+
+optimizer = AdamW(model.parameters(), lr=training_args.learning_rate, weight_decay=training_args.weight_decay)
+scheduler = get_linear_schedule_with_warmup(
+    optimizer,
+    num_warmup_steps=training_args.warmup_steps,
+    num_training_steps=len(train_dataset) * training_args.per_device_train_batch_size * training_args.num_train_epochs
+)
+```
+
+We are now ready to train our model. We instantiate the `Trainer` class and call the `train` method to start training.
+
+```python
+# Trainer
+trainer = Trainer(
+    model=model,                        # the instantiated 🤗 Transformers model to be trained
+    args=training_args,                 # training arguments, defined above
+    train_dataset=train_dataset,        # training dataset
+    eval_dataset=val_dataset,           # evaluation dataset
+    tokenizer=tokenizer,                # the instantiated 🤗 Transformers tokenizer
+    compute_metrics=compute_metrics,    # the callback that computes metrics of interest
+    optimizers=(optimizer, scheduler)   # the optimizer and the learning rate scheduler
+)
+
+# Depending on the model there might be a need to setup the padding token manually
+# tokenizer.pad_token = tokenizer.eos_token
+# model.config.pad_token_id = model.config.eos_token_id
+trainer.train()
+```
+
+We can then evaluate the model on the validation set one more time. I am keeping the test set for when we are fully
+done with training and evaluation, so we don't make biased decisions.
+
+```python
+# Evaluate the model on the validation set
+eval_results = trainer.evaluate()
+```
+
+We can also save the model and the tokenizer to disk.
+
+```python
+trainer.save_model('./results')
+tokenizer.save_pretrained('./results')
+```
+
+
+## Evaluation
+
+So we have finalized the training of our models. After running each model and tweaking the parameters to be able to
+get the best performance, we can see the results. Here are the results for different metrics:
+
+| Model | Accuracy | F1 Score | Precision | Recall |
+| --- | --- | --- | --- | --- |
+| BERT | x | x | x | x |
+| RoBERTa | x | x | x | x |
+| DistilBERT | x | x | x | x |
+| XLM-RoBERTa | x | x | x | x |
+| --- | --- | --- | --- | --- |
+| BERT Large | x | x | x | x |
+| RoBERTa Large | x | x | x | x |
+| DistilBERT Large | x | x | x | x |
+| XLM-RoBERTa Large | x | x | x | x |
+
+...
