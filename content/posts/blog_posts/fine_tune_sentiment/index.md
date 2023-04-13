@@ -7,60 +7,28 @@ tags: ["NLP", "Machine Learning", "Sentiment Analysis", "Transfer Learning", "Hu
 ShowToc: true
 ---
 
-I recently worked on a sentiment analysis tool for [my company](https://www.avalancheinsights.com/). Having worked
-on it myself before, I was confident I could finish it in a few days. However, I needed to be corrected. I went 
-through a lot of research and experimentation to get the results we were happy with. In this post, I will
-talk about my research, thought process, and the methods I used to get the results we wanted.
+I recently had the opportunity to develop a sentiment analysis tool for [my company](https://www.avalancheinsights.com/). Although I had some prior experience in this area, I quickly realized that I had more to learn. After extensive research and experimentation, we achieved the desired results. In this post, I'll share my journey, thought process, and the techniques I employed to meet our objectives.
 
-# The Problem & Starting Point
+# Identifying the Issue & Setting the Stage
+Our startup specializes in delivering top-notch qualitative coding services to businesses, presenting the results on a user-friendly dashboard for our clients. In an effort to better serve their needs, we decided to incorporate sentiment analysis as a key feature.
 
-My company is a startup that provides high-quality qualitative coding services to businesses. After coding, we 
-display the results in a dashboard for our clients. We want to accommodate our client's needs by providing them
-with a dashboard with the desired features. One of the features we wanted to add was sentiment analysis.
+Sentiment analysis is a popular NLP task that classifies text based on its sentiment. This can be accomplished in various ways, such as categorizing text as positive, negative, or neutral. Alternatively, more nuanced classifications like very positive, positive, neutral, negative, and very negative can be used. Other sentiment analysis tasks, like emotion classification or aspect-based sentiment analysis, focus on different aspects of the text. You can learn more about these tasks [here](https://www.surveymonkey.co.uk/mp/what-customers-really-think-how-sentiment-analysis-can-help/).
 
-Sentiment analysis is a common NLP task that involves classifying text into sentiments. This can be done in
-a variety of ways. For example, you can classify the text into positive, negative, or neutral. You can also classify
-the text into more fine-grained sentiments such as very positive, positive, neutral, negative, and very negative.
-There are also other sentiment analysis tasks, such as emotion classification, where you classify the text into
-emotions such as anger, joy, sadness, etc. If we go even further, there is an interest in finding where the
-sentiment is in the text. For example, you can find the sentiment of a sentence in a paragraph. This is called
-aspect-based sentiment analysis. You can read more about these tasks [here](https://www.surveymonkey.co.uk/mp/what-customers-really-think-how-sentiment-analysis-can-help/).
+Ultimately, we chose the most common sentiment analysis task, which classifies text as positive, negative, or neutral. This approach offers the greatest flexibility in terms of data use and compatibility with existing models.
 
-That said, we decided to go with the most common sentiment analysis task, classifying the text
-into positive, negative, or neutral. This gives us the most flexibility regarding the types of data we can use
-for training or models we can test that are already available.
-
-So now, we have a sentiment analysis task that will classify the text into positive, negative, or neutral. The
-next step is to find a pre-trained sentiment analysis model to have a baseline to compare our results. But
-we have a problem before that. Our data is not in the format the models are trained on or publicly
-available data. So we need to have some labelled data to test these models to compare their results (to know
-which model performs the best for our data). 
+Having settled on our sentiment analysis task, the next step was to find a pre-trained model to serve as a baseline for comparison. However, we first encountered a challenge: our data was not in the same format as the models or publicly available data. Consequently, we needed labeled data to test the models and determine which one performed best for our specific needs.
 
 # Data Labeling
+Our first task was to label our data. Given the sheer volume of data and time constraints, we opted to label a small subset. We employed [Doccano](https://github.com/doccano/doccano), a user-friendly tool designed for effortless data labeling. You can find more details about Doccano on its GitHub page.
 
-The first step is to label our data. We have a lot of data but don't have the time to label all of it. So
-we decided to label a very small subset of it. We used [Doccano](https://github.com/doccano/doccano) to
-label. It is a straightforward tool that is built to easily label your data. You can read more about it on their
-GitHub page.
-
-After labelling, we had a small dataset that we could use to test our models. We had 200 samples that were
-selected via stratified sampling. The initial plan was to label 1000 data samples, but we decided to go with
-200 samples to save time.
+With the labeling complete, we had a modest dataset of 200 samples, chosen via stratified sampling, to test our models. While our initial plan was to label 1,000 samples, we reduced it to 200 to save time.
 
 # Pre-trained Models
+Armed with our labeled data, we set out to test various models. Our first port of call was [HuggingFace's Transformers](https://huggingface.co/models?pipeline_tag=text-classification), which offers a range of attention-based Transformer models known for their exceptional performance in NLP tasks, including sentiment analysis. Later in this post, I'll discuss some specific base models I used, their distinctions, and my rationale for selecting them.
 
-Now that we have our data, we can start testing our models. The easiest thing to do is to use the models from
-[HuggingFace's Transformers](https://huggingface.co/models?pipeline_tag=text-classification). It's no mystery
-that the Attention-based Transformer models have been dominating NLP tasks for the past few years. They have
-been state-of-the-art for many NLP tasks. So it is no surprise that they are also state-of-the-art for
-sentiment analysis. Later in the post, I will talk about some specific base models I used, their differences, and why I selected them. 
+For our initial testing, I chose several top-ranked models from HuggingFace's Transformers and a base model, 'VADER,' a rule-based sentiment analysis tool. I compared the Transformer models' results with those of the base model. In light of GPT-3.5 and GPT-4's success, I also incorporated a few zero-shot and few-shot models from GPT using the [OpenAI](https://openai.com/) framework.
 
-For the first pass, I selected a couple high ranked models from HuggingFace's Transformers. I also used a base 
-model, 'VADER,' a rule-based sentiment analysis tool. I used the base model to compare the results of the
-Transformer models. And, of course, with all the success of GPT-3.5 and GPT-4, we needed to include some few-shot
-and zero-shot models using GPT using [OpenAI](https://openai.com/) framework.
-
-So let's list out all the models I used:
+Here's a list of the models I utilized:
 1. [VADER](https://github.com/cjhutto/vaderSentiment)
 2. [Huggingface "sbcBI/sentiment_analysis_model"](https://huggingface.co/sbcBI/sentiment_analysis_model)
 3. [Huggingface "cardiffnlp/Twitter-xlm-roberta-base-sentiment"](https://huggingface.co/cardiffnlp/twitter-xlm-roberta-base-sentiment)
@@ -72,7 +40,7 @@ So let's list out all the models I used:
 5. GPT-3.5 (zero-shot, few-shot)
 6. GPT-4 (zero-shot, few-shot)
 
-Let's review some basic examples of how to use each model type and jump into our initial results.
+Now, let's delve into basic usage examples for each model type and our initial results.
 
 ### VADER
 ```python
@@ -143,22 +111,17 @@ sentiment = response['choices'][0]['message']['content']
 
 # Evaluation Metrics
 
-To be able to judge the performance of our models, we need to have some evaluation metrics.
-Commonly used metrics for sentiment analysis are:
+To effectively assess our models' performance, we need to employ appropriate evaluation metrics. Common metrics for sentiment analysis include:
 1. Accuracy
 2. Precision
 3. Recall
 4. F1 Score
 
-It is a good idea to use a combination of these metrics to better understand the model's performance. This is especially important when we have an imbalanced dataset. For example, if we have 1000
-samples and 900 of them are positive, and 100 of them are negative. Then we can get a very high accuracy
-score by always predicting positively. But that doesn't mean that our model is good. So we need to use other
-metrics to evaluate the performance of our model.
+Using a combination of these metrics allows for a more comprehensive understanding of the model's performance, especially when dealing with an imbalanced dataset. For instance, if we have 1,000 samples with 900 positive and 100 negative, we could achieve a high accuracy score by consistently predicting positive outcomes. However, this doesn't necessarily indicate a good model. Therefore, we need to utilize additional metrics to evaluate our model's performance.
 
-The F1 score is a combination of precision and recall. So we decided to use the F1 score and accuracy as our
-evaluation metrics.
+The F1 score combines precision and recall, making it an ideal choice for our evaluation. Consequently, we opted to use both F1 score and accuracy as our evaluation metrics.
 
-Here is the function we will use to calculate the accuracy and F1 score.
+Below is the function we'll use to calculate accuracy and F1 score.
 
 ```python
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
@@ -178,79 +141,46 @@ def compute_metrics(eval_pred):
 
 # Initial Results
 
-Now that we have our models and evaluation metrics, we can start testing the pre-trained models.
-We will use the 200 samples that we labelled to test the models. Since no training is involved, we will
-use all the data for testing. 
+With our models and evaluation metrics in place, we can now test the pre-trained models using the 200 labeled samples. Since no training is involved, we'll use all the data for testing.
 
-These results are more of a sanity check and a general evaluation of how close our
-data is to the ones used to train the models. If, by luck, our data is very similar to the data used to train
-the models, then we can expect to get good results and stop there. But if the results are not good, we
-need to do more work to get better results or try to find a better model.
+These results serve as a sanity check and a general evaluation of how closely our data aligns with the training data used for the models. If our data happens to be highly similar to the training data, we can expect favorable results and stop there. However, if the results are unsatisfactory, we'll need to put in more effort to obtain better results or find a more suitable model.
 
-Here is the accuracy plot, including all the models.
+Below are the accuracy and F1 score plots for all the models:
 
 ![Accuracy Plot](img/accuracy_plot.png)
 
-Here is the F1 score plot, including all the models.
-
 ![F1 Score Plot](img/f1_score_plot.png)
 
-As you can see, the VADER model is the worst-performing model. The best-performing model is the GPT-4 model. Other
-than that, GPT-3.5 is performing close. As we can see, the hugging-face models are not really performing well.
-The best open-source model is the PySentimento model, but it still isn't at the desired level. 
+As evident from the plots, the VADER model performs the worst, while the GPT-4 model emerges as the best-performing one. GPT-3.5 also delivers relatively strong results. The Hugging Face models, on the other hand, don't perform quite as well. The best open-source model is PySentimento, but its performance still falls short of our desired level.
 
-One thing to note is that the labelling of our data is pretty complex and is even hard for humans to label. So
-there might be some bias in the data. But we will not go into that in this post since I am not revealing the 
-data itself. 
+It's worth noting that our data labeling is complex, making it difficult even for humans. This could introduce some bias in the data, but we won't delve into that in this post since the data itself won't be disclosed.
 
-We can see that the GPT-3.5 and GPT-4 models are performing well. These are zero-shot models; we could get
-even better results if we do few-shot training. 
+The GPT-3.5 and GPT-4 models, both zero-shot, show promising performance. We could potentially achieve better results with few-shot training.
 
-After seeing the potential of GPT models (and the poor performance of the pre-trained sentiment analysis models),
-we decided to first investigate GPT-3.5 and GPT-4 models and then try to train our own sentiment analysis model
-using GPT as the labeller. This will give us a smaller open-source model that we can use for the system that
-performs similarly to GPT models but doesn't cost us anything.
+Considering the potential of GPT models and the underwhelming performance of the pre-trained sentiment analysis models, we decided to first explore GPT-3.5 and GPT-4 models and then attempt to train our own sentiment analysis model using GPT as the labeler. This approach will provide us with a smaller open-source model for our system, offering performance comparable to GPT models without any associated costs.
 
 # Evaluating GPT-3.5 and GPT-4
 
-Starting with the same small dataset, we test different prompting methods to see how to get the
-best results. This will guide us on which method to use as the labelling method for our sentiment
-analysis model.
+We began by testing different prompting methods on the same small dataset to determine the best approach for labeling our sentiment analysis model.
 
-One thing we tested aside from the prompts was the
-general prompting technique. We can introduce a parameter
-called `sample batch size` for this kind of individually dependent task. This parameter controls how many samples are sent to the model at once. This
-parameter is important because if we send all the samples at once. This will result in the model trying to
-generate all the labels simultaneously, which is more challenging. Pros, however, are the cost since we do not have to
-repeat the same pre-prompt (or instructions) for each sample.
+Aside from the prompts, we also tested the general prompting technique. We introduced a parameter called `sample batch size` for this individually dependent task. This parameter controls the number of samples sent to the model at once. It is crucial since sending all samples simultaneously makes it more challenging for the model to generate all labels. However, a benefit of this approach is cost efficiency since the same pre-prompt (or instructions) doesn't need to be repeated for each sample.
 
-I am not going into much detail about the prompts we used. But to give general direction;
-We include clear instructions for the model. GPT models allow us to explain what we 
-want from the model. We can describe how we perceive the tasks and what we expect from the model. For this,
-we clearly define what is considered positive, negative, and neutral. 
+While we won't delve into the specifics of the prompts used, we ensured that our instructions to the model were clear. GPT models allow us to explain what we want from the model, so we provided detailed definitions of positive, negative, and neutral sentiments.
 
-Here are the results of the different prompting methods.
+The results for different prompting methods are shown below:
 
 ![GPT Prompting Results](img/gpt_prompting_results.png)
 
-We included 4 different metrics in the plot:
-1. Accuracy: As we already discussed, this is the primary measure of how well our model predicts the labels.
-We can see that both GPT-3.5 and GPT-4 are performing very well with a `sample batch size` of 1. The 
-`sample batch size` of 10 is performing significantly worse.
-2. F1 Score: This is a combination of precision and recall. We can see that the F1 score follows the same 
-pattern as accuracy.
-3. Price: This is the cost of the model. This is important as we might end up using this model in production.
-For example, we can see that the `sample batch size` of 1 is more expensive than the `sample batch size` of 10. 
-4. Time: This is the time it takes to generate the labels. Again this is important if we end up using this
-model in production.
+We included four metrics in the plot:
 
-As we can see, both GPT-3.5 and GPT-4 are performing very well. We can see that the `sample batch size` of 1
-is performing better than the `sample batch size` of 10. Even though GPT-4 is performing slightly better, we
-decided to go with GPT-3.5 as it is way cheaper and faster. 
+1. Accuracy: This primary measure of our model's prediction capabilities shows that both GPT-3.5 and GPT-4 perform well with a `sample batch size` of 1. The performance drops significantly with a `sample batch size` of 10.
+2. F1 Score: This combination of precision and recall follows the same pattern as accuracy.
+3. Price: This cost metric is essential if we plan to use this model in production. For example, the `sample batch size` of 1 is more expensive than the `sample batch size` of 10.
+4. Time: This measures the time it takes to generate labels, which is important if we use this model in production.
+Both GPT-3.5 and GPT-4 perform well, with the `sample batch size` of 1 outperforming the `sample batch size` of 10. Though GPT-4 performs slightly better, we chose GPT-3.5 due to its lower cost and faster processing time.
 
-For training an open-source model, we will use GPT-3.5 to generate the bulk of the labels (120000 data points). 
-We then use GPT-4 to generate the labels for an extra 10000 data points. This way, we can see how close we can
-get to GPT-4 performance with a smaller model.
+To train an open-source model, we'll use GPT-3.5 to generate the majority of the labels (120,000 data points) and GPT-4 for an additional 10,000 data points. This approach will help us assess how closely we can achieve GPT-4 performance with a smaller model.
+
 
 # Training a Sentiment Analysis Model
 
@@ -263,21 +193,20 @@ in order of the following steps:
 
 ## Data Preprocessing and Preparation
 
-Let's start by splitting the data into train and test sets. We will use 80% of the data for training, and 
-20% of the data for validation. We will use the extra 10000 data points we generated with GPT-4 to test the 
-performance of our model (test set). 
+Before training our sentiment analysis model, we need to preprocess and prepare the data. The process involves the following steps:
 
-Right before that, we need to do some preprocessing. We need to convert the labels to numbers. We will use
-the following mapping:
-1. Positive: 2
-2. Neutral: 1
-3. Negative: 0
+1. Split the data into train and test sets. We will allocate 80% of the data for training and 20% for validation. The extra 10,000 data points generated with GPT-4 will serve as our test set.
+2. Convert the labels to numbers using the following mapping:
+    - Positive: 2
+    - Neutral: 1
+    - Negative: 0
+3. Address any incorrect labels generated by GPT-3.5. We can either drop these data points or manually correct them. In our case, we chose to manually fix most of them and leave some outliers untouched. These examples include dots, different phrasings, etc. A few examples are provided below.
+4. Check the distribution of labels in the train and test sets. This will give us an idea of how balanced our data is. It's essential to ensure that our dataset is balanced to avoid biases during training and evaluation.
 
-Aside from that, the labels by GPT-3.5 is not always correct. We can either drop these data points or 
-manually correct them. We decided to manually fix most and leave some of the outliers alone. These examples
-include dots, different phrasings, etc. I will include a couple of examples below.
+Here's the code for the above steps:
 
 ```python
+# Correct labels
 data.loc[data["label"] == "Negative (with a hint of frustration) ", "label"] = "Negative"
 data.loc[data["label"] == "Negative.", "label"] = "Negative"
 data.loc[data["label"] == "Mixed/Neutral.", "label"] = "Neutral"
@@ -290,12 +219,8 @@ data.dropna(inplace=True)
 
 # Split the data into train and validation sets
 train, val = train_test_split(data, test_size=0.2, random_state=42)
-```
 
-We can check the distribution of the labels in the train and test sets. This will give us an idea of how
-balanced our data is.
-
-```python
+# Check the distribution of labels
 data["label"].value_counts()
 ```
 
@@ -325,12 +250,9 @@ val["label"].value_counts()
 2     4822
 ```
 
-The distribution of the labels is not very balanced. We can see that the negative labels are
-the most common, and the positive labels are the least common. This is something we considered when we were
-deciding on how we will evaluate our model. But it is generally a good idea to know the distribution of the
-labels in the data.
+The distribution of labels in our dataset is somewhat imbalanced. We've observed that negative labels are the most common, while positive labels are the least common. We took this into account when deciding how to evaluate our model. Still, it's a good idea to be aware of the label distribution in the dataset.
 
-Next is to create a data loader for Pytorch. Finally, we prepare the data for training by creating a `Dataset` class.
+Next, we'll create a data loader for Pytorch and prepare the data for training by creating a `Dataset` class.
 
 ```python
 from torch.utils.data import Dataset
@@ -355,9 +277,7 @@ class SentimentDataset(Dataset):
 
 ## Model Selection
 
-The next step is to select a model to train. We will use the `transformers` library to train our models. We will build a classifier on pre-trained language models such as BERT. In this section, we will first discuss
-the different models we considered, how they differ from each other, what are the pros and cons of each
-model, and then we will implement each model, train them and evaluate them. Here are the models we considered:
+Now it's time to choose a model to train. We'll use the `transformers` library to train our models, building a classifier on top of pre-trained language models such as BERT. In this section, we'll discuss different models we considered, their differences, pros and cons, and then we'll implement, train, and evaluate each model. The models we considered include:
 
 1. BERT
 2. RoBERTa
@@ -373,18 +293,13 @@ We have 9 different models. Let's go over each model and explain how they differ
 
 ### BERT
 
-BERT is a transformer-based model introduced by Google in 2018 in the paper [BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805). 
-It was a significant milestone in the field of NLP, as it achieved state-of-the-art results on several tasks. 
-BERT is pre-trained on large amounts of text data and can be fine-tuned for various NLP tasks, such as sentiment 
-analysis, question-answering, and more. BERT uses bidirectional context, meaning it considers both left 
-and right contexts in the text when learning representations. This characteristic allows the model to better understand the textual context. Even though it is still used by many researchers, it is not the most recent 
-model, so it usually is outperformed by newer models.
+[BERT](https://arxiv.org/abs/1810.04805), introduced by Google in 2018, is a transformer-based model that marked a significant milestone in the field of NLP. It achieved state-of-the-art results on various tasks and can be fine-tuned for specific tasks like sentiment analysis and question-answering. BERT uses bidirectional context, allowing the model to better understand the textual context. However, it's not the most recent model, so it's usually outperformed by newer models.
 
 **Pros:**
 
-- Achieves high performance on many NLP tasks.
-- Can be fine-tuned for specific tasks.
-- Bidirectional context improves the understanding of textual information.
+- High performance on many NLP tasks.
+- Fine-tuning capabilities.
+- Bidirectional context for better understanding.
 
 **Cons:**
 
@@ -392,34 +307,27 @@ model, so it usually is outperformed by newer models.
 
 ### RoBERTa
 
-RoBERTa is an optimized version of BERT, introduced by Facebook AI in 2019 in the paper [RoBERTa: A Robustly Optimized BERT Pretraining Approach](https://arxiv.org/abs/1907.11692). 
-It builds upon BERT's architecture but implements several modifications that improve its performance. Some fundamental 
-changes include a **larger training dataset**, **longer training time**, and **the removal of the next-sentence 
-prediction task** during pre-training. RoBERTa also uses dynamic masking, which allows the model to see multiple masks for 
-the same token during pre-training, resulting in better performance on downstream tasks.
+[RoBERTa](https://arxiv.org/abs/1907.11692), an optimized version of BERT, was introduced by Facebook AI in 2019. It builds upon BERT's architecture but includes several modifications that improve its performance. RoBERTa uses **a larger training dataset**, **longer training time**, and **removes the next-sentence prediction task** during pre-training. It also employs **dynamic masking**, resulting in better performance on downstream tasks.
 
 **Pros:**
 
-- Improved performance compared to BERT on several NLP tasks.
-- Retains the benefits of BERT, such as fine-tuning capabilities and bidirectional context.
+- Improved performance compared to BERT.
+- Retains benefits of BERT.
+- Fine-tuning capabilities.
 
 **Cons:**
 
-- Still has a large model size and high computational requirements, similar to BERT.
+- Large model size and high computational requirements.
 
 ### DistilBERT
 
-DistilBERT is a smaller version of BERT, introduced by Hugging Face in 2019 in the paper [DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter](https://arxiv.org/abs/1910.01108). 
-It aims to maintain most of BERT's performance while reducing its size and computational requirements. DistilBERT
-has approximately half the number of parameters as BERT and is faster during training and inference. The 
-distillation process involves training a smaller model (the student) to mimic the behaviour of a larger model 
-(the teacher), in this case, BERT.
+[DistilBERT](https://arxiv.org/abs/1910.01108), a smaller version of BERT, was introduced by Hugging Face in 2019. It aims to maintain most of BERT's performance while reducing its size and computational requirements. DistilBERT has about half the parameters of BERT and is faster during training and inference.
 
 **Pros:**
 
 - Reduced model size and faster training and inference.
 - Retains a substantial portion of BERT's performance.
-- Can be fine-tuned for specific tasks.
+- Fine-tuning capabilities.
 
 **Cons:**
 
@@ -427,36 +335,27 @@ distillation process involves training a smaller model (the student) to mimic th
 
 ### XLM-RoBERTa
 
-XLM-RoBERTa is a multilingual version of RoBERTa, introduced by Facebook AI in 2019 in the paper [Unsupervised Cross-lingual Representation Learning at Scale](https://arxiv.org/abs/1911.02116). 
-It is pre-trained on a large dataset comprising 100 languages. XLM-RoBERTa builds upon the RoBERTa architecture 
-and aims to offer improved performance on cross-lingual tasks, such as machine translation and multilingual sentiment 
-analysis.
+[XLM-RoBERTa](https://arxiv.org/abs/1911.02116) is a multilingual version of RoBERTa, introduced by Facebook AI in 2019. It's pre-trained on a dataset comprising 100 languages and aims to offer improved performance on cross-lingual tasks, such as machine translation and multilingual sentiment analysis.
 
 **Pros:**
 
-- Multilingual model that can be used for cross-lingual tasks.
-- Retains the benefits of RoBERTa, such as improved performance compared to BERT and DistilBERT.
-- Can be fine-tuned for specific tasks.
+- Multilingual model for cross-lingual tasks.
+- Retains benefits of RoBERTa.
+- Fine-tuning capabilities.
 
 **Cons:**
 
-- Still has a large model size and high computational requirements.
-
-We will now implement and train each of these models on our data. 
+- Large model size and high computational requirements.
 
 ### GPT2
 
-GPT2 is a transformer-based language model introduced by OpenAI in 2019 in the paper [Language Models are Unsupervised Multitask Learners](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf).
-It is a large model that is pre-trained on a large dataset of text data. GPT2 is a generative model, which means that it
-generates text one token at a time. It uses a left-to-right autoregressive language modelling (LM) objective, which means
-it tries to predict the next token in the sequence given the previous tokens. GPT is generally better at generating
-text than BERT, meaning it imagines more creative text. Since we are trying to imitate a GPT-generated output, we will
-also give it a shot.
+[GPT2](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf), a transformer-based language model, was introduced by OpenAI in 2019. It is a large, generative model that generates text one token at a time, using a left-to-right autoregressive language modeling (LM) objective. GPT2 is generally better at generating creative text compared to BERT. Since our goal is to imitate GPT-generated output, we'll give it a try.
 
 **Pros:**
 
 - Generates creative text.
-- Can be fine-tuned for specific tasks.
+- Closer to GPT's which we used to generate our dataset.
+- Fine-tuning capabilities.
 
 **Cons:**
 
@@ -464,18 +363,13 @@ also give it a shot.
 
 ## Training
 
-We will train each model on the training set and evaluate them on the validation set. We use the
-`transformers` library to train our models. Switching between models is very easy, as the `transformers` library
-provides a unified API for all the models.
+We'll train each model on the training set and evaluate them on the validation set, using the `transformers` library. The library provides a unified API for all the models, making it easy to switch between them.
 
 ```python
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer, TrainingArguments
 ```
 
-We will use the `Trainer` class to train our models. The `Trainer` class is a high-level API that handles
-the training loop, evaluation loop, and prediction loop. It also handles data loading, model saving,
-and model loading. We will use the `TrainingArguments` class to specify the training arguments, such as
-the number of epochs, the batch size, and the learning rate.
+To train our models, we'll use the `Trainer` class, a high-level API that handles the training loop, evaluation loop, and prediction loop. It also manages data loading, model saving, and model loading. We'll use the `TrainingArguments` class to specify the training arguments, such as the number of epochs, the batch size, and the learning rate.
 
 ```python
 model_name = 'bert-base-uncased' # we are changing this for each model
