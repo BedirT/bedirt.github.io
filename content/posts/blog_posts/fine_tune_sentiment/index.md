@@ -287,9 +287,8 @@ Now it's time to choose a model to train. We'll use the `transformers` library t
 6. RoBERTa-Large
 7. DistilBERT-Large
 8. GPT2-Medium
-9. GPT2-Large
 
-We have 9 different models. Let's go over each model and explain how they differ.
+We have 8 different models. Let's go over each model and explain how they differ.
 
 ### BERT
 
@@ -464,6 +463,5 @@ get the best performance, we can see the results. Here are the results for diffe
 | RoBERTa Large | x | x | x | x |
 | DistilBERT Large | x | x | x | x |
 | GPT2 Medium | x | x | x | x |
-| GPT2 Large | x | x | x | x |
 
 ...
