@@ -10,6 +10,7 @@ ShowToc: true
 I recently had the opportunity to develop a sentiment analysis tool for [my company](https://www.avalancheinsights.com/). Although I had some prior experience in this area, I quickly realized that I had more to learn. After extensive research and experimentation, we achieved the desired results. In this post, I'll share my journey, thought process, and the techniques I employed to meet our objectives.
 
 # Identifying the Issue & Setting the Stage
+
 Our startup specializes in delivering top-notch qualitative coding services to businesses, presenting the results on a user-friendly dashboard for our clients. In an effort to better serve their needs, we decided to incorporate sentiment analysis as a key feature.
 
 Sentiment analysis is a popular NLP task that classifies text based on its sentiment. This can be accomplished in various ways, such as categorizing text as positive, negative, or neutral. Alternatively, more nuanced classifications like very positive, positive, neutral, negative, and very negative can be used. Other sentiment analysis tasks, like emotion classification or aspect-based sentiment analysis, focus on different aspects of the text. You can learn more about these tasks [here](https://www.surveymonkey.co.uk/mp/what-customers-really-think-how-sentiment-analysis-can-help/).
@@ -19,11 +20,13 @@ Ultimately, we chose the most common sentiment analysis task, which classifies t
 Having settled on our sentiment analysis task, the next step was to find a pre-trained model to serve as a baseline for comparison. However, we first encountered a challenge: our data was not in the same format as the models or publicly available data. Consequently, we needed labeled data to test the models and determine which one performed best for our specific needs.
 
 # Data Labeling
+
 Our first task was to label our data. Given the sheer volume of data and time constraints, we opted to label a small subset. We employed [Doccano](https://github.com/doccano/doccano), a user-friendly tool designed for effortless data labeling. You can find more details about Doccano on its GitHub page.
 
 With the labeling complete, we had a modest dataset of 200 samples, chosen via stratified sampling, to test our models. While our initial plan was to label 1,000 samples, we reduced it to 200 to save time.
 
 # Pre-trained Models
+
 Armed with our labeled data, we set out to test various models. Our first port of call was [HuggingFace's Transformers](https://huggingface.co/models?pipeline_tag=text-classification), which offers a range of attention-based Transformer models known for their exceptional performance in NLP tasks, including sentiment analysis. Later in this post, I'll discuss some specific base models I used, their distinctions, and my rationale for selecting them.
 
 For our initial testing, I chose several top-ranked models from HuggingFace's Transformers and a base model, 'VADER,' a rule-based sentiment analysis tool. I compared the Transformer models' results with those of the base model. In light of GPT-3.5 and GPT-4's success, I also incorporated a few zero-shot and few-shot models from GPT using the [OpenAI](https://openai.com/) framework.
@@ -43,6 +46,7 @@ Here's a list of the models I utilized:
 Now, let's delve into basic usage examples for each model type and our initial results.
 
 ### VADER
+
 ```python
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
@@ -64,6 +68,7 @@ else:
 ```
 
 ### HuggingFace Transformers
+
 ```python
 from transformers import pipeline
 
@@ -75,6 +80,7 @@ label = sentiment_task(row['text'])[0]['label']
 ```
 
 ### PySentimento
+
 ```python
 from pysentimiento import create_analyzer
 
@@ -85,6 +91,7 @@ label = sentiment_task.predict(row['text']).output
 ```
 
 ### GPT-3.5/4
+
 ```python
 import openai
 import os
