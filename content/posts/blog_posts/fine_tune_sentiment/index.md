@@ -1,11 +1,10 @@
 ---
 author: "Bedir Tapkan"
-title: "Best Methods for Sentiment Analysis for your weird data"
-date: 2023-04-06
+title: "Tackling Unconventional Data: A Guide to Optimizing Sentiment Analysis Models for Atypical Text"
+date: 2023-04-13
 description: "Talking about my research and details on Sentiment Analysis"
 tags: ["NLP", "Machine Learning", "Sentiment Analysis", "Transfer Learning", "HuggingFace", "Transformers"]
 ShowToc: true
-draft: true
 ---
 
 I was recently working on a sentiment analysis tool for [my company](https://www.avalancheinsights.com/). Having worked
@@ -367,13 +366,13 @@ model, and then we will implement each model, train them and evaluate them. Here
 2. RoBERTa
 3. DistilBERT
 4. XLM-RoBERTa
-5. BERT-Large
+5. GPT2
 6. RoBERTa-Large
 7. DistilBERT-Large
-8. XLM-RoBERTa-Large
+8. GPT2-Medium
+9. GPT2-Large
 
-We have 8 different models, 4 of them are small models, and 4 of them are the large versions of the small models.
-Let's go over each model and explain how they differ from each other.
+We have 9 different models, let's go over each model and explain how they differ from each other.
 
 ### BERT
 
@@ -448,6 +447,24 @@ analysis.
 - Still has large model size and high computational requirements.
 
 We will now implement each of these models and train them on our data. 
+
+### GPT2
+
+GPT2 is a transformer-based language model introduced by OpenAI in 2019 in the paper [Language Models are Unsupervised Multitask Learners](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf).
+It is a large model that is pre-trained on a large dataset of text data. GPT2 is a generative model, which means that it
+generates text one token at a time. It uses a left-to-right autoregressive language modeling (LM) objective, which means
+that it tries to predict the next token in the sequence given the previous tokens. GPT is generally better at generating
+text than BERT, meaning it imagines more creative text. Since we are trying to imitate a GPT generated output, we will
+give it a shot as well.
+
+**Pros:**
+
+- Generates creative text.
+- Can be fine-tuned for specific tasks.
+
+**Cons:**
+
+- Generally worse at classification tasks compared to BERT and RoBERTa.
 
 ## Training
 
@@ -534,13 +551,12 @@ done with training and evaluation, so we don't make biased decisions.
 eval_results = trainer.evaluate()
 ```
 
-We can also save the model and the tokenizer to disk.
+We can also save the model and the tokenizer.
 
 ```python
 trainer.save_model('./results')
 tokenizer.save_pretrained('./results')
 ```
-
 
 ## Evaluation
 
@@ -553,10 +569,11 @@ get the best performance, we can see the results. Here are the results for diffe
 | RoBERTa | x | x | x | x |
 | DistilBERT | x | x | x | x |
 | XLM-RoBERTa | x | x | x | x |
+| GPT2 | x | x | x | x |
 | --- | --- | --- | --- | --- |
-| BERT Large | x | x | x | x |
 | RoBERTa Large | x | x | x | x |
 | DistilBERT Large | x | x | x | x |
-| XLM-RoBERTa Large | x | x | x | x |
+| GPT2 Medium | x | x | x | x |
+| GPT2 Large | x | x | x | x |
 
 ...
