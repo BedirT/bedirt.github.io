@@ -78,7 +78,7 @@ params:
 
   commentSystems:
     remark42:
-      url: http://3.21.35.61:8080
+      url: https://comments.bedirtapkan.com
       site: https://bedirtapkan.com
   defaultCommentSystems:
     remark42: true
