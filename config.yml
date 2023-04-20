@@ -76,6 +76,13 @@ params:
   tocopen: false
   math: true
 
+  commentSystems:
+    remark42:
+      url: http://3.21.35.61:8080
+      site: bedirtapkan.com
+  defaultCommentSystems:
+    remark42: true
+
   assets:
     disableHLJS: true # to disable highlight.js
     # disableFingerprinting: true
