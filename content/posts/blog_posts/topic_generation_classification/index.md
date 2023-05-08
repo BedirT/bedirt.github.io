@@ -28,6 +28,7 @@ We can mention why you would want to use topic modelling, and why not.
 - It is not very accurate, and can be very subjective (I cannot stress this enough)
 - It is not very robust, and can be very sensitive to the number of topics
 - Overall for a quality analysis, it does not provide much value
+- For smaller datasets, it is not very useful
 
 So if you were interested in a quality analysis, you would not want to use topic modelling. But if you were interested in a quick analysis, and you did not have any labelled data, then topic modelling is a great tool. If you want to read more about topic modelling I strongly suggest that you checkout [BERTopic](https://maartengr.github.io/BERTopic/algorithm/algorithm.html). It is a great library, and the documentation is very well written.
 
@@ -35,11 +36,13 @@ What we are aiming however is seeing the potential of GPT-3.5/4 in topic classif
 
 Along the way, we use topic modelling as a baseline, since we don't have a better choice. One thing to mention here is that we are not making use of existing topic classification models. This is due to the fact that topic classification assumes the new results to be in already classified (labelled) topics. This is not the case for us, since we are trying to discover new topics, and then classify them with no prior knowledge. This begs for few-shot or zero-shot learning, which is what we test with GPT models.
 
-# Experiment 1: How does BERTopic perform in classifying existing topics?
+One thing we did not mention, and it is crucial in any part of this process is that topic classification is a multi-label multi-class classification task. Which makes it much harder than any other classification method. We will discuss this in more detail later on when we talk about the evaluation metrics.
+
+# Experiment 1: Creating a baseline, how does BERTopic perform in classifying existing topics?
 
 In this experiment we assume that BERTopic has all the correct labels to given dataset, and should classify them into these classes. We will then compare the results with the actual labels, and see how well it performs. This is a very simple experiment, but it will give us a good idea of how well BERTopic performs in classifying topics.
 
-BERTopic is not designed to perform a classification task with no training (of course). What we do instead is, perform topic modelling on the dataset, and then map the topic labels generated to the closest class we have by looking at their cosine similarity. This gives us a proper class for each cluster and document. One good thing is that we also have the exact number of topics, so we can use that as a hyperparameter.
+BERTopic is not designed to perform a classification task with no training. What we do instead is, perform topic modelling on the dataset, and then map the topic labels generated to the closest class we have by looking at their cosine similarity. This gives us a proper class for each cluster and document. One good thing is that we also have the exact number of topics, so we can use that as a hyperparameter.
 
 We use our internal data for the experiments, but you can use any dataset you want. We have a relatively large survey data, with small and big surveys (ranges from 50-20k responses per survey). We want to make sure the method we end up with can handle both ends of the spectrum. We also have a lot of different topics, which is another thing we want to make sure we can handle.
 
@@ -123,10 +126,70 @@ for response, true_class in tqdm(zip(responses, true_classes), total=len(respons
 acc /= len(responses)
 ```
 
-This method yielded a `0.21` accuracy. As we can see, it is better than topic modelling, but still not good enough. Still, works better as the baseline, so we will use this method for the comparison when it comes to the final results.
+This method yielded a `0.21` accuracy. As we can see, it is better than topic modelling, but still not good enough. Still, works better as the baseline, so we will use this method for the comparison when it comes to the final results. 
+
+Since we mentioned accuracy couple times here, let's talk about what metrics should we be using to properly evaluate our model (hint: it is not accuracy).
+
+# Evaluation Metrics
+We cannot really calculate simple accuracy for multi-label classification. We need to use a different metrics. For our case we care the most about not labelling a response with a wrong class. We can tolerate not labelling a response with the correct class, but we cannot tolerate labelling a response with a wrong class. This is why we will be using precision as our main metric. We will also use recall and f1-score to get a better idea of how well our model performs.
+
+Besides these, we will use another common metric for multi-label classification, that replaces the accuracy. It is called Jaccard similarity, and it is the intersection over union of the predicted and true labels. It is a good metric to use when we have a lot of classes, and we want to see how well our model performs in general. We will use this metric to compare our model with the baseline.
+
+Before talking about each metric, we introduce two other friends of ours, price and time. Since we are actually hoping to productionize this method, it is important to talk about these two metrics as well. We will be using the same dataset for all the experiments, so we can compare the time it takes to train and predict for each method. We will also talk about the price of each method, and how much it would cost to run it in production.
+
+## Precision
+Precision is the number of true positives divided by the sum of true positives and false positives. In other words, it measures how well the model predicts the positive instances of each class. A high precision means that the model is good at avoiding false positives, which is important in our case since we want to avoid labeling a response with the wrong class. 
+
+Precision can be calculated as:
+
+```
+Precision = TP / (TP + FP)
+```
+
+where TP is the number of true positives and FP is the number of false positives.
+
+## Recall
+
+Recall is the number of true positives divided by the sum of true positives and false negatives. It measures how well the model identifies the positive instances of each class. A high recall means that the model is good at finding the relevant instances, but it might also produce more false positives.
+
+Recall can be calculated as:
+
+```
+Recall = TP / (TP + FN)
+```
+
+where TP is the number of true positives and FN is the number of false negatives.
+
+## F1-Score
+
+The F1-score is the harmonic mean of precision and recall, which provides a balance between these two metrics. It ranges from 0 to 1, with 1 being the best possible score. A high F1-score indicates that the model is good at both avoiding false positives and finding relevant instances.
+
+F1-score can be calculated as:
+
+```
+F1-score = 2 * (Precision * Recall) / (Precision + Recall)
+```
+
+## Jaccard Similarity
+
+Jaccard similarity, also known as the Jaccard index, is a measure of similarity between two sets. In our case, it is used to measure the similarity between the predicted and true labels. The Jaccard similarity ranges from 0 to 1, with 1 being a perfect match between the two sets.
+
+Jaccard similarity can be calculated as:
+
+```
+Jaccard Similarity = (Intersection of Predicted and True Labels) / (Union of Predicted and True Labels)
+```
+
+## Time and Cost
+
+In addition to the above-mentioned evaluation metrics, time and cost are also important factors when considering a model for production use. The time required for training and predicting with each method should be compared, as well as the cost associated with using a particular method, such as the price of using GPT-3.5/4 API, which could be significant depending on the size of the dataset.
+
+With the metrics and the baseline ready, we can start talking about the implementation of our second experiment, how well GPT performs on classification.
+
+# GPT-3.5/4 for Classification
 
 
-## References
+# References
 - https://www.clearpeaks.com/using-chatgpt-for-topic-modelling-and-analysis-of-customer-feedback/
 - https://medium.com/@stephensonebinezer/transform-your-topic-modeling-with-chatgpt-cutting-edge-nlp-f4654b4eac99
 - https://www.width.ai/post/gpt3-topic-extraction
