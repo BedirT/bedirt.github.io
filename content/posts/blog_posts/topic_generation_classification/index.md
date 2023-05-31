@@ -1,21 +1,31 @@
 ---
 author: "Bedir Tapkan"
-title: "Using GPT for Topic Generation and Classification"
+title: "Using GPT for Qualitative Analysis"
 date: 2023-04-25
-description: "Talking about my research and experiments on Topic Generation and Classification using GPT-3.5/4."
+description: "Talking about my research and experiments on Performing Qualitative Analysis using GPT-3.5/4."
 tags: ["NLP", "Machine Learning", "Topic Classification", "Topic Modelling", "GPT-3.5", "GPT-4", "Few-shot Learning", "Zero-shot Learning", "LLMs"]
 ShowToc: true
 ---
 
-A new tool we are investigating with [my company](https://www.avalancheinsights.com/) is Topic Generation and Classification. This is an extensive experimentation process on Topic Modelling and GPT-3.5/4. I first start with topic modelling, how well can we actually describe topics using a simple BERTopic model, which seems to be doing the best job. We then investigate how strong this model actually is in matching our human experts. After discussing the weaknesses and strengths of this approach, we go ahead and investigate how GPT can help us. 
+**Todo**
+- [ ] Fix the evaluation on Topic Modelling
+- [ ] Add TLDR
+
+A new topic we are investigating with [my company](https://www.avalancheinsights.com/) is Topic Generation and Classification. This is an extensive experimentation process on Topic Modelling and GPT-3.5/4 for qualitative analysis. I first start with topic modelling, how well can we actually describe topics using a simple BERTopic model, which currently is the state of the art model. We then investigate how strong this model actually is compared to our human experts. After discussing the weaknesses and strengths of this approach, we go ahead and investigate how GPT can help us improve this performence. 
 
 For this purpose I came up with an experimentation road map. I tried asking every question I could think of and tried to answer them in a systematic way. In this post we will go over this journey and discuss the results.
 
+# What is Qualitative Analysis?
+
+Qualitative analysis is a method of analyzing data that is not numerical. It is a method of analysis that is used to understand the meaning of data. Qualitative analysis is used in many different fields, such as psychology, sociology, and anthropology. It is also used in business to understand the meaning of data. We perform qualitative analysis via different methods, such as interviews, focus groups, and surveys. After the collection of data, we need to analyze it to understand the meaning of the data since it is not numerical and extracting meaning is non-trivial. 
+
+This is where we start "qualitative coding" process. Qualitative coding is the process of assigning labels to data. These labels are called "codes" or "themes", and they are used to describe the meaning of the data. The process of qualitative coding is very time consuming and requires a lot of effort. It is also very subjective, since it is done by humans. This is why we want to automate this process as much as we can, and make it more robust, accurate and fast. 
+
+As much research showed recently, LLMs are still not at the point where they can outperform a quality coding done by a human expert. However, we are speculating that, they can be used to speed up the process, and provide a more robust and accurate analysis for experts to start with. This is what we are aiming to do in this research, and we will discuss the results in detail.
+
 # What is Topic Modelling?
 
-Topic modelling is a technique that allows us to extract topics from a corpus of text. It is an unsupervised technique that allows us to discover hidden semantic structures in a text. When we talk about text analysis, Topic Modelling is the main tool that comes to mind in classifying text without any labels. So if we have a bunch of documents, the method we use to assign meaning to bulk of them is Topic Modelling. 
-
-This is a probabilistic model, that does not provide much accuracy. It is a very simple method in essence. Different methods have differnt approaches to this problem, but one of the most popular ones is BERTopic which uses BERT embeddings to cluster documents. That pretty much is it, even though the library is amazingly implemented and well maintained, the method is very simple. It uses sentence similarity to cluster documents, and analyze word frequency to assign topics and extract keywords.
+Topic modelling is a technique that allows us to extract topics from a corpus of text. It is an unsupervised technique that allows us to discover hidden semantic structures in a text. This is a probabilistic model, that does not provide much accuracy. It is a very simple method in essence. Different methods have differnt approaches to this problem, but one of the most popular ones is BERTopic which uses BERT embeddings to cluster documents. That pretty much is it, even though the library is amazingly implemented and well maintained, the method is very simple. It uses sentence similarity to cluster documents, and analyze word frequency to assign topics and extract keywords.
 
 We can mention why you would want to use topic modelling, and why not. 
 
@@ -28,7 +38,7 @@ We can mention why you would want to use topic modelling, and why not.
 - It is not very accurate, and can be very subjective (I cannot stress this enough)
 - It is not very robust, and can be very sensitive to the number of topics
 - Overall for a quality analysis, it does not provide much value
-- For smaller datasets, it is not very useful
+- For smaller datasets, it is not very useful (which is largely the case for surveys etc. in real world)
 
 So if you were interested in a quality analysis, you would not want to use topic modelling. But if you were interested in a quick analysis, and you did not have any labelled data, then topic modelling is a great tool. If you want to read more about topic modelling I strongly suggest that you checkout [BERTopic](https://maartengr.github.io/BERTopic/algorithm/algorithm.html). It is a great library, and the documentation is very well written.
 
@@ -36,7 +46,16 @@ What we are aiming however is seeing the potential of GPT-3.5/4 in topic classif
 
 Along the way, we use topic modelling as a baseline, since we don't have a better choice. One thing to mention here is that we are not making use of existing topic classification models. This is due to the fact that topic classification assumes the new results to be in already classified (labelled) topics. This is not the case for us, since we are trying to discover new topics, and then classify them with no prior knowledge. This begs for few-shot or zero-shot learning, which is what we test with GPT models.
 
-One thing we did not mention, and it is crucial in any part of this process is that topic classification is a multi-label multi-class classification task. Which makes it much harder than any other classification method. We will discuss this in more detail later on when we talk about the evaluation metrics.
+One thing we did not mention, and it is crucial in any part of this process is that topic classification is a multi-label multi-class classification task. Which makes it much harder than any other classification method. We will discuss this in further detail later on when we talk about the evaluation metrics.
+
+
+# Seperation of Tasks: Classification and Generation
+
+It is a clear statement that GPT (and all the other LLMs) performs better with [divided sub-tasks when it comes to handling complex tasks](https://github.com/openai/openai-cookbook/blob/main/techniques_to_improve_reliability.md). This means that we are expected to get better results if we can divide our end-goal into smaller pieces. For our case, this seemed like we could actually divide our task into classification and generation. This will help us evaluate existing methods, so that we actually can have two seperate baselines to compare with. 
+
+One thing to consider in this seperation is that, these pieces must work well together. So this begs for the question of cohesion. How well do two models do together rather than alone. So in the end of testing the models on their seperate tasks, we will also test them together and see how well they perform for the end goal. 
+
+Another consideration we have is that, these tasks might actually be harmful for the task at hand (at least cost wise), since we are repeating a lot of the information to divide the task. This is why we will also try a combined approach (one prompt) and try to tackle the complexity issues with prompting techniques.
 
 # Experiment 1: Creating a baseline, how does BERTopic perform in classifying existing topics?
 
@@ -186,8 +205,80 @@ In addition to the above-mentioned evaluation metrics, time and cost are also im
 
 With the metrics and the baseline ready, we can start talking about the implementation of our second experiment, how well GPT performs on classification.
 
-# GPT-3.5/4 for Classification
+# Experiment 2: GPT-3.5/4 for Classification
 
+Second experiment is to see how well GPT-3.5/4 performs on the same classification task, multi-label multi-class classification. We use the same dataset and the same metrics to compare the results. We also compare the time and cost of each method, to see how well they perform in production.
+
+## Human Error
+
+When an Analyst handles the data, there are couple human error that are expected to happen time to time:
+
+1. Analyst might forget to label a response with a class. Especially when there are many classes and it is hard to keep track of them.
+2. There might be a coverage expectation from the client, which means that the analyst is going for covering some amount of responses and not all of them. This is usually the case when there are a lot of responses, and the client wants to get a speed up in the process.
+3. The naming analyst used might not explicitly indicate their purpose on creating the theme. This leads to misunderstanding of the theme, and might lead to wrong labeling. This is highly avoidable if the analyst notes down a description or a purpose for the theme.
+
+I am mentioning these here, since we are bout to use GPT for the classification task, and these errors in general will lead to wrong labeling. We will see how well GPT performs regardless of these errors here because we are using human generated labels to begin with. 
+
+Later on when we are checking the results for cohesion, we will actually be using GPT generated themes and a human will manually evaluate the results. This will help us see how well GPT performs in a real world scenario. There are some issues with this method but we will discuss them later on.
+
+## Prompting
+
+Prompting is the single most important component when it comes to zero/few-shot learning. If you are not familiar with prompting I highly suggest you go through [Lilian Weng's Blog Post](https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/). It is a great resource to understand the techniques and the importance of prompting.
+
+Let's talk about what prompting techniques we will be using for this experiment. I won't be able to provide the exact prompts we have used, since they are company knowledge, but I will mention the general idea.
+
+
+## Let's Classify, Shall We?
+
+For this step, we feed the existing themes to GPT, and ask it to classify into these bins, and then we compare the results with the true labels. We use the same metrics as before, and we also compare the time and cost of each method.
+
+The parameters that change during the experiment is only the GPT model used (3.5 or 4) and if we do few-shot or zero-shot learning.
+
+Here are the results:
+
+| Model   | Batch Size | Prompt ID | Zero-shot/ Few-shot | Precision | Recall | Jaccard Similarity (Acc) | Price | Time  |
+|---------|------------|-----------|---------------------|-----------|--------|--------------------------|-------|-------|
+| GPT 3.5 | 1          | 2         | zero-shot           | 0.412     | 0.636  | 0.412                    | 0.664 | 8 min |
+| GPT 3.5 | 10         | 1         | zero-shot           | 0.425     | 0.678  | 0.487                    |       |       |
+| GPT 3.5 | 25         | 1         | zero-shot           | 0.394     | 0.665  | 0.459                    | 0.096 | 5 min |
+| GPT 3.5 | 25         | 3         | few-shot            | 0.425     | 0.574  | 0.459                    | 0.128 | 12 min|
+| GPT 3.5 | 1          | 4         | few-shot            | 0.411     | 0.663  | 0.411                    | 0.661 | 21 min|
+| GPT 4   | 1          | 2         | zero-shot           | 0.46      | 0.74   | 0.46                     | 6.46  | 24 min|
+| GPT 4   | 25         | 1         | zero-shot           | 0.475     | 0.770  | 0.551                    | 0.823 | 11 min|
+| GPT 4   | 25         | 3         | few-shot            | 0.506     | 0.663  | 0.561                    | 1.166 | 8.5 min|
+| GPT 4   | 1          | 4         | few-shot            | 0.463     | 0.738  | 0.463                    | 6.43  | 18 min|
+
+The prompts here are simply just explaining the task. We do not use any chain of thought or any other prompting technique. We simply ask GPT to classify the response into one of the themes. This is due to the time constraints we were aiming for (since we already have two layers here, we tested out prompts to just assign) and since this is not really a complex task.
+
+We can see that the results clearly indicates that GPT models are outperforming the baseline by a large margin. Though we also see that the results are not near what we wanted. We are thinking some of this is due to the human error we mentioned before. Once we have the complete pipeline (with generation) we will be able to see how well GPT performs in a real world scenario, eliminating the human error.
+
+# Experiment 3: GPT-3.5/4 for Theme Generation
+
+We have a baseline for classification, but we do not have a baseline for generation. This is due to the fact that there is no existing method for theme generation. We can use topic modelling, but that is not really a generation method. When we mention generation, we mean that we want to generate a theme from scratch after reading the responses. We kind of come close to doing this in Topic Modelling, since we group the themes together (clustering) and then assign a name to the cluster. But this is not really generation, since we are not generating a theme from scratch and just assigning a name to a cluster.
+
+Anyhow baseline is irrelevant here (since we can only perform zero/one-shot anyways.) We will just go ahead and test GPT-3.5/4 for generation and see how well it performs. Since we use human evaluator to evaluate the results, we will be able to see how acceptable GPT performs in a real world scenario (this is pretty much the final workflow we will be going through anyways.)
+
+Again for this task we used simple prompting. After going through multiple iterations of prompting we picked the best performing one (from a quick evaluation), and used that for the final results. This is the step we test the "cohesion" between our models, and get a human evaluator to evaluate the results.
+
+# Experiment 4: Cohesion, What did we Achieve?
+
+We now came to the end of the first phase where we can evaluate the results. We run the generation and classification one after the other, report the results and ask a human expert to analyze these results. 
+
+We have evaluated the results of 130 responses, and got to `F-Beta Score` of `0.81`. This is a very good result, and we are very happy with it. We also got a lot of feedback from the evaluator, and we used these feedbacks to improve the prompting. For `Beta` value we used `0.65` as we give more importance to precision.
+
+This evaluation happens in two steps: Analyst first looks through the generated themes, and evaluates how good they are (and how descriptive). Then they look at the classification results in the context of the generated themes, and evaluate how well the classification results fit into the generated themes.
+
+Overall we are happy with the current state of the model. But this process gave us the idea that the seperation might not have been a good idea. 
+
+# Experiment 5: One Prompt to Rule Them All
+
+Next we test out a combined approach, where we use a single prompt for both generation and classification. This will help us see if the seperation is actually helping us or not.
+
+To handle some of the complications and give a clearer direction to GPT, we use a prompting technique called "Chain of Thought". This is a very powerful technique, and it is very easy to implement. We will be using this technique for both generation and classification.
+
+We also gave a quite descriptive expert analyst personality to GPT that directs the model to think like an analyst we would approve of. This is a very important step, since we want to make sure that GPT is not generating themes that are not useful for us.
+
+*__Results are coming soon__*
 
 # References
 - https://www.clearpeaks.com/using-chatgpt-for-topic-modelling-and-analysis-of-customer-feedback/
@@ -196,3 +287,8 @@ With the metrics and the baseline ready, we can start talking about the implemen
 - https://arxiv.org/abs/1908.10084
 - https://maartengr.github.io/BERTopic/changelog.html
 - https://monkeylearn.com/blog/introduction-to-topic-modeling/#:~:text=Topic%20modeling%20is%20an%20unsupervised,characterize%20a%20set%20of%20documents
+- https://arxiv.org/pdf/2203.11171.pdf 
+- https://arxiv.org/pdf/2303.07142.pdf 
+- https://arxiv.org/pdf/2210.03629.pdf
+- https://arxiv.org/abs/2211.01910
+- https://arxiv.org/abs/2201.11903
