@@ -11,7 +11,7 @@ A new topic we are investigating with [my company](https://www.fathomthat.ai/) i
 
 For this purpose I came up with an experimentation road map. I tried asking every question I could think of and tried to answer them in a systematic way. In this post we will go over this journey and discuss the results.
 
-{{< collapse "Click to Expand This Section!" openByDefault=true >}}
+{{< collapse title="Click to Expand This Section!" openByDefault=true >}}
 - We explore **Topic Generation and Classification**, focusing on BERTopic and GPT-3.5/4 for qualitative analysis.
 - **Qualitative Analysis** is about understanding non-numerical data, and its challenges include the time-consuming "qualitative coding" process.
 - **Topic Modelling** is introduced, with BERTopic as a primary tool.
