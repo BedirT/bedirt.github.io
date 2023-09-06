@@ -7,13 +7,32 @@ tags: ["NLP", "Machine Learning", "Topic Classification", "Topic Modelling", "GP
 ShowToc: true
 ---
 
-**Todo**
-- [ ] Fix the evaluation on Topic Modelling
-- [ ] Add TLDR
-
-A new topic we are investigating with [my company](https://www.avalancheinsights.com/) is Topic Generation and Classification. This is an extensive experimentation process on Topic Modelling and GPT-3.5/4 for qualitative analysis. I first start with topic modelling, how well can we actually describe topics using a simple BERTopic model, which currently is the state of the art model. We then investigate how strong this model actually is compared to our human experts. After discussing the weaknesses and strengths of this approach, we go ahead and investigate how GPT can help us improve this performence. 
+A new topic we are investigating with [my company](https://www.fathomthat.ai/) is Topic Generation and Classification. This is an extensive experimentation process on Topic Modelling and GPT-3.5/4 for qualitative analysis. I first start with topic modelling, how well can we actually describe topics using a simple BERTopic model, which currently is the state of the art model. We then investigate how strong this model actually is compared to our human experts. After discussing the weaknesses and strengths of this approach, we go ahead and investigate how GPT can help us improve this performence. 
 
 For this purpose I came up with an experimentation road map. I tried asking every question I could think of and tried to answer them in a systematic way. In this post we will go over this journey and discuss the results.
+
+{{< collapse "Click to Expand This Section!" openByDefault=true >}}
+- We explore **Topic Generation and Classification**, focusing on BERTopic and GPT-3.5/4 for qualitative analysis.
+- **Qualitative Analysis** is about understanding non-numerical data, and its challenges include the time-consuming "qualitative coding" process.
+- **Topic Modelling** is introduced, with BERTopic as a primary tool.
+    - **Pros:** Fast, unsupervised, easy to use.
+    - **Cons:** Not very accurate, subjective, not ideal for small datasets.
+- Our **experimentation roadmap**:
+    - Establish a baseline using BERTopic for classification.
+    - Test GPT models on the same classification task.
+    - Understand the potential human errors in data labeling.
+    - Divide complex tasks into sub-tasks for better GPT performance.
+    - Separate tasks of classification and generation.
+- **Evaluation Metrics** are crucial:
+    - Precision, Recall, F1-score, and Jaccard Similarity are discussed.
+    - Time and cost are also considered for real-world deployment.
+- We try a **combined approach** using a single prompt for both generation and classification, aided by the "Chain of Thought" prompting technique.
+- The **final system**:
+    - Generates themes.
+    - Merges redundant themes.
+    - Classifies responses into these themes.
+{{< /collapse >}}
+
 
 # What is Qualitative Analysis?
 
@@ -278,7 +297,15 @@ To handle some of the complications and give a clearer direction to GPT, we use 
 
 We also gave a quite descriptive expert analyst personality to GPT that directs the model to think like an analyst we would approve of. This is a very important step, since we want to make sure that GPT is not generating themes that are not useful for us.
 
-*__Results are coming soon__*
+# Final System: What we found to be the best approach?
+
+After all the experiments, we finally have a system in production. I might have missed some of the details while experimenting, but this took a long time to get to this point and I am a little lazy to fill in so much detail that don't really matter at this point. Especially since I am working on something new now.
+
+I will just go ahead and explain the final system, and what we found to be the best approach. If you had any further questions, feel free to reach out to me. 
+
+We have implemented a three stage system, where we first generate themes, and since we are doing this in parellel compute we then merge the redundant themes. We then classify the responses into these themes. While doing this we are using GPT function calling to reduce the parsing errors in the end. As much as it sounds simple, this whole process is a quite complex system to implement into production. We are using a lot of different techniques to make sure the system is robust and accurate. 
+
+Overall we found this to be the best resulting approach using GPT. We are now focused on iterating and reducing the errors we found in production. As a final goal, we are hoping to train our own proprietary fine-tuned model using our own data. This will help us reduce the cost and increase the accuracy of the system. Stay tuned for the results.
 
 # References
 - https://www.clearpeaks.com/using-chatgpt-for-topic-modelling-and-analysis-of-customer-feedback/
