@@ -2,15 +2,18 @@
 title: "About Me - The Unabridged Version"
 ShowToc: false
 url: "/about/"
+showReadingTime: False
+showWordCount: False
+hideMeta: true
 ---
 
-{{< figure src="/img/profilepic.jpg" alt="Look, it's me!" width="400" >}}
+{{< figure src="/img/profilepic.jpg" alt="Look, it's me!" width="400" align="center">}}
 
-{{< collapse title="TLDR - Short Version" openByDefault=false >}}
-> Hello! I'm a passionate Machine Learning engineer and researcher, diving deep into the wonders of Natural Language Processing and Large Language Models, especially in the qualitative research sphere. Currently wielding my skills at [Fathom](https://www.fathomthat.ai), I'm the Lead Machine Learning Engineer, pioneering the integration of LLMs/NLP in qualitative coding. My journey through tech began with mobile app development, evolved through competitive programming, and flourished with a love for AI and Machine Learning. I've collaborated on projects from hackathons to NASA, pursued advanced studies in Reinforcement Learning at the University of Alberta, and contributed to the realm of competitive programming and open-source projects.
->
-> Outside the tech world, I'm an outdoor enthusiast, avid reader, amateur baker, and sports fan who dabbles in graphic design, 3D modeling, and the latest - 3D printing. My quest for learning and sharing knowledge never ends, whether through teaching, exploring new tech, or embarking on creative endeavors.
-{{< /collapse >}}
+{{< collapsible label="TLDR" openByDefault="false" >}}
+Hello! I'm a passionate Machine Learning engineer and researcher, diving deep into the wonders of Natural Language Processing and Large Language Models, especially in the qualitative research sphere. Currently wielding my skills at [Fathom](https://www.fathomthat.ai), I'm the Lead Machine Learning Engineer, pioneering the integration of LLMs/NLP in qualitative coding. My journey through tech began with mobile app development, evolved through competitive programming, and flourished with a love for AI and Machine Learning. I've collaborated on projects from hackathons to NASA, pursued advanced studies in Reinforcement Learning at the University of Alberta, and contributed to the realm of competitive programming and open-source projects.
+<br><br>
+Outside the tech world, I'm an outdoor enthusiast, avid reader, amateur baker, and sports fan who dabbles in graphic design, 3D modeling, and the latest - 3D printing. My quest for learning and sharing knowledge never ends, whether through teaching, exploring new tech, or embarking on creative endeavors.
+{{< /collapsible >}}
 
 Hi! Let me talk a bit about myself, without boring you I hope. I am a Machine Learning engineer & researcher, currently focusing on Natural Language Processing, Large Language Models in particular, in the domain of Qualitative Research.
 
