@@ -1,0 +1,115 @@
+{{ $label := .Get "label" | default "Click Me" }}
+{{ $openByDefault := .Get "openByDefault" | default "false" }}
+<div class="collapsible-wrapper">
+    <button class="collapsible-button {{ if eq $openByDefault "true" }}active{{ end }}">{{ $label }}</button>
+    <div class="collapsible-content {{ if eq $openByDefault "true" }}open{{ end }}" style="{{ if eq $openByDefault "true" }}display: block;{{ else }}display: none;{{ end }}">
+        {{ .Inner }}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var coll = document.getElementsByClassName("collapsible-button");
+    for (var i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+                content.style.display = "none";
+                content.classList.remove("open");
+            } else {
+                content.style.display = "block";
+                content.classList.add("open");
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.collapsible-wrapper {
+    text-align: center;
+    margin-top: var(--gap);
+    margin-bottom: var(--gap);
+}
+
+.collapsible-button {
+    background-color: var(--primary);
+    border-radius: 12px;
+    box-shadow: transparent 0 0 0 3px,rgba(18, 18, 18, .1) 0 6px 20px;
+    box-sizing: border-box;
+    color: var(--entry);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 1 1 auto;
+    font-size: 1.2rem;
+    font-weight: 700;
+    justify-content: center;
+    line-height: 1;
+    margin: 0;
+    outline: none;
+    padding: 1rem 1.2rem;
+    text-align: center;
+    text-decoration: none;
+    transition: box-shadow .2s,-webkit-box-shadow .2s;
+    white-space: nowrap;
+    border: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.collapsible-button:hover {
+    box-shadow: var(--secondary) 0 0 0 3px, transparent 0 0 0 0;
+}
+
+@media (min-width: 768px) {
+    .collapsible-67 {
+        padding: 24px;
+    }
+}
+
+.collapsible-button.active {
+    padding: calc(var(--gap) * 0.5) calc(var(--main-width) * 0.4);
+    border-radius: 20px 20px 0 0;
+}
+
+.collapsible-button::after {
+    content: '\25B2';
+    display: inline-block;
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.collapsible-button.active::after {
+    transform: rotate(180deg);
+}
+
+.collapsible-content {
+    text-align: left;
+    display: none;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    transform: scale(0);
+    transform-origin: top center;
+    transition: all 0.3s ease, transform 0.5s ease;
+}
+
+.collapsible-content.open {
+    transform: scale(1);
+}
+
+/* Dark theme adjustments */
+body.dark .collapsible-button {
+    background-color: #555;
+    color: #ddd;
+}
+
+body.dark .collapsible-content {
+    background-color: #333;
+    color: #eee;
+}
+</style>

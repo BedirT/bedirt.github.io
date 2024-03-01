@@ -1,0 +1,76 @@
+/* Base styles for light theme (default) */
+.notice {
+    --root-color: #444; /* Text color */
+    --root-background: #eff; /* Background color */
+    --title-color: #fff; /* Title text color */
+    --title-background: #7bd; /* Title background color */
+    --warning-title: #c33; /* Warning title background color */
+    --warning-content: #fee; /* Warning content background color */
+    --info-title: #fb7; /* Info title background color */
+    --info-content: #fec; /* Info content background color */
+    --note-title: #6be; /* Note title background color */
+    --note-content: #e7f2fa; /* Note content background color */
+    --tip-title: #5a5; /* Tip title background color */
+    --tip-content: #efe; /* Tip content background color */
+    padding: 18px;
+    line-height: 24px;
+    margin-bottom: 24px;
+    border-radius: 4px;
+    color: var(--root-color);
+    background: var(--root-background);
+}
+
+.notice p:last-child {
+    margin-bottom: 0;
+}
+
+.notice-title {
+    margin: -18px -18px 12px;
+    padding: 4px 18px;
+    border-radius: 4px 4px 0 0;
+    font-weight: 700;
+    color: var(--title-color);
+    background: var(--title-background);
+}
+
+/* Specific notice types styling */
+.notice.warning .notice-title { background: var(--warning-title); }
+.notice.warning { background: var(--warning-content); }
+.notice.info .notice-title { background: var(--info-title); }
+.notice.info { background: var(--info-content); }
+.notice.note .notice-title { background: var(--note-title); }
+.notice.note { background: var(--note-content); }
+.notice.tip .notice-title { background: var(--tip-title); }
+.notice.tip { background: var(--tip-content); }
+
+/* Icon styling */
+.icon-notice {
+    display: inline-flex;
+    align-self: center;
+    margin-right: 8px;
+}
+.icon-notice img, .icon-notice svg {
+    height: 1em;
+    width: 1em;
+    fill: currentColor;
+}
+.icon-notice img, .icon-notice.baseline svg {
+    top: 0.125em;
+    position: relative;
+}
+
+/* Dark theme styles */
+body.dark .notice {
+    --root-color: #ddd; /* Dark theme text color */
+    --root-background: #333; /* Dark theme background color */
+    --title-color: #fff; /* Dark theme title text color */
+    --title-background: #555; /* Dark theme title background color */
+    --warning-title: #800; /* Dark theme warning title background color */
+    --warning-content: #400; /* Dark theme warning content background color */
+    --info-title: #a50; /* Dark theme info title background color */
+    --info-content: #420; /* Dark theme info content background color */
+    --note-title: #069; /* Dark theme note title background color */
+    --note-content: #023; /* Dark theme note content background color */
+    --tip-title: #363; /* Dark theme tip title background color */
+    --tip-content: #121; /* Dark theme tip content background color */
+}

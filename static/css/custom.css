@@ -3,7 +3,7 @@
     box-shadow: 0px 5px 11px 4px rgb(0 0 0 / 10%);
     border-radius: 15px !important;
 }
-  
+
 .hover-image-container {
     position: relative;
     width: 100%;
@@ -74,11 +74,27 @@
 .hover-image-container:hover .slider {
     transform: translateX(-100%);
 }
-  
+
 .image-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
 }
-  
-  
+
+#menu li.search-icon svg {
+    width: 18px;
+    height: auto;
+    position: relative;
+    top: 4px;
+}
+
+.first-entry.home-info {
+    /* Adjust the margin as needed; examples below */
+    margin: calc(var(--gap) * 9) var(--gap) calc(var(--gap) * 11) var(--gap);  /* top right bottom left */
+    text-align: center;
+}
+
+.latest-posts-heading {
+    margin: var(--gap);
+    /* text-align: center; */
+}

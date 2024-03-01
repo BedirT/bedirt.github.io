@@ -1,8 +1,8 @@
 baseURL: "https://bedirtapkan.com"
 title: Bedir Tapkan
 paginate: 5
-theme: PaperModY
-copyright: "© 2022"
+theme: ["PaperMod"]
+copyright: "© 2024"
 
 enableRobotsTXT: true
 buildDrafts: false
@@ -10,7 +10,7 @@ buildFuture: false
 buildExpired: false
 enableEmoji: true
 
-# googleAnalytics: G-38BJX36F3L
+googleAnalytics: G-38BJX36F3L
 
 minify:
   disableXML: true
@@ -60,7 +60,7 @@ params:
 
   ShowReadingTime: true
   ShowShareButtons: true
-  ShareButtons: ["linkedin", "reddit", "twitter", "whatsapp", "telegram"]
+  ShareButtons: ["linkedin", "reddit", "facebook", "whatsapp", "telegram", "x"]
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowCodeCopyButtons: true
@@ -69,6 +69,7 @@ params:
   UseHugoToc: true
   disableSpecial1stPost: false
   disableScrollToTop: false
+  hideAuthor: true
   comments: true
   hidemeta: false
   hideSummary: false
@@ -99,52 +100,51 @@ params:
 
   # profile-mode
   profileMode:
-    enabled: true # needs to be explicitly set
+    enabled: false # needs to be explicitly set
     title: Hello, I'm Bedir Tapkan
-    subtitle: > 
+    subtitle: >
+            >
             Welcome to my website! I am a passionate Machine Learning Engineer
-            and Researcher. I am currently working on some fun **Computer Vision**,
-            **NLP** and **Reinforcement Learning** projects. 
-            I do share my experience and thoughts on problems and their solutions
-            I have recently encountered, on my blog and youtube channel. I also 
-            love spending time on 3D sculpting and thinkering about the world around me.
+            and Researcher. I am currently working on **NLP** and **LLMs** in the context
+            of Qualitative Research at [Fathom](https://fathomthat.ai).
+
+            >
+
+            I also love spending time on 3D modelling and sculpting and thinkering about the world around me.
             [Read more](about)
-            
+
             > _Feel free to wander around, and don't hesitate to reach out!_
     # imageUrl: "<img location>"
     # imageWidth: 120
     # imageHeight: 120
     # imageTitle: my image
-    buttons:
-      - name: Technical Posts
-        url: archives
-      - name: Projects
-        url: projects
-      - name: Art Posts
-        url: design
+    # buttons:
+    #   - name: Technical Posts
+    #     url: archives
+    #   - name: Projects
+    #     url: projects
+    #   - name: Art Posts
+    #     url: design
 
   # home-info mode
   homeInfoParams:
     Title: "Hi there, I'm Bedir Tapkan"
-    Content: >
-            - Welcome to my website! I am a passionate Machine Learning Engineer
-            and Researcher. I am currently working on **Game Theory** and **Reinforcement Learning**. 
-            I do share my experience and thoughts on problems and their solutions
-            I have recently encountered, on my blog and youtube channel. I also 
-            love spending time on 3D sculpting and thinkering about the world around me.
+    Intro: Welcome to my website! I am a passionate Machine Learning Engineer
+            and Researcher. I am currently working on **NLP** and **LLMs** in the context
+            of Qualitative Research at [Fathom](https://fathomthat.ai).
+
+            In my free time I love spending time on 3D modelling and sculpting, and thinkering about the world around me.
             [Read more](about)
-            
-            -
-            
-            _Feel free to wander around, and don't hesitate to reach out!_
+
+    Note: __Feel free to wander around, and don't hesitate to reach out!__
 
   socialIcons:
     - name: linkedin
       url: "https://www.linkedin.com/in/bedirtapkan/"
     - name: github
       url: "https://github.com/BedirT"
-    - name: youtube
-      url: "https://www.youtube.com/channel/UCAExPNjoRE0aLfc96Eo0ZRQ"
+    # - name: youtube
+    #   url: "https://www.youtube.com/channel/UCAExPNjoRE0aLfc96Eo0ZRQ"
     - name: artstation
       url: "https://bedirtapkan.artstation.com/"
     - name: behance
@@ -155,9 +155,9 @@ params:
     #   SiteVerificationTag: "XYZabc"
 
   cover:
-    hidden: true # hide everywhere but not in structured data
+    hidden: false # hide everywhere but not in structured data
     hiddenInList: true # hide on list pages and home
-    hiddenInSingle: true # hide on single page
+    hiddenInSingle: false # hide on single page
 
   editPost:
     URL: "https://github.com/bedirt.github.io/content"
