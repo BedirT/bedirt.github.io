@@ -3,7 +3,7 @@
 <div class="collapsible-wrapper">
     <button class="collapsible-button {{ if eq $openByDefault "true" }}active{{ end }}">{{ $label }}</button>
     <div class="collapsible-content {{ if eq $openByDefault "true" }}open{{ end }}" style="{{ if eq $openByDefault "true" }}display: block;{{ else }}display: none;{{ end }}">
-        {{ .Inner }}
+        {{ .Page.RenderString .Inner }}
     </div>
 </div>
 
@@ -63,14 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: var(--secondary) 0 0 0 3px, transparent 0 0 0 0;
 }
 
-@media (min-width: 768px) {
-    .collapsible-67 {
-        padding: 24px;
-    }
-}
-
 .collapsible-button.active {
-    padding: calc(var(--gap) * 0.5) calc(var(--main-width) * 0.4);
+    padding: calc(var(--gap) * 0.5) calc(var(--main-width) * 0.3);
     border-radius: 20px 20px 0 0;
 }
 
@@ -95,7 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
     transition: all 0.3s ease;
     transform: scale(0);
     transform-origin: top center;
-    transition: all 0.3s ease, transform 0.5s ease;
+    transition: max-height 0.5s ease-out;
+    overflow: hidden;
 }
 
 .collapsible-content.open {
