@@ -7,11 +7,11 @@ tags: ["NLP", "Machine Learning", "Topic Classification", "Topic Modelling", "GP
 ShowToc: true
 ---
 
-A new topic we are investigating with [my company](https://www.fathomthat.ai/) is Topic Generation and Classification. This is an extensive experimentation process on Topic Modelling and GPT-3.5/4 for qualitative analysis. I first start with topic modelling, how well can we actually describe topics using a simple BERTopic model, which currently is the state of the art model. We then investigate how strong this model actually is compared to our human experts. After discussing the weaknesses and strengths of this approach, we go ahead and investigate how GPT can help us improve this performence. 
+A new topic we are investigating with [my company](https://www.fathomthat.ai/) is Topic Generation and Classification. This is an extensive experimentation process on Topic Modelling and GPT-3.5/4 for qualitative analysis. I first start with topic modelling, how well can we actually describe topics using a simple BERTopic model, which currently is the state of the art model. We then investigate how strong this model actually is compared to our human experts. After discussing the weaknesses and strengths of this approach, we go ahead and investigate how GPT can help us improve this performence.
 
 For this purpose I came up with an experimentation road map. I tried asking every question I could think of and tried to answer them in a systematic way. In this post we will go over this journey and discuss the results.
 
-{{< collapse title="TLDR" openByDefault=true >}}
+{{< collapsible label="TLDR" openByDefault="true" >}}
 - We explore **Topic Generation and Classification**, focusing on BERTopic and GPT-3.5/4 for qualitative analysis.
 - **Qualitative Analysis** is about understanding non-numerical data, and its challenges include the time-consuming "qualitative coding" process.
 - **Topic Modelling** is introduced, with BERTopic as a primary tool.
@@ -31,14 +31,14 @@ For this purpose I came up with an experimentation road map. I tried asking ever
     - Generates themes.
     - Merges redundant themes.
     - Classifies responses into these themes.
-{{< /collapse >}}
+{{< /collapsible >}}
 
 
 # What is Qualitative Analysis?
 
-Qualitative analysis is a method of analyzing data that is not numerical. It is a method of analysis that is used to understand the meaning of data. Qualitative analysis is used in many different fields, such as psychology, sociology, and anthropology. It is also used in business to understand the meaning of data. We perform qualitative analysis via different methods, such as interviews, focus groups, and surveys. After the collection of data, we need to analyze it to understand the meaning of the data since it is not numerical and extracting meaning is non-trivial. 
+Qualitative analysis is a method of analyzing data that is not numerical. It is a method of analysis that is used to understand the meaning of data. Qualitative analysis is used in many different fields, such as psychology, sociology, and anthropology. It is also used in business to understand the meaning of data. We perform qualitative analysis via different methods, such as interviews, focus groups, and surveys. After the collection of data, we need to analyze it to understand the meaning of the data since it is not numerical and extracting meaning is non-trivial.
 
-This is where we start "qualitative coding" process. Qualitative coding is the process of assigning labels to data. These labels are called "codes" or "themes", and they are used to describe the meaning of the data. The process of qualitative coding is very time consuming and requires a lot of effort. It is also very subjective, since it is done by humans. This is why we want to automate this process as much as we can, and make it more robust, accurate and fast. 
+This is where we start "qualitative coding" process. Qualitative coding is the process of assigning labels to data. These labels are called "codes" or "themes", and they are used to describe the meaning of the data. The process of qualitative coding is very time consuming and requires a lot of effort. It is also very subjective, since it is done by humans. This is why we want to automate this process as much as we can, and make it more robust, accurate and fast.
 
 As much research showed recently, LLMs are still not at the point where they can outperform a quality coding done by a human expert. However, we are speculating that, they can be used to speed up the process, and provide a more robust and accurate analysis for experts to start with. This is what we are aiming to do in this research, and we will discuss the results in detail.
 
@@ -46,7 +46,7 @@ As much research showed recently, LLMs are still not at the point where they can
 
 Topic modelling is a technique that allows us to extract topics from a corpus of text. It is an unsupervised technique that allows us to discover hidden semantic structures in a text. This is a probabilistic model, that does not provide much accuracy. It is a very simple method in essence. Different methods have differnt approaches to this problem, but one of the most popular ones is BERTopic which uses BERT embeddings to cluster documents. That pretty much is it, even though the library is amazingly implemented and well maintained, the method is very simple. It uses sentence similarity to cluster documents, and analyze word frequency to assign topics and extract keywords.
 
-We can mention why you would want to use topic modelling, and why not. 
+We can mention why you would want to use topic modelling, and why not.
 
 **Pros**
 - It is an unsupervised method, so you do not need labelled data
@@ -70,9 +70,9 @@ One thing we did not mention, and it is crucial in any part of this process is t
 
 # Seperation of Tasks: Classification and Generation
 
-It is a clear statement that GPT (and all the other LLMs) performs better with [divided sub-tasks when it comes to handling complex tasks](https://github.com/openai/openai-cookbook/blob/main/techniques_to_improve_reliability.md). This means that we are expected to get better results if we can divide our end-goal into smaller pieces. For our case, this seemed like we could actually divide our task into classification and generation. This will help us evaluate existing methods, so that we actually can have two seperate baselines to compare with. 
+It is a clear statement that GPT (and all the other LLMs) performs better with [divided sub-tasks when it comes to handling complex tasks](https://github.com/openai/openai-cookbook/blob/main/techniques_to_improve_reliability.md). This means that we are expected to get better results if we can divide our end-goal into smaller pieces. For our case, this seemed like we could actually divide our task into classification and generation. This will help us evaluate existing methods, so that we actually can have two seperate baselines to compare with.
 
-One thing to consider in this seperation is that, these pieces must work well together. So this begs for the question of cohesion. How well do two models do together rather than alone. So in the end of testing the models on their seperate tasks, we will also test them together and see how well they perform for the end goal. 
+One thing to consider in this seperation is that, these pieces must work well together. So this begs for the question of cohesion. How well do two models do together rather than alone. So in the end of testing the models on their seperate tasks, we will also test them together and see how well they perform for the end goal.
 
 Another consideration we have is that, these tasks might actually be harmful for the task at hand (at least cost wise), since we are repeating a lot of the information to divide the task. This is why we will also try a combined approach (one prompt) and try to tackle the complexity issues with prompting techniques.
 
@@ -157,14 +157,14 @@ for response, true_class in tqdm(zip(responses, true_classes), total=len(respons
         score = cosine_similarity([emb_response], [emb_class])[0][0]
         if score > best_score:
             best_score, best_class = score, class_name
-    
+
     if best_class == true_class:
         acc += 1
 
 acc /= len(responses)
 ```
 
-This method yielded a `0.21` accuracy. As we can see, it is better than topic modelling, but still not good enough. Still, works better as the baseline, so we will use this method for the comparison when it comes to the final results. 
+This method yielded a `0.21` accuracy. As we can see, it is better than topic modelling, but still not good enough. Still, works better as the baseline, so we will use this method for the comparison when it comes to the final results.
 
 Since we mentioned accuracy couple times here, let's talk about what metrics should we be using to properly evaluate our model (hint: it is not accuracy).
 
@@ -176,7 +176,7 @@ Besides these, we will use another common metric for multi-label classification,
 Before talking about each metric, we introduce two other friends of ours, price and time. Since we are actually hoping to productionize this method, it is important to talk about these two metrics as well. We will be using the same dataset for all the experiments, so we can compare the time it takes to train and predict for each method. We will also talk about the price of each method, and how much it would cost to run it in production.
 
 ## Precision
-Precision is the number of true positives divided by the sum of true positives and false positives. In other words, it measures how well the model predicts the positive instances of each class. A high precision means that the model is good at avoiding false positives, which is important in our case since we want to avoid labeling a response with the wrong class. 
+Precision is the number of true positives divided by the sum of true positives and false positives. In other words, it measures how well the model predicts the positive instances of each class. A high precision means that the model is good at avoiding false positives, which is important in our case since we want to avoid labeling a response with the wrong class.
 
 Precision can be calculated as:
 
@@ -236,7 +236,7 @@ When an Analyst handles the data, there are couple human error that are expected
 2. There might be a coverage expectation from the client, which means that the analyst is going for covering some amount of responses and not all of them. This is usually the case when there are a lot of responses, and the client wants to get a speed up in the process.
 3. The naming analyst used might not explicitly indicate their purpose on creating the theme. This leads to misunderstanding of the theme, and might lead to wrong labeling. This is highly avoidable if the analyst notes down a description or a purpose for the theme.
 
-I am mentioning these here, since we are bout to use GPT for the classification task, and these errors in general will lead to wrong labeling. We will see how well GPT performs regardless of these errors here because we are using human generated labels to begin with. 
+I am mentioning these here, since we are bout to use GPT for the classification task, and these errors in general will lead to wrong labeling. We will see how well GPT performs regardless of these errors here because we are using human generated labels to begin with.
 
 Later on when we are checking the results for cohesion, we will actually be using GPT generated themes and a human will manually evaluate the results. This will help us see how well GPT performs in a real world scenario. There are some issues with this method but we will discuss them later on.
 
@@ -281,13 +281,13 @@ Again for this task we used simple prompting. After going through multiple itera
 
 # Experiment 4: Cohesion, What did we Achieve?
 
-We now came to the end of the first phase where we can evaluate the results. We run the generation and classification one after the other, report the results and ask a human expert to analyze these results. 
+We now came to the end of the first phase where we can evaluate the results. We run the generation and classification one after the other, report the results and ask a human expert to analyze these results.
 
 We have evaluated the results of 130 responses, and got to `F-Beta Score` of `0.81`. This is a very good result, and we are very happy with it. We also got a lot of feedback from the evaluator, and we used these feedbacks to improve the prompting. For `Beta` value we used `0.65` as we give more importance to precision.
 
 This evaluation happens in two steps: Analyst first looks through the generated themes, and evaluates how good they are (and how descriptive). Then they look at the classification results in the context of the generated themes, and evaluate how well the classification results fit into the generated themes.
 
-Overall we are happy with the current state of the model. But this process gave us the idea that the seperation might not have been a good idea. 
+Overall we are happy with the current state of the model. But this process gave us the idea that the seperation might not have been a good idea.
 
 # Experiment 5: One Prompt to Rule Them All
 
@@ -301,9 +301,9 @@ We also gave a quite descriptive expert analyst personality to GPT that directs 
 
 After all the experiments, we finally have a system in production. I might have missed some of the details while experimenting, but this took a long time to get to this point and I am a little lazy to fill in so much detail that don't really matter at this point. Especially since I am working on something new now.
 
-I will just go ahead and explain the final system, and what we found to be the best approach. If you had any further questions, feel free to reach out to me. 
+I will just go ahead and explain the final system, and what we found to be the best approach. If you had any further questions, feel free to reach out to me.
 
-We have implemented a three stage system, where we first generate themes, and since we are doing this in parellel compute we then merge the redundant themes. We then classify the responses into these themes. While doing this we are using GPT function calling to reduce the parsing errors in the end. As much as it sounds simple, this whole process is a quite complex system to implement into production. We are using a lot of different techniques to make sure the system is robust and accurate. 
+We have implemented a three stage system, where we first generate themes, and since we are doing this in parellel compute we then merge the redundant themes. We then classify the responses into these themes. While doing this we are using GPT function calling to reduce the parsing errors in the end. As much as it sounds simple, this whole process is a quite complex system to implement into production. We are using a lot of different techniques to make sure the system is robust and accurate.
 
 Overall we found this to be the best resulting approach using GPT. We are now focused on iterating and reducing the errors we found in production. As a final goal, we are hoping to train our own proprietary fine-tuned model using our own data. This will help us reduce the cost and increase the accuracy of the system. Stay tuned for the results.
 
@@ -314,8 +314,8 @@ Overall we found this to be the best resulting approach using GPT. We are now fo
 - https://arxiv.org/abs/1908.10084
 - https://maartengr.github.io/BERTopic/changelog.html
 - https://monkeylearn.com/blog/introduction-to-topic-modeling/#:~:text=Topic%20modeling%20is%20an%20unsupervised,characterize%20a%20set%20of%20documents
-- https://arxiv.org/pdf/2203.11171.pdf 
-- https://arxiv.org/pdf/2303.07142.pdf 
+- https://arxiv.org/pdf/2203.11171.pdf
+- https://arxiv.org/pdf/2303.07142.pdf
 - https://arxiv.org/pdf/2210.03629.pdf
 - https://arxiv.org/abs/2211.01910
 - https://arxiv.org/abs/2201.11903
