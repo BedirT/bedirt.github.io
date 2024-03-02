@@ -12,6 +12,8 @@
     --note-content: #e7f2fa; /* Note content background color */
     --tip-title: #5a5; /* Tip title background color */
     --tip-content: #efe; /* Tip content background color */
+    --more_resources-title: rgb(97, 72, 148); /* More resources title background color */
+    --more_resources-content: #e7f2fa; /* More resources content background color */
     padding: 18px;
     line-height: 24px;
     margin-bottom: 24px;
@@ -42,6 +44,8 @@
 .notice.note { background: var(--note-content); }
 .notice.tip .notice-title { background: var(--tip-title); }
 .notice.tip { background: var(--tip-content); }
+.notice.more_resources .notice-title { background: var(--more_resources-title); }
+.notice.more_resources { background: var(--more_resources-content); }
 
 /* Icon styling */
 .icon-notice {
@@ -73,4 +77,6 @@ body.dark .notice {
     --note-content: #023; /* Dark theme note content background color */
     --tip-title: #363; /* Dark theme tip title background color */
     --tip-content: #121; /* Dark theme tip content background color */
+    --more_resources-title: rgb(104, 64, 112); /* Dark theme more resources title background color */
+    --more_resources-content: rgb(34, 20, 37); /* Dark theme more resources content background color */
 }

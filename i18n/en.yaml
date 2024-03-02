@@ -43,3 +43,6 @@
 
 - id: info
   translation: "Info"
+
+- id: more_resources
+  translation: "Additional Resources"
