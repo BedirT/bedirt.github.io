@@ -70,7 +70,6 @@ params:
   disableSpecial1stPost: false
   disableScrollToTop: false
   hideAuthor: true
-  comments: true
   hidemeta: false
   hideSummary: false
   showtoc: false
@@ -80,7 +79,7 @@ params:
   commentSystems:
     remark42:
       url: https://comments.bedirtapkan.com
-      site: https://bedirtapkan.com
+      site: bedirtapkan_com
   defaultCommentSystems:
     remark42: true
 
