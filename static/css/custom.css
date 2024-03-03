@@ -98,3 +98,31 @@
     margin: var(--gap);
     /* text-align: center; */
 }
+
+/* comments */
+.comments-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em 0.2em;
+}
+
+h2 {
+    margin: 0;
+    padding: 0;
+}
+
+.comments-counter {
+    background-color: var(--entry); /* Light grey background */
+    color: var(--content); /* Dark text color */
+    padding: 0.5em 1em;
+    border-radius: 7px; /* Rounded corners */
+    font-weight: bold; /* Make the counter bold */
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Optional: Adjust the size of the counter to make it stand out */
+.comments-counter .remark42__counter {
+    font-size: 1em;
+}

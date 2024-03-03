@@ -76,12 +76,10 @@ params:
   tocopen: false
   math: true
 
-  commentSystems:
-    remark42:
-      url: https://comments.bedirtapkan.com
-      site: bedirtapkan_com
-  defaultCommentSystems:
-    remark42: true
+  comments: true
+  remark42:
+    host: https://comments.bedirtapkan.com
+    site_id: bedirtapkan_com
 
   assets:
     disableHLJS: true # to disable highlight.js
