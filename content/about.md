@@ -2,9 +2,10 @@
 title: "About Me - The Unabridged Version"
 ShowToc: false
 url: "/about/"
-showReadingTime: False
-showWordCount: False
+showReadingTime: false
+showWordCount: false
 hideMeta: true
+comments: false
 ---
 
 {{< figure src="/img/profilepic.jpg" alt="Look, it's me!" width="400" align="center">}}
