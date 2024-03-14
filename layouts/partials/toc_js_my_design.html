@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collapsible Table of Contents with Vertical Timeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #F3F4F6;
+        }
+        .toc-header {
+            background-color: #111827;
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            user-select: none;
+        }
+        .toc-content {
+            padding: 16px;
+            background-color: #F9FAFB;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+        .icon {
+            transition: transform 0.3s ease;
+            margin-right: 8px;
+        }
+        .toc-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        .toc-subitem {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0 0.5rem 2.5rem;
+        }
+        .toc-subsubitem {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0 0.5rem 5rem;
+        }
+        .toc-label {
+            width: 1.5rem;
+            height: 1.5rem;
+            background-color: #1d283e;
+            color: #bcc6d4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            border-radius: 0.375rem; /* This results in a 6px border-radius */
+            margin-right: 1rem;
+            z-index: 1; /* Make sure the label appears above the line */
+        }
+        .toc-subitem .toc-label {
+            background-color: #415273;
+            color: #bcc6d4;
+        }
+        .toc-subsubitem .toc-label{
+            background-color: #637B97; /* Different background color to distinguish level */
+            color: #bcc6d4;
+        }
+        @keyframes slideOut {
+            0% {
+                max-height: 0;
+                opacity: 0;
+                padding: 0 16px;
+            }
+            100% {
+                max-height: 500px; /* Adjust this value based on your TOC content size */
+                opacity: 1;
+                padding: 16px;
+            }
+        }
+        @keyframes slideIn {
+            0% {
+                max-height: 500px; /* Adjust this value based on your TOC content size */
+                opacity: 1;
+            }
+            99% {
+                max-height: 0;
+                opacity: 0;
+                padding: 16px;
+            }
+            100% {
+                max-height: 0;
+                opacity: 0;
+                padding: 0 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-2xl mx-auto my-10 p-4">
+        <div id="toc" class="toc-header rounded-lg shadow-lg flex items-center" onclick="toggleCollapse()">
+            <i id="toggleIcon" class="icon fas fa-chevron-down"></i>
+            Table of Contents
+        </div>
+        <div id="tocContent" class="toc-content rounded-lg shadow-lg">
+        </div>
+    </div>
+
+    <script>
+        const tableOfContents = [
+        {
+            title: "Problem with Inference",
+            subitems: [
+            { title: "The Cost" },
+            { title: "Environmental Impact" },
+            { title: "The Quest for Efficiency",
+            subitems: [
+            { title: "Subsubitem 1" },
+            { title: "Subsubitem 2" }
+            ]}
+            ]
+        },
+        {
+            title: "Common efficiency techniques in LLM Inference",
+            subitems: [
+            { title: "The Art of Pruning" },
+            { title: "Knowledge Distillation" }
+            ]
+        }
+        ];
+
+        const alpha = 'abcdefghijklmnopqrstuvwxyz';
+        function getLabel(index, depth) {
+            if (depth === 0) return `${index + 1}`;
+            else if (depth === 1) return `${alpha[index % alpha.length]}`;
+            else if (depth === 2) return `${index + 1}`; // Use roman numerals or another system for subsubitems if desired
+            return '?';
+        }
+
+        function renderTocItem(item, depth = 0, index = 0) {
+            // Creating the container element to hold the item and its subitems so
+            // that we can add the line element on the left
+            const container = document.createElement('div');
+            if (depth == 0) {
+                container.classList.add('item-container');
+            }
+            else {
+                container.classList.add('sub-item-container');
+            }
+
+            const label = document.createElement('div');
+            label.classList.add('toc-label')
+            label.innerText = getLabel(index, depth);
+
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = item.title;
+
+            const tocItem = document.createElement('div');
+            tocItem.classList.add(depth === 0 ? 'toc-item' : depth === 1 ? 'toc-subitem' : 'toc-subsubitem');
+            tocItem.appendChild(label); // Corrected line
+            tocItem.appendChild(titleSpan);
+            container.appendChild(tocItem);
+
+            if (item.subitems) {
+                item.subitems.forEach((subitem, index) => {
+                    const subitemElement = renderTocItem(subitem, depth + 1, index);
+                    container.appendChild(subitemElement);
+                });
+            }
+
+            return container;
+        }
+
+        function renderTableOfContents(tocData) {
+            const tocContent = document.getElementById("tocContent");
+            tocData.forEach((item, index) => {
+                const itemElement = renderTocItem(item, 0, index);
+                tocContent.appendChild(itemElement);
+            });
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            renderTableOfContents(tableOfContents);
+        });
+    </script>
+
+    <script>
+        function toggleCollapse() {
+            var content = document.getElementById("tocContent");
+            var toggleIcon = document.getElementById("toggleIcon");
+            if (content.style.display === "block") {
+                content.style.display = "block"; // Keep the content visible during the closing animation
+                toggleIcon.classList.remove("fa-chevron-up");
+                toggleIcon.classList.add("fa-chevron-down");
+                content.style.animation = "slideIn 0.5s ease-out forwards"; // Apply closing animation
+                setTimeout(function() {
+                    content.style.display = "none"; // Hide the content after the animation completes
+                }, 500); // Adjust this value to match the animation duration
+            } else {
+                content.style.display = "block";
+                toggleIcon.classList.remove("fa-chevron-down");
+                toggleIcon.classList.add("fa-chevron-up");
+                content.style.animation = "slideOut 0.5s ease-out"; // Apply opening animation
+                content.style.maxHeight = "500px"; // Adjust this value based on your TOC content size
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            // Insert line elements or adjust their heights directly based on the container's height
+            document.querySelectorAll('.item-container').forEach(container => {
+                const line = document.createElement('div');
+                line.style.position = 'absolute';
+
+                // Calculated using the box width: 1.5rem
+                // Half is the center of the line: 0.75rem
+                // left + line_width / 2 = 0.75rem
+                line.style.width = '0.8rem'; // Thicker line
+                line.style.left = '0.35rem'; // Adjust as needed
+
+                line.style.top = '0';
+                line.style.backgroundColor = '#1d283e';
+                line.style.height = '100%'; // The container dictates the height
+                line.style.borderBottomLeftRadius = '11px';
+                line.style.borderBottomRightRadius = '11px';
+                container.style.position = 'relative';
+                container.insertBefore(line, container.firstChild); // Add the line as the first child
+            });
+            document.querySelectorAll('.sub-item-container').forEach(container => {
+                const line = document.createElement('div');
+                line.style.position = 'absolute';
+
+                // Calculated using the box width: 1.5rem
+                // Half is the center of the line: 0.75rem
+                // Since the sub-item is indented: 2.5rem
+                // left + line_width / 2 = 0.75rem + 2.5rem = 3.25rem
+                line.style.width = '0.8rem'; // Thicker line
+                line.style.left = '2.85rem'; // Adjust as needed
+
+                line.style.top = '0';
+                line.style.backgroundColor = '#415273';
+                line.style.height = '100%'; // The container dictates the height
+                line.style.borderBottomLeftRadius = '11px';
+                line.style.borderBottomRightRadius = '11px';
+                container.style.position = 'relative';
+                container.insertBefore(line, container.firstChild); // Add the line as the first child
+            });
+            document.getElementById("tocContent").style.animation = "none"; // Reset animation on page load
+            document.getElementById("tocContent").style.maxHeight = null; // Reset max-height on page load
+            document.getElementById("tocContent").style.padding = null;
+        });
+
+    </script>
+</body>
+</html>
