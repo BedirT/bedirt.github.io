@@ -561,32 +561,160 @@ In sum, tensors serve as the foundational building blocks for modern AI, enablin
 # Tokenization: The First Step in Text Processing
 
 {{< notice more_resources >}}
+- [Youtube: Andrej Karpathy / Let's Build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) (_Absolutely amazing video, highly recommended._)
 - [Youtube: Future Mojo / NLP Demystified 2: Text Tokenization](https://www.youtube.com/watch?v=LZFriJ85BfM)
 - [Blog: Datacamp / What is Tokenization?](https://www.datacamp.com/blog/what-is-tokenization)
 {{< /notice >}}
 
-At its core, NLP seeks to enable machines to understand human language—a feat that involves several steps. What should we be doing first? The answer is tokenization, the most fundamental unit in NLP. But why is tokenization so crucial?
+At its core, NLP seeks to enable machines to understand human language — a process that involves quite number of steps. One of the first steps we take is tokenization, a fundamental unit in NLP. Tokenization is the process of converting text into smaller units called tokens. In this section we will be covering the basics of tokenization and how it is used in NLP. We will then focus on some popular tokenization techniques, some pitfalls and how to avoid them.
 
 ## Understanding Tokenization
 
-Tokenization is the process of breaking down text into smaller, manageable pieces, aka tokens. These tokens can be words, phrases, symbols, or any meaningful elements in a text. Some common ones is sentence, word and subword tokenization. Let's look at the text "I told you so. I knew it!", and use some different tokenization techniques:
+As mentioned above, tokenization is the process of breaking down text into smaller, manageable pieces, aka tokens. These tokens can be words, phrases, symbols, or any meaningful elements in a text. Some common ones are sentence, word and subword tokenization. Let's look at the text "I told you so. I knew it!", and use some different tokenization techniques:
 
 - Sentence: `I told you so.` and `I knew it!`.
 - Word: `I`, `told`, `you`, `so`, `I`, `knew`, `it`.
 - Subword: `I`, `to`, `ld`, `you`, `so`, `I`, `knew`, `it`.
 
-The reason tokenization is so important is that it's the first step in converting raw text into a format that can be used by NLP models. I think we all unknowingly use tokenization in our lives. For example, when we read a sentence, we don't read it as a whole, but we read it word by word. Or when we first learn reading, we learn the letters and then we learn the words and it builds up from there. Tokenization is the same thing, but for machines.
+The reason tokenization is so important is that it's the first step in converting raw text into a format that can be used by NLP models. Interestingly, we all engage in a form of tokenization unconsciously in our daily lives. For example, when we read a sentence, we don't perceive it as a whole; instead, we process it word by word. Similarly, in learning to read, we start with letters, progress to words, and build our understanding from there. Tokenization for machines operates on a similar principle, but it's a deliberate process designed to break down text so that computers can analyze and interpret language. Unlike humans, machines do not inherently understand language, so tokenization is a crucial step for transforming text into a structured format that machines can work with, enabling them to analyze patterns, frequencies, and relationships between tokens, much like how we grasp meaning through context and syntax.
 
-Let's create a very simple word based tokenizer in python:
+Let's create a very simple character based tokenizer in python:
 
 ```python
 text = "I told you so. I knew it!"
 
-# split the text into words
-words = text.split()
-
-print(words)
+tokens = set(text)
+print(tokens)
 ```
+
+This example, albeit simple, illustrates how text is broken down into elemental units, making it more accessible for computational processing.
+
+However, tokenization is just the beginning. Once we have our tokens, the next step involves creating a lookup table. This table assigns a unique integer to each character, allowing us to represent text in a numerical form, a crucial step for machine processing and a fundamental concept in preparing data for LLMs.
+
+Let's expand our example by creating a lookup table for our character tokens:
+
+```python
+# Assuming tokens contains only the unique characters from the previous example
+tokens = list(set("I told you so. I knew it!"))
+
+# Create a lookup table by assigning a unique integer to each token (character)
+char_to_int = {char: i for i, char in enumerate(tokens)}
+
+print(char_to_int)
+```
+
+This code snippet assigns each unique character (token) from our text an integer ID, creating a dictionary (`char_to_int`). This dictionary acts as a simple form of vectorization, turning each character into a numerical value.
+
+Now, with this lookup table, any text can be represented numerically by substituting each character with its corresponding integer from the table. This method enables a straightforward representation of text for computational models. However, this approach comes with its limitations.
+
+One significant issue is the handling of missing values. Our simple example only exposed the model to a limited set of characters from a single sentence. If we encounter a new character in a different text that wasn't in our initial set, our lookup table will not have an integer assigned to it. This exemplifies a common challenge in NLP: building a model that generalizes well to new, unseen data. To mitigate this, more comprehensive and adaptive tokenization and vectorization methods are employed, especially when preparing data for LLMs, which require vast and varied data to understand and generate human-like text.
+
+In the next section we'll explore how advanced tokenization and vectorization techniques address these challenges and more, setting the stage for discussing the architecture and functionality of LLMs. These models leverage complex vector representations to capture not just the presence of tokens but also their contextual meanings, allowing for more nuanced understanding and generation of language. Fun!
+
+## Popular Tokenization Techniques
+
+In the journey towards understanding and leveraging the full potential of Large Language Models (LLMs), it's crucial to explore the various methods used to tokenize text. Among these methods, Byte Pair Encoding (BPE) and SentencePiece stand out due to their widespread use and effectiveness in processing diverse languages and textual formats. In this section, we'll delve into these two popular tokenization techniques, starting with BPE.
+
+### Byte Pair Encoding (BPE)
+
+{{< notice more_resources >}}
+- [Wiki: Byte Pair Encoding](https://en.wikipedia.org/wiki/Byte_pair_encoding)
+- [Blog: HuggingFace / Byte-Pair Encoding tokenization](https://huggingface.co/learn/nlp-course/en/chapter6/5)
+{{< /notice >}}
+
+Byte Pair Encoding (BPE) is a data compression technique that has been ingeniously adapted for tokenizing text in NLP. It is used by a lot of the LLMs we have today such as the GPT family. The fundamental idea behind BPE is to iteratively merge the most frequently occurring character or byte pairs in a dataset into a single, new token. This process is repeated multiple times, resulting in a hierarchy of tokens ranging from individual characters to more complex word pieces. BPE's strength lies in its ability to balance the vocabulary size with the granularity of tokens, efficiently capturing both common words and rare or out-of-vocabulary terms by breaking them down into smaller, manageable pieces. I especially love the simplicity and how it just works.
+
+Let's go over a toy example and implement a full fledged BPE tokenizer in python.
+
+#### A Toy Example and Implementation
+
+We'll start with a small text corpus and apply BPE to tokenize it. For the sake of simplicity, we will keep our corpus tiny, it will only have the following sentence, repeated to emphasize certain pairs: "low lower lowest lowly". We will be using the `collections` module to count the frequency of the pairs.
+
+##### Step 1: Initial Setup
+First, we initialize our vocabulary with the unique characters in the corpus and then count the frequency of adjacent pairs.
+
+```python
+from collections import Counter, defaultdict
+
+# Initial corpus
+corpus = "low lower lowest lowly"  # Simplified example
+# Initialize vocabulary with unique characters
+vocab = set(corpus.replace(" ", ""))  # Remove spaces for simplicity
+```
+
+##### Step 2: Counting Pairs
+Next, we count the frequency of each adjacent pair of characters (including a special symbol to denote the end of a word, for clarity).
+
+```python
+def get_pair_frequencies(text):
+    pairs = Counter()
+    words = text.split()
+    for word in words:
+        # Adding '>' to denote the end of a word
+        characters = list(word) + ['>']
+        for i in range(len(characters)-1):
+            pairs[characters[i], characters[i+1]] += 1
+    return pairs
+
+pair_frequencies = get_pair_frequencies(corpus)
+print(pair_frequencies)
+```
+
+##### Step 3: Merging Pairs
+Now, we identify and merge the most frequent pair in the corpus, updating our vocabulary and corpus accordingly.
+
+```python
+def merge_most_frequent_pair(text, pair):
+    new_token = ''.join(pair)
+    new_text = text.replace(' '.join(pair), new_token)
+    return new_text, new_token
+
+# Identify the most frequent pair
+most_frequent_pair = pair_frequencies.most_common(1)[0][0] # this is a function in Counter that returns the most common pairs
+
+# Merge the most frequent pair in the corpus and update the vocabulary
+corpus, new_token = merge_most_frequent_pair(corpus, most_frequent_pair)
+vocab.add(new_token)
+
+print("Updated Corpus:", corpus)
+print("New Token:", new_token)
+print("Updated Vocabulary:", vocab)
+```
+
+##### Step 4: Iterating Over Steps 2 and 3
+This process of identifying and merging the most frequent pairs is repeated multiple times, each time updating the corpus and the vocabulary, until a desired vocabulary size is reached or no more frequent pairs are found.
+
+Through this iterative process, BPE creates a set of tokens that efficiently represent the original corpus, balancing between the granularity of individual characters and the efficiency of whole words or common substrings. This approach allows LLMs to handle a wide range of vocabulary, including rare words or domain-specific terms, by breaking them down into familiar subwords.
+
+Let's end with this last piece of code that iterates over the steps we've covered:
+
+```python
+# Iterating over the steps
+num_iterations = 5
+threshold = 2 # Minimum frequency for merging pairs - if the most frequent pair occurs less than this, we stop
+desired_vocab_size = 10
+
+# We could have used any of the three stopping criteria above
+for i in range(num_iterations):
+    pair_frequencies = get_pair_frequencies(corpus)
+    most_frequent_pair, freq = pair_frequencies.most_common(1)[0]
+    if freq < threshold or len(vocab) >= desired_vocab_size:
+        break
+    corpus, new_token = merge_most_frequent_pair(corpus, most_frequent_pair)
+    vocab.add(new_token)
+
+print("Final Corpus:", corpus)
+print("Final Vocabulary:", vocab)
+```
+
+That's it! We've implemented a simple BPE tokenizer from scratch.
+
+### SentencePiece
+
+{{< notice more_resources >}}
+- [Blog: Jay Alammar / The Illustrated GPT-2](http://jalammar.github.io/illustrated-gpt2/)
+
+
 
 # Vectorization: Converting Text into Numbers
 
