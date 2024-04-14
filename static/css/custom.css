@@ -98,3 +98,44 @@
     margin: var(--gap);
     /* text-align: center; */
 }
+
+
+/* Code Block Chroma */
+/* .output {
+    background-color: rgb(43, 47, 64);
+    color: #cad3f5;
+    border-radius: 8px;
+    margin-top: -20px;
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    font-size: .78em;
+    border: solid var(--code-block-bg);
+    border-width: 5px;
+} */
+
+/* .output {
+    background-color: #434b70;
+    color: #cad3f5;
+    border-radius: 8px;
+    margin-top: -20px;
+    margin-bottom: 1rem;
+    margin-left: 0rem;
+    font-size: .78em;
+} */
+
+.output {
+    background-color: #434b70; /* Slightly darker than code block for distinction */
+    color: #cad3f5;
+    border-radius: 8px;
+    margin-top: 0; /* Adds a small gap between code block and output for clarity */
+    margin-bottom: 1rem; /* Adds margin below the output box */
+    margin-left: 0rem; /* Align with code block */
+    font-size: .78em;
+}
+
+.output pre {
+    margin: 0;
+    padding: 1rem;
+    line-height: 1.5;
+}

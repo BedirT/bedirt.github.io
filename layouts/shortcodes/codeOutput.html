@@ -1,0 +1,8 @@
+<!-- layouts/shortcodes/codeOutput.html -->
+<div class="output">
+<pre>{{- $lines := split (trim .Inner " \n") "\n" -}}
+{{- range $lines -}}
+{{- if . -}}>>> {{ . }}
+{{ end -}}
+{{- end -}}</pre>
+</div>
