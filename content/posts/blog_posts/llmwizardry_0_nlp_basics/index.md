@@ -15,44 +15,30 @@ draft: true
 
 Welcome to the first post on LLMWizardry series! For more information about the series please check out the project [repository](https://github.com/BedirT/LLMWizardry).
 
-In this post, we will be covering the basics of NLP to build a solid foundation for the LLMWizardry series, hence LLMs. Here are the topics we are handling in this post:
-
-- Pytorch Fundamentals
-- Tensors and tensor operations
-- The Advantages of Embracing Tensors (Optional)
-- Tokenizers
-    - Byte-pair Encoding
-    - Sentencepiece
-- Vectorization
-    - One-hot Encoders
-    - TF-IDF
-- Word Embeddings
-    - Word2Vec
-    - GloVe
-
-Without further ado, let's get started!
-
-# Fundamentals
+In this post, we will be covering the basics of NLP to build a solid foundation for the LLMWizardry series, hence LLMs. Without further ado, let's get started!
 
 {{< notice tip >}}
 Feel free to skip over the parts that you feel confident.
 {{< /notice >}}
 
-Here is a list of topics we will be covering in this section:
+# Fundamentals
 
+In this section we will be covering some fundamental operations and tools we use throughout the series. This section is by no means super comprehensive, it just contains some topics that I think we would benefit from understanding in depth.
+
+We will talk about:
 - [Very Basics of Pytorch](#very-basics-of-pytorch)
 - [Tensors and tensor operations](#tensors-and-tensor-operations)
 - [The Advantages of Embracing Tensors (Optional)](#the-advantages-of-embracing-tensors-optional)
 
 {{< notice note >}}
-If I missed any topic that is used in LLMWizardry series and not mentioned in pre-requisites, please submit [an issue](https://github.com/BedirT/LLMWizardry/issues) so that I can add a section for it.
+If I missed any topic that is used in LLMWizardry series, not explained in this section, not mentioned in pre-requisites and you feel like has a place in this post, please submit [an issue](https://github.com/BedirT/LLMWizardry/issues) so that I can try to add a section for it.
 {{< /notice >}}
 
 ## Very Basics of Pytorch
 
-In this section we will be covering the very basics of PyTorch. I will mainly mention things that are going to be used in the continuation of the series, but since most of the details are about how the library is used around tensors, some things will just be shallowly mentioned or coded since we are explaining the tensors in the next section. No need to worry, we have the necessary codes all explained in the next section.
+In this section we will be covering the basics of PyTorch. I will mainly mention things that are going to be used in the continuation of the series, but since most of the details are about how the library is used around tensors, some things will just be shallowly mentioned or coded since we are explaining the tensors in the next section. No need to worry, we have the necessary codes all explained there.
 
-[PyTorch](https://pytorch.org/) is an open-source machine learning library developed by [Meta's Fundamental AI Research team (FAIR)](https://ai.meta.com/research/). It is one of the most popular Machine Learning library out there. Here, we will cover the very basics of PyTorch to be able to follow along with the rest of the series.
+[PyTorch](https://pytorch.org/) is an open-source machine learning library developed by [Meta's Fundamental AI Research team (FAIR)](https://ai.meta.com/research/). It is one of the most popular Machine Learning libraries out there. Let's get going.
 
 ### Installation
 
@@ -60,7 +46,7 @@ You can install PyTorch using pip. The official website has a very good [install
 
 ### Tensors
 
-At the core of PyTorch are tensors, which we will cover in depth next section. Tensors in PyTorch are similar to NumPy arrays but with additional capabilities to utilize the power of GPUs for accelerated mathematical computations.
+At the core of PyTorch are tensors. Tensors in PyTorch are similar to NumPy arrays but with additional capabilities to utilize the power of GPUs for accelerated mathematical computations.
 
 Let's see some basic operations in PyTorch, without going into the details of tensors.
 
@@ -71,14 +57,26 @@ import torch
 x = torch.tensor([1, 2, 3])
 print(x)
 ```
+{{< codeOutput >}}
+tensor([1, 2, 3])
+{{< /codeOutput >}}
+
+This short code is showing an example of how to define a tensor!
 
 #### Tensor Attributes
 
 Tensors have a few important attributes that are commonly used in PyTorch:
 
-- **dtype**: The data type of the tensor. It can be `torch.float32`, `torch.float64`, `torch.int32`, `torch.int64`, etc.
-- **device**: The device where the tensor is stored. It can be `cpu` or `cuda` (for GPUs).
-- **shape**: The dimensions of the tensor. It is a tuple of integers representing the size of the tensor along each dimension.
+- **dtype**: The data type of the tensor. It can be `torch.float32`, `torch.float64`, `torch.int32`, `torch.int64`, etc. We cover more about data types later in the series when we are talking about quantization. Briefly, data types are used for defining the type of numbers we keep in the tensors with the precision level.
+- **device**: The device where the tensor is or will be stored. It can be `cpu`, `cuda` or `mps`. It can also have a device number at the end indicating the device index if the system has multiple GPUs or so, like `cuda:1`. Here `cuda` is for NVIDIA gpus, and `mps` is for Apple M series chips. In this series we are extensively focusing on `cuda` devices, but at times we also mention libraries that uses Metal backend as well.
+- **shape/size**: The dimensions of the tensor. It is a tuple of integers representing the size of the tensor along each dimension.
+
+{{< notice more_resources >}}
+- [torch.dtype documentation](https://pytorch.org/docs/stable/tensor_attributes.html#torch-dtype)
+- [torch.device documentation](https://pytorch.org/docs/stable/tensor_attributes.html#torch.device)
+{{< /notice >}}
+
+Let's look at some code snippets to see what we get using these methods.
 
 ```python
 import torch
@@ -90,6 +88,12 @@ print(x.dtype)
 print(x.device)
 print(x.shape)
 ```
+{{< codeOutput >}}
+torch.int64
+cpu
+torch.Size([3])
+{{< /codeOutput >}}
+
 
 #### Moving Tensors to GPU
 
@@ -104,19 +108,60 @@ if torch.cuda.is_available():  # checking if GPU is available
     x = x.to('cuda')
     print(x.device)
 ```
+{{< codeOutput >}}
+cuda:0
+{{< /codeOutput >}}
 
 #### Autograd: Automatic Differentiation
 
+{{< notice more_resources >}}
+- [Tutorial: pytorch.org - A Gentle Introduction to `torch.autograd`](https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html)
+{{< /notice >}}
+
 PyTorch has a feature called `autograd`. It provides automatic differentiation for all operations on tensors. This is especially useful for neural network training, where backpropagation requires derivatives.
 
-Note: If you are not familiar with the concept of gradients and automatic differentiation, please consider checking out the extra resources listed above before continuing with the post.
+{{< notice note >}}
+If you are not familiar with the concept of gradients and automatic differentiation, please consider checking out some of these amazing resources:
+- [Video: 3Blue1Brown - Backpropagation calculus | Chapter 4, Deep learning](https://www.youtube.com/watch?v=tIeHLnjs5U8)
+- [Course: Khan Academy - AP Calculus Unit 2](https://www.khanacademy.org/math/ap-calculus-ab/ab-differentiation-1-new)
+{{< /notice >}}
 
-To use autograd, you need to set `requires_grad=True` for our tensors:
+To use autograd, you need to set `requires_grad=True` for our tensors. This tells pytorch to consider that we will need the gradients of this tensor at some point. We need this off/on since keeping the information for gradients will may be an unnecessary overhaul for some applications such as inference. Let's see an example differenciation.
+
+Consider the following function
+
+$$y = x^2$$
+
+We want to take the derivative of y
+
+$$\frac{dy}{dx} = \frac{dx^2}{dx} = 2x$$
+
+So if we gave our function some scalar tensor, the output of this derivation would be the double of the element:
 
 ```python
 import torch
 
-x = torch.tensor([1., 2., 3.], requires_grad=True)
+x = torch.tensor([3.], requires_grad=True)
+
+# perform some operations
+y = x**2
+
+# compute gradients
+y.backward()
+
+# print the gradients
+print(x.grad)
+```
+{{< codeOutput >}}
+tensor([6.])
+{{< /codeOutput >}}
+
+We use the `.backward()` function here to calculate the gradients starting from `y` and going all the way back to where it all began, `x`. We can scale our input from scalar to a tensor (or a vector) and redo the calculations:
+
+```python
+import torch
+
+x = torch.tensor([3., 5., 7.], requires_grad=True)
 
 # perform some operations
 y = x**2
@@ -128,12 +173,25 @@ z.backward()
 # print the gradients
 print(x.grad)
 ```
+{{< codeOutput >}}
+tensor([6., 10., 14.])
+{{< /codeOutput >}}
+
+Did you realize the difference? We need to sum the `y` values in this case, since `y` is not a scalar value. We can take a moment here and really understand what gradient means intuitively.
+
+The computation of gradients fundamentally relies on the concept of a derivative. The derivative quantifies the rate at which one quantity changes with respect to another. Like checking how the time of the year effects the housing prices.
+
+![gradient_descent_graph]()
+
+I usually think of this famous 3d representation of gradient descent. When we are doing gradient-based optimization, we need to compute a **single value** that indicates the "error" or "loss" of the model. Like the image below, we are at a single point in space, which is what we need to be able to talk about a direction/magnitude to go towards in order to optimize the loss.
 
 ## Tensors and tensor operations
 
-More information: https://dmol.pub/math/tensors-and-shapes.html#:~:text=The%20components%20that%20make%20up,the%20dimension%20of%20each%20axis.
+{{< notice more_resources >}}
+- [Book Section: Deep Learning for Molecules & Materials - Tensors and Shapes](https://dmol.pub/math/tensors-and-shapes.html#:~:text=The%20components%20that%20make%20up,the%20dimension%20of%20each%20axis)
+{{< /notice >}}
 
-Tensors are one of the main components in almost every machine learning approach. To be able to grasp the upcoming posts on transformers we will need a solid understanding of what tensors are, how are they useful and how do we manipulate them.
+Tensors are one of the main components in almost every machine learning approach. To be able to grasp the upcoming posts on transformers we will need a solid understanding of what tensors are, how are they useful and how do we use and manipulate them.
 
 If this post was not enough in explaining please consider checking out the extra resources listed above before continuing with the post.
 
@@ -176,16 +234,20 @@ Last thing I want to mention about tensors is their **shape**. Shape of a tensor
 
 Let's see it in action:
 ```python
-# continuing from the above tensors
+# continuing from the above lists, we convert them to pytorch to get the shapes
+vector_tensor = torch.tensor(vector_tensor)
+matrix_tensor = torch.tensor(matrix_tensor)
+three_d_tensor = torch.tensor(three_d_tensor)
+
 vector_tensor.shape
-# (3,)
-
 matrix_tensor.shape
-# (2, 2)
-
 three_d_tensor.shape
-# (2, 2, 2)
 ```
+{{< codeOutput >}}
+torch.Size([3])
+torch.Size([2, 2])
+torch.Size([2, 2, 2])
+{{< /codeOutput >}}
 
 So a shape of matrix in python would be: `(len(matrix), len(len(matrix[0])))`.
 
@@ -193,15 +255,19 @@ So a shape of matrix in python would be: `(len(matrix), len(len(matrix[0])))`.
 
 It's very easy to create tensors in pytorch. We also have some special functions that will make our lifes easier. Let's start with creating tensors.
 
-We use `torch.tensor` to create tensors in pytorch.
+We use `torch.tensor` to define a tensor in pytorch.
 
 ```python
 import torch
 
 # we can create a tensor from a list
 two_d_list = [[1, 3],[4, 6]]
-print(torch.tensor(two_d_list))
+torch.tensor(two_d_list)
 ```
+{{< codeOutput >}}
+tensor([[1, 3],
+        [4, 6]])
+{{< /codeOutput >}}
 
 We can also create tensors with zeros, ones, random numbers, and even with a specific range of numbers. We use a tuple to represent the shape of the tensor.
 
@@ -224,6 +290,15 @@ print(torch_random)
 torch_arange = torch.arange(0, 10, 2)   # 1x5 vector
 print(torch_arange)
 ```
+{{< codeOutput >}}
+tensor([[0., 0.],
+        [0., 0.]])
+tensor([[1., 1.],
+        [1., 1.]])
+tensor([[0.0503, 0.0703],
+        [0.6458, 0.1929]])
+tensor([0, 2, 4, 6, 8])
+{{< /codeOutput >}}
 
 ### Tensor Operations
 
@@ -231,7 +306,7 @@ There are some mathematical manipulations that are performed on tensors. These a
 
 #### Addition and Subtraction
 
-This is no different than a simple addition or subtraction we do on scalar values. e.g. $3 + 5 = 8$. Tensors can also be added or subtracted **if they have the same shape**. Look at the representation i made below; if we imagine a matrix as a sheet of paper, where each cell is a number, addition is just to put the numbers in corresponding cells on top of each other (or vice versa, subtract if we are doing subtraction).
+This is no different than a simple addition or subtraction we do on scalar values. e.g. $3 + 5 = 8$. Tensors can also be added or subtracted **if they have the same shape**. If we imagine a matrix as a sheet of paper, where each cell is a number, addition is just to put the numbers in corresponding cells on top of each other (or vice versa, subtract if we are doing subtraction).
 
 {{< rawhtml >}}
 
@@ -242,8 +317,7 @@ This is no different than a simple addition or subtraction we do on scalar value
 
 {{< /rawhtml >}}
 
-
-In the animation above, we have two $3 \times 3$ tensors. We will imagine the matrices in 3 dimension where 3rd dimension (size of the columns) represent the value in that cell. Addition in this case is to stack corresponding columns together. And the resulting column is the summation.
+In the animation above, we have two $3 \times 3$ tensors. We imagine the matrices in 3 dimension where 3rd dimension (size of the columns) represent the value in that cell (height of 3 means the number on that cell is 3). Addition in this case is to stack corresponding columns together. And the resulting column is the summation.
 
 Let's see what would matrix addition in pure python:
 
@@ -277,12 +351,99 @@ print(matrix_subtraction)
 # same with the subtraction
 matrix_subtraction = torch.sub(matrix_a, matrix_b)
 ```
+{{< codeOutput >}}
+tensor([[ 6,  8],
+        [10, 12]])
+tensor([[-4, -4],
+        [-4, -4]])
+{{< /codeOutput >}}
+
+We can see that it is quite simpler to use pytorch in a case like this. We can test and see how much of a speed difference are we talking about. Above we are only using cpu calculations as well, we can further this and try to utilize our GPU. Let's experiment:
+
+```python
+import time
+import torch
+
+# Function to perform naive Python addition
+def naive_add(x, y):
+    result = []
+    for i in range(len(x)):
+        row = []
+        for j in range(len(x[0])):
+            row.append(x[i][j] + y[i][j])
+        result.append(row)
+    return result
+
+# Size of the matrices (e.g., 5000x5000)
+size = 5000
+num_runs = 10
+
+# Generating random data
+x = [[float(j) for j in range(size)] for i in range(size)]
+y = [[float(j) for j in range(size)] for i in range(size)]
+
+# Converting lists to PyTorch tensors
+x_tensor = torch.tensor(x)
+y_tensor = torch.tensor(y)
+
+# Initialize timers
+naive_times = []
+torch_cpu_times = []
+torch_gpu_times = []
+
+# Check if CUDA is available and prepare tensors for GPU
+if torch.cuda.is_available():
+    x_tensor_gpu = x_tensor.to('cuda')
+    y_tensor_gpu = y_tensor.cuda() # alternatively we can also assign with .cuda()
+
+# Perform multiple runs for each method
+for _ in range(num_runs):
+    # Timing naive Python addition
+    start = time.time()
+    naive_result = naive_add(x, y)
+    naive_times.append(time.time() - start)
+
+    # Timing PyTorch CPU addition
+    start = time.time()
+    result_tensor = x_tensor + y_tensor
+    torch_cpu_times.append(time.time() - start)
+
+    # Timing PyTorch GPU addition if available
+    if torch.cuda.is_available():
+        start = time.time()
+        result_tensor_gpu = x_tensor_gpu + y_tensor_gpu
+        torch.cuda.synchronize() # This is needed to ensure accurate timing (otherwise it's asynchronous)
+        torch_gpu_times.append(time.time() - start)
+
+# Calculate average times
+average_naive_time = sum(naive_times) / len(naive_times)
+average_torch_cpu_time = sum(torch_cpu_times) / len(torch_cpu_times)
+average_torch_gpu_time = sum(torch_gpu_times) / len(torch_gpu_times) if torch_gpu_times else None
+
+# Output results
+print(f"Average Naive Python Addition Time: {average_naive_time:.5f} seconds")
+print(f"Average CPU Addition Time (PyTorch): {average_torch_cpu_time:.5f} seconds")
+if average_torch_gpu_time is not None:
+    print(f"Average GPU Addition Time (PyTorch): {average_torch_gpu_time:.5f} seconds")
+```
+{{< codeOutput >}}
+Average Naive Python Addition Time: 2.14063 seconds
+Average CPU Addition Time (PyTorch): 0.01315 seconds
+Average GPU Addition Time (PyTorch): 0.00161 seconds
+{{< /codeOutput >}}
+
+I ran a $5000 \times 5000$ matrix and we can see the drastic difference between naive python and pytorch versions.
 
 #### Multiplication
 
 There are different ways of multiplication in tensors. We will see the most commonly used ones, that we are actually interested in. These are **element-wise multiplication** and **matrix multiplication/dot product**.
 
-##### Element-wise Multiplication
+**Element-wise Multiplication:**
+
+{{< notice more_resources >}}
+- [Blog: mathisfun.com - How to Multiple Matrices](https://www.mathsisfun.com/algebra/matrix-multiplying.html)
+- [Blog: KhanAcademy - Mulptiplying Matrices](https://www.khanacademy.org/math/precalculus/x9e81a4f98389efdf:matrices/x9e81a4f98389efdf:multiplying-matrices-by-matrices/a/multiplying-matrices)
+{{< /notice >}}
 
 Element-wise multiplication, also known as the Hadamard product (apprently - never heard of this until i was doing research for this post...), involves multiplying elements in two tensors of the same shape just like we did in addition. Think of the sheet of paper example I mentioned.
 
@@ -310,16 +471,25 @@ matrix_b = torch.tensor([[5, 6], [7, 8]])
 elementwise_multiplication = matrix_a * matrix_b
 print(elementwise_multiplication)
 ```
+{{< codeOutput >}}
+tensor([[ 5, 12],
+        [21, 32]])
+{{< /codeOutput >}}
 
-##### Matrix Multiplication / Dot Product
+**Matrix Multiplication / Dot Product:**
+
+{{< notice more_resources >}}
+- [Blog: mathisfun.com - Dot Product](https://www.mathsisfun.com/algebra/vectors-dot-product.html)
+- [Blog: KhanAcademy - Dot Products](https://www.khanacademy.org/math/multivariable-calculus/thinking-about-multivariable-function/x786f2022:vectors-and-matrices/a/dot-products-mvc)
+{{< /notice >}}
 
 This is the only complicated operation in the list that we cover (in my opinion..). In this method, you multiply the rows of the first matrix by the columns of the second matrix and sum up the results to produce a new one.
 
-Again we are doing element wise multiplication but only for the matching row and columns. We then sum these products to get a single number to place in the resulting matrix.
+Again we are doing element wise multiplication but only for the matching row and columns. We then sum these products to get a scalar value to place in the resulting matrix.
 
 ![Visualization of matrix dot product](matrix_dot_product.gif)
 
-###### Why dot product?
+**Why dot product?**
 
 The dot product reflects a form of "interaction" between elements of the original matrices. It's not simply a mathematical operation but a very important tool in handling the relationships and transformations in data.
 
@@ -332,7 +502,7 @@ The dot product of these matrices gives us a new matrix where each element repre
 
 The dot product makes sense because it aggregates the contributions of different elements (e.g., skills) towards an outcome (e.g., tasks) by multiplying them and summing them up. This way we can transition from individual components to an integrated outcome, capturing the essence of relationships and transformations in data.
 
-###### Understanding Matrix Dimensions in Dot Product
+**Understanding Matrix Dimensions in Dot Product**
 
 Let's take an example to clarify how the dimensions work in dot product operations:
 
@@ -382,19 +552,32 @@ print(dot_product)
 dot_product = matrix_a @ matrix_b
 print(dot_product)
 ```
+{{< codeOutput >}}
+tensor([[1.0023, 1.0959],
+        [0.5382, 0.5948]])
+tensor([[1.0023, 1.0959],
+        [0.5382, 0.5948]])
+tensor([[1.0023, 1.0959],
+        [0.5382, 0.5948]])
+{{< /codeOutput >}}
 
 #### Reshaping
 
 This is a critical operation in machine learning. Reshaping is basically converting a tensor into a different shape without changing the data.
 
-We can think of reshaping as a way of reorganizing the boxes in the tensor. We can change the number of dimensions, the size of each dimension, or both.
+We can think of reshaping as a way of reorganizing the boxes in the tensor. We can change the number of dimensions, the size of the dimensions, or both.
 
-Let's see the idea in action in pure python, I know this will look a bit silly, but I think it's nice to see the idea in a simple way.
+Let's see the idea in action in pure python:
 
 ```python
-# reshaping a 2x2 matrix into a 4x1 vector
+# A 4x2 matrix
 matrix = [[1, 2], [3, 4], [5, 6], [7, 8]]
-reshaped_matrix = [1, 2, 3, 4, 5, 6, 7, 8]
+
+# Reshape it into an 8-element vector
+reshaped_matrix = [0] * 8
+for r in range(4):
+    for c in range(2):
+        reshaped_matrix[r * 2 + c] = matrix[r][c]
 ```
 
 And in pytorch:
@@ -403,12 +586,15 @@ And in pytorch:
 import torch
 
 matrix = torch.tensor([[1, 2], [3, 4], [5, 6], [7, 8])
-reshaped_matrix = matrix.view(8)
+reshaped_matrix = matrix.reshape(8)
 print(reshaped_matrix)
 
-# or we can use the reshape function
-reshaped_matrix = matrix.reshape(8)
+# or we can use the view function / same as reshape
+reshaped_matrix = matrix.view(8)
 ```
+{{< codeOutput >}}
+tensor([1, 2, 3, 4, 5, 6, 7, 8])
+{{< /codeOutput >}}
 
 #### Transpose
 
@@ -434,7 +620,7 @@ And in pytorch:
 ```python
 import torch
 
-matrix = torch.tensor([[1, 2], [3, 4], [5, 6])
+matrix = torch.tensor([[1, 2], [3, 4], [5, 6]])
 transposed_matrix = matrix.t()
 
 # or we can use the transpose function
@@ -451,6 +637,9 @@ transposed_matrix = matrix.permute(
     0, 2, 1
 ) # 0, 2, 1 are the new order of the dimensions
 ```
+{{< codeOutput >}}
+torch.Size([2, 4, 3])
+{{< /codeOutput >}}
 
 #### Broadcasting
 
@@ -480,12 +669,17 @@ And in pytorch:
 ```python
 import torch
 
-matrix = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9])
+matrix = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 vector = torch.tensor([1, 2, 3])
 
 result = matrix + vector
 print(result, result.shape)
 ```
+{{< codeOutput >}}
+tensor([[ 2,  4,  6],
+        [ 5,  7,  9],
+        [ 8, 10, 12]]) torch.Size([3, 3])
+{{< /codeOutput >}}
 
 Important thing is that the shapes of the tensors should be compatible for broadcasting. The dimensions of the tensors are compared starting from the last dimension, and the dimensions are compatible when:
 
@@ -530,33 +724,29 @@ first_col = matrix[:, 0]
 
 # get the first two rows and the last two columns
 submatrix = matrix[:2, 1:]
+
+print(first_row)
+print(first_col)
+print(submatrix)
 ```
+{{< codeOutput >}}
+tensor([1, 2, 3])
+tensor([1, 4, 7])
+tensor([[2, 3],
+        [5, 6]])
+{{< /codeOutput >}}
 
 ## The Advantages of Embracing Tensors (Optional)
 
-Tensors are at the core of modern machine learning, acting much like the Swiss Army knife for data scientists and AI researchers. Their power and efficiency in handling numerical computations unlock the potential for tackling complex problems, such as training the vast networks necessary for understanding images or processing natural language.
+Tensors are at the core of modern machine learning, acting much like the Swiss Army knife for data scientists and AI researchers. Their power and efficiency in handling numerical computations unlock the potential for tackling complex problems, such as training the LARGE networks necessary for understanding images or processing natural language. Some of the key benefits of using tensors:
 
-### Parallel Processing: The Speed Boost
+- **Parallel Processing - The Speed Boost:** Consider the difference between tackling a task alone versus in a group where the workload is shared. GPUs, with their capability for parallel processing, treat tensors not as singular entities to be dealt with one at a time but as collections to be processed simultaneously. This approach is akin to a well-coordinated team effort, significantly accelerating the training phases of sophisticated models like Transformers.
+- **Efficiency:** Tensors are designed for optimal data storage and access, ensuring that when computations are performed, especially on GPUs, they proceed without unnecessary delays. This efficiency is similar to having all the tools and materials for a project organized and within reach, minimizing the time spent searching and maximizing the time spent doing.
+- **High-Level Abstractions - Simplifying Complexity:** By offering a high-level abstraction, tensors allow developers to concentrate on the algorithms in a broader sense instead of handling tiny details.
+- **Specialized Libraries:** With libraries like PyTorch, TensorFlow and JAX, the ecosystem around tensors is rich with optimized functions for a wide array of mathematical operations. These libraries harness the architecture of GPUs to enhance performance, making the computation not just faster but also more robust.
+- **Scalability:** As the complexity of machine learning models and the volume of data expand, tensors provide a scalable way to manage this growth. Their compatibility with GPUs means that as tasks become more demanding, the system's ability to process information in parallel can rise to meet the challenge.
 
-Consider the difference between tackling a task alone versus in a group where the workload is shared. GPUs, with their capability for parallel processing, treat tensors not as singular entities to be dealt with one at a time but as collections to be processed simultaneously. This approach is akin to a well-coordinated team effort, significantly accelerating the training phases of sophisticated models like Transformers.
-
-### Efficiency: Optimizing Data Flow
-
-Tensors are designed for optimal data storage and access, ensuring that when computations are performed, especially on GPUs, they proceed without unnecessary delays. This efficiency is similar to having all the tools and materials for a project organized and within reach, minimizing the time spent searching and maximizing the time spent doing.
-
-### High-Level Abstractions: Simplifying Complexity
-
-By offering a high-level abstraction, tensors allow developers to concentrate on the broader strokes of their algorithms and model designs rather than the minutiae of data handling. This shift in focus is comparable to working with a blueprint for building a house, where the emphasis is on the architecture and design, not on manufacturing the bricks.
-
-### Specialized Libraries: Tailored for Performance
-
-With libraries like PyTorch and TensorFlow, the ecosystem around tensors is rich with optimized functions for a wide array of mathematical operations. These libraries harness the architecture of GPUs to enhance performance, making the computation not just faster but also more robust. It's akin to having access to a set of professional-grade tools specifically designed for your project's needs, ensuring both quality and efficiency.
-
-### Scalability: Growing with Grace
-
-As the complexity of machine learning models and the volume of data expand, tensors provide a scalable way to manage this growth. Their compatibility with GPUs means that as tasks become more demanding, the system's ability to process information in parallel can rise to meet the challenge. This scalability is much like upgrading the engine of a car, ensuring it can maintain speed and performance even as the load it carries increases.
-
-In sum, tensors serve as the foundational building blocks for modern AI, enabling the swift and efficient processing of vast datasets. Their role in leveraging the computational might of GPUs, paired with the support of specialized libraries, makes them indispensable for pushing the boundaries of what machine learning can achieve.
+In sum, tensors serve as the foundational building blocks for modern AI, enabling the swift and efficient processing of datasets. Their role in leveraging the computational power of GPUs, paired with the support of specialized libraries, makes them indispensable for pushing the boundaries of what machine learning can achieve. The reason GPUs are this useful is practically because of the way they can handle tensor operations.
 
 # Tokenization: The First Step in Text Processing
 
@@ -713,6 +903,7 @@ That's it! We've implemented a simple BPE tokenizer from scratch.
 
 {{< notice more_resources >}}
 - [Blog: Jay Alammar / The Illustrated GPT-2](http://jalammar.github.io/illustrated-gpt2/)
+{{< /notice >}}
 
 
 
