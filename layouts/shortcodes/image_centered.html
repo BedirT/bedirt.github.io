@@ -1,0 +1,12 @@
+{{/* image_centered.html */}}
+{{ $class := .Get "class" | default "" }}
+{{ $link := .Get "link" }}
+<div class="center-image-wrapper">
+    {{ if $link }}
+    <a href="{{ $link }}" target="_blank" rel="noopener noreferrer">
+        <img src="{{ .Get "src" }}" class="{{ $class }}" alt="{{ .Get "alt" }}">
+    </a>
+    {{ else }}
+    <img src="{{ .Get "src" }}" class="{{ $class }}" alt="{{ .Get "alt" }}">
+    {{ end }}
+</div>

@@ -126,3 +126,33 @@ h2 {
 .comments-counter .remark42__counter {
     font-size: 1em;
 }
+
+.center-image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0; /* Optional for spacing around the image */
+    text-align: center; /* Centers captions if any */
+}
+
+.center-image-wrapper img {
+    max-width: 100%;
+    height: auto; /* Maintains aspect ratio */
+}
+
+.center-image-wrapper a {
+    text-decoration: none; /* Ensure no underline */
+    border: none; /* Remove any borders */
+    outline: none; /* Remove focus outline */
+    box-shadow: none; /* Remove box-shadow */
+}
+
+.center-image-wrapper img {
+    display: block; /* Prevent image from inheriting link styles like underline */
+    transition: transform 0.2s ease-in-out;
+}
+
+.center-image-wrapper a:hover img {
+    transform: scale(1.05); /* Slightly enlarge the image */
+    transition: transform 0.2s ease-in-out;
+}
