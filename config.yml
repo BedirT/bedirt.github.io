@@ -1,6 +1,7 @@
 baseURL: "https://bedirtapkan.com"
 title: Bedir Tapkan
-paginate: 5
+pagination:
+  pagerSize: 5
 theme: ["PaperMod"]
 copyright: "© 2024"
 
